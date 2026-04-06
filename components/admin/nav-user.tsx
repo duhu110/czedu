@@ -20,9 +20,11 @@ import {
   LogOutIcon,
 } from "lucide-react";
 
+import { clearAdminDemoAuth } from "@/lib/admin/demo-auth";
+
 const user = {
-  name: "Shaban Haider",
-  email: "shaban@efferd.com",
+  name: "教育局管理员",
+  email: "admin@demo.local",
   avatar: "https://github.com/shabanhr.png",
 };
 
@@ -49,7 +51,7 @@ export function NavUser() {
                 {user.email}
               </div>
               <div className="mt-0.5 text-[10px] text-muted-foreground">
-                Store owner
+                演示账号
               </div>
             </div>
           </DropdownMenuLabel>
@@ -58,36 +60,36 @@ export function NavUser() {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <UserIcon />
-            Profile
+            账号信息
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <BellIcon />
-            Notifications
+            通知中心
           </DropdownMenuItem>
           <DropdownMenuItem>
             <CommandIcon />
-            Keyboard shortcuts
+            快捷操作
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <LifeBuoyIcon />
-            Seller help
+            使用帮助
           </DropdownMenuItem>
           <DropdownMenuItem>
             <BookOpenIcon />
-            Seller guides
+            审核指南
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <CreditCardIcon />
-            Plan & billing
+            系统说明
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -95,9 +97,13 @@ export function NavUser() {
           <DropdownMenuItem
             className="w-full cursor-pointer"
             variant="destructive"
+            onClick={() => {
+              clearAdminDemoAuth();
+              window.location.replace("/admin/login");
+            }}
           >
             <LogOutIcon />
-            Log out
+            退出登录
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
