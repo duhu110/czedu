@@ -28,4 +28,14 @@ describe("transfer application home page", () => {
     expect(footer.className).toContain("w-full");
     expect(footer.className).toContain("max-w-5xl");
   });
+
+  it("routes the header entry buttons to user and admin", () => {
+    render(<Page />);
+
+    const userLinks = screen.getAllByRole("link", { name: "学生登录" });
+    const adminLinks = screen.getAllByRole("link", { name: "管理后台" });
+
+    expect(userLinks.some((link) => link.getAttribute("href") === "/user")).toBe(true);
+    expect(adminLinks.some((link) => link.getAttribute("href") === "/admin")).toBe(true);
+  });
 });

@@ -55,10 +55,12 @@ export function Header() {
               </Button>
             ))}
           </div>
-          <Button size="sm" variant="outline">
-            学生登录
+          <Button asChild size="sm" variant="outline">
+            <a href="/user">学生登录</a>
           </Button>
-          <Button size="sm">立即评估</Button>
+          <Button asChild size="sm">
+            <a href="/admin">管理后台</a>
+          </Button>
         </div>
         <MobileNav />
       </nav>

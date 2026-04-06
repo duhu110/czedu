@@ -49,10 +49,12 @@ export function MobileNav() {
 							))}
 						</div>
 						<div className="mt-12 flex flex-col gap-2">
-							<Button className="w-full" variant="outline">
-								学生登录
+							<Button asChild className="w-full" variant="outline">
+								<a href="/user">学生登录</a>
 							</Button>
-							<Button className="w-full">立即评估</Button>
+							<Button asChild className="w-full">
+								<a href="/admin">管理后台</a>
+							</Button>
 						</div>
 					</div>
 				</Portal>
