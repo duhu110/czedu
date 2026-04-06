@@ -1,35 +1,29 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 import { getAdminDemoAuth } from "@/lib/admin/demo-auth";
-
-function subscribe(callback: () => void) {
-  window.addEventListener("storage", callback);
-
-  return () => {
-    window.removeEventListener("storage", callback);
-  };
-}
 
 export function AdminAuthGuard({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const authenticated = useSyncExternalStore(
-    subscribe,
-    getAdminDemoAuth,
-    () => false,
-  );
+  const [authenticated, setAuthenticated] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!authenticated) {
+    const currentAuth = getAdminDemoAuth();
+
+    setAuthenticated(currentAuth);
+    setReady(true);
+
+    if (!currentAuth) {
       window.location.replace("/admin/login");
     }
-  }, [authenticated]);
+  }, []);
 
-  if (!authenticated) {
+  if (!ready || !authenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
         正在跳转...
