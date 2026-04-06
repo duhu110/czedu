@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutGridIcon, FileTextIcon } from "lucide-react";
+import { LayoutGridIcon, FileTextIcon, PlusIcon } from "lucide-react";
 
 import { LogoIcon } from "@/components/admin/logo";
 import { AdminLogoutButton } from "@/components/admin/admin-logout-button";
@@ -42,6 +42,21 @@ export function AppSidebar() {
         </SidebarMenuButton>
       </SidebarHeader>
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarMenuItem className="flex items-center gap-2">
+            <SidebarMenuButton
+              asChild
+              className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
+              tooltip="Quick Create"
+            >
+              <Link href="/admin/qrcode">
+                <PlusIcon />
+                <span>新增登记</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarGroup>
+
         <SidebarGroup>
           <SidebarGroupLabel>管理功能</SidebarGroupLabel>
           <SidebarMenu>
