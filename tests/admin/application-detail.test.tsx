@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ApplicationDetail } from "@/components/admin/application-detail";
@@ -23,7 +23,25 @@ describe("ApplicationDetail", () => {
     expect(screen.getByText("学校信息")).toBeInTheDocument();
     expect(screen.getByText("转学原因")).toBeInTheDocument();
     expect(
-      screen.getByText(transferApplications[0].studentName),
-    ).toBeInTheDocument();
+      screen.getAllByText(transferApplications[0].studentName).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("prints the current application sheet", () => {
+    const printSpy = vi.fn();
+    Object.defineProperty(window, "print", {
+      configurable: true,
+      value: printSpy,
+    });
+
+    render(<ApplicationDetail application={transferApplications[0]} />);
+
+    fireEvent.click(screen.getAllByRole("button", { name: "打印申请单" })[0]);
+
+    expect(printSpy).toHaveBeenCalled();
+    expect(screen.getAllByText("学生转学申请单").length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(transferApplications[0].studentId).length,
+    ).toBeGreaterThan(0);
   });
 });

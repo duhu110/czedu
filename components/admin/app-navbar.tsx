@@ -10,6 +10,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { CustomSidebarTrigger } from "@/components/admin/custom-sidebar-trigger";
 import { NavUser } from "@/components/admin/nav-user";
+import { ThemeSwitch } from "@/components/admin/theme-switch";
 
 export function AppNavbar() {
   return (
@@ -32,7 +33,10 @@ export function AppNavbar() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <NavUser />
+      <div className="flex items-center gap-3">
+        <ThemeSwitch />
+        <NavUser />
+      </div>
     </header>
   );
 }

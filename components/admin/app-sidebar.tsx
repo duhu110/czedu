@@ -4,7 +4,6 @@ import Link from "next/link";
 import { LayoutGridIcon, FileTextIcon, PlusIcon } from "lucide-react";
 
 import { LogoIcon } from "@/components/admin/logo";
-import { AdminLogoutButton } from "@/components/admin/admin-logout-button";
 import {
   Sidebar,
   SidebarContent,
@@ -75,9 +74,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <AdminLogoutButton />
-          </SidebarMenuItem>
+          <SidebarMenuItem>城中区教育局</SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
