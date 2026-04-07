@@ -240,14 +240,19 @@ export function SemesterFormDialog({
           </div>
 
           <div className="flex items-center justify-between rounded-3xl bg-muted/40 px-4 py-3">
-            <Label htmlFor="semester-active">设为当前学期</Label>
+            <div className="space-y-1">
+              <Label htmlFor="semester-active">学期启用状态</Label>
+              <p className="text-sm text-muted-foreground">
+                停用后，该学期将不能接受新的报名申请。
+              </p>
+            </div>
             <Controller
               control={form.control}
               name="isActive"
               render={({ field }) => (
                 <Switch
                   id="semester-active"
-                  aria-label="设为当前学期"
+                  aria-label="学期启用状态"
                   checked={field.value}
                   onCheckedChange={field.onChange}
                 />
