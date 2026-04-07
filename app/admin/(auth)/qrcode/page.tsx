@@ -1,4 +1,4 @@
-import { RegistrationQrcodePanel } from "@/components/admin/registration-qrcode-panel";
+import { RegistrationQrcodePanel } from "./_components/registration-qrcode-panel";
 
 export default function AdminQrcodePage() {
   return <RegistrationQrcodePanel />;

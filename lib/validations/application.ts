@@ -4,6 +4,11 @@ import * as z from "zod";
 const phoneRegex = /^1[3-9]\d{9}$/;
 const idCardRegex =
   /^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/;
+const optionalTrimmedString = z.preprocess(
+  (value) =>
+    typeof value === "string" ? (value.trim() || undefined) : value,
+  z.string().optional(),
+);
 
 export const applicationSchema = z
   .object({
@@ -60,5 +65,33 @@ export const applicationSchema = z
     }
   });
 
+export const applicationApprovalSchema = z
+  .object({
+    status: z.enum(["PENDING", "APPROVED", "REJECTED", "SUPPLEMENT"]),
+    adminRemark: optionalTrimmedString,
+    targetSchool: optionalTrimmedString,
+  })
+  .superRefine((data, ctx) => {
+    if (data.status === "APPROVED" && !data.targetSchool) {
+      ctx.addIssue({
+        code: "custom",
+        message: "通过申请时必须指定目标学校",
+        path: ["targetSchool"],
+      });
+    }
+
+    if (
+      (data.status === "REJECTED" || data.status === "SUPPLEMENT") &&
+      !data.adminRemark
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "驳回或要求补充资料时必须填写审核备注",
+        path: ["adminRemark"],
+      });
+    }
+  });
+
 // 导出前端推导类型
 export type ApplicationInput = z.infer<typeof applicationSchema>;
+export type ApplicationApprovalInput = z.infer<typeof applicationApprovalSchema>;

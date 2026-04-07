@@ -8,15 +8,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  mockBasicInfo,
-  mockConfirmedNotices,
-} from "@/lib/transfer-mock";
+import { mockBasicInfo, mockConfirmedNotices } from "../../_mock-data";
 import {
   CheckCircle2,
   FileText,
@@ -161,7 +159,7 @@ const notices: Notice[] = [
   },
 ];
 
-export function ConfirmationPage() {
+export default function ApplicationConfirmationPage() {
   const router = useRouter();
   const [currentNotice, setCurrentNotice] = useState<Notice | null>(null);
   const [confirmedNotices, setConfirmedNotices] =
@@ -195,7 +193,7 @@ export function ConfirmationPage() {
 
   const handleProceed = () => {
     if (canProceed) {
-      router.push("/user/supplement");
+      router.push("/application/supplement");
     }
   };
 
@@ -320,6 +318,9 @@ export function ConfirmationPage() {
                               <FileText className="w-4 h-4 text-primary" />
                               {notice.title}
                             </DialogTitle>
+                            <DialogDescription className="sr-only">
+                              阅读并确认{notice.title}
+                            </DialogDescription>
                           </DialogHeader>
                           <ScrollArea className="h-[60vh] px-4">
                             <div className="text-sm text-foreground whitespace-pre-wrap leading-relaxed pb-4">

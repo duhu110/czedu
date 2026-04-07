@@ -56,7 +56,7 @@ export function Header() {
             ))}
           </div>
           <Button asChild size="sm" variant="outline">
-            <a href="/user">学生登录</a>
+            <a href="/application">学生登录</a>
           </Button>
           <Button asChild size="sm">
             <a href="/admin">管理后台</a>

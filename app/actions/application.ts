@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import {
   applicationSchema,
+  applicationApprovalSchema,
   type ApplicationInput,
 } from "@/lib/validations/application";
 // ✅ 1. 引入生成的数据库模型类型
@@ -175,13 +176,29 @@ export async function updateApplicationStatus(
   id: string,
   status: ApplicationStatus, // ✅ 直接使用 Prisma 生成的枚举类型
   adminRemark?: string,
+  targetSchool?: string,
 ) {
   try {
+    const parsed = applicationApprovalSchema.safeParse({
+      status,
+      adminRemark,
+      targetSchool,
+    });
+
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: parsed.error.issues[0]?.message || "审核数据校验失败",
+      };
+    }
+
     await prisma.application.update({
       where: { id },
       data: {
-        status,
-        adminRemark,
+        status: parsed.data.status,
+        adminRemark: parsed.data.adminRemark,
+        targetSchool:
+          parsed.data.status === "APPROVED" ? parsed.data.targetSchool : null,
       },
     });
 

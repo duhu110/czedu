@@ -167,6 +167,12 @@ export default async function ApplicationDetailPage({
                 </span>
               </div>
               <div className="grid grid-cols-3 py-1 border-b">
+                <span className="text-muted-foreground">分配学校</span>
+                <span className="col-span-2">
+                  {app.targetSchool || "尚未分配"}
+                </span>
+              </div>
+              <div className="grid grid-cols-3 py-1 border-b">
                 <span className="text-muted-foreground">户籍地址</span>
                 <span className="col-span-2">{app.hukouAddress}</span>
               </div>
@@ -182,6 +188,7 @@ export default async function ApplicationDetailPage({
             applicationId={app.id}
             currentStatus={app.status}
             currentRemark={app.adminRemark}
+            currentTargetSchool={app.targetSchool}
           />
         </div>
 

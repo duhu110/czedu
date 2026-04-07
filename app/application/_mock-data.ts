@@ -1,4 +1,22 @@
-import type { BasicInfo, SupplementInfo } from "@/lib/transfer-context";
+export interface BasicInfo {
+  studentName: string;
+  studentId: string;
+  currentSchool: string;
+  currentGrade: string;
+  targetSchool: string;
+  targetGrade: string;
+  phone: string;
+  email: string;
+  reason: string;
+}
+
+export interface SupplementInfo {
+  idCardFront: string | null;
+  idCardBack: string | null;
+  transcript: string | null;
+  transferLetter: string | null;
+  additionalDocs: string[];
+}
 
 const createMockImage = (label: string, color: string) =>
   `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
@@ -36,4 +54,3 @@ export const mockSupplementInfo: SupplementInfo = {
 };
 
 export const mockConfirmedNotices: string[] = [];
-

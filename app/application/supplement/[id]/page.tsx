@@ -4,12 +4,12 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { SupplementInfo } from "@/lib/transfer-context";
 import {
   mockApplicationId,
   mockBasicInfo,
   mockSupplementInfo,
-} from "@/lib/transfer-mock";
+  type SupplementInfo,
+} from "../../_mock-data";
 import {
   Camera,
   X,
@@ -63,7 +63,7 @@ const uploadItems: UploadItem[] = [
   },
 ];
 
-export function SupplementForm() {
+export default function ApplicationSupplementPage() {
   const router = useRouter();
   const [formData, setFormData] = useState<SupplementInfo>(mockSupplementInfo);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -120,12 +120,12 @@ export function SupplementForm() {
   };
 
   const handleGoBack = () => {
-    router.push("/user/confirmation");
+    router.push("/application/confirmation");
   };
 
   const handleSuccessClose = () => {
     setShowSuccess(false);
-    router.push("/user");
+    router.push("/application");
   };
 
   return (
@@ -133,7 +133,12 @@ export function SupplementForm() {
       {/* Header */}
       <div className="bg-primary px-4 pt-12 pb-6">
         <div className="flex items-center gap-3">
-          <button onClick={handleGoBack} className="text-primary-foreground">
+          <button
+            type="button"
+            aria-label="返回确认结果"
+            onClick={handleGoBack}
+            className="text-primary-foreground"
+          >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
@@ -362,7 +367,9 @@ export function SupplementForm() {
               <CardContent className="p-4 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">申请人</span>
-                  <span className="font-medium">{mockBasicInfo.studentName}</span>
+                  <span className="font-medium">
+                    {mockBasicInfo.studentName}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">目标学校</span>

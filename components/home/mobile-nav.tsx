@@ -50,7 +50,7 @@ export function MobileNav() {
 						</div>
 						<div className="mt-12 flex flex-col gap-2">
 							<Button asChild className="w-full" variant="outline">
-								<a href="/user">学生登录</a>
+								<a href="/application">学生登录</a>
 							</Button>
 							<Button asChild className="w-full">
 								<a href="/admin">管理后台</a>

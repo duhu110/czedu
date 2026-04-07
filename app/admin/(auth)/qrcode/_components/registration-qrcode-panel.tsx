@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { RefreshCcwIcon, QrCodeIcon } from "lucide-react";
 
-import { QRCode } from "@/components/admin/qr-code";
+import { QRCode } from "./qr-code";
 import {
   buildRegistrationQrSession,
   getSecondsUntilNextRefresh,
-} from "@/lib/admin/qrcode-demo";
+} from "./qrcode-session";
 
 function formatRefreshTime(date: Date) {
   return new Intl.DateTimeFormat("zh-CN", {

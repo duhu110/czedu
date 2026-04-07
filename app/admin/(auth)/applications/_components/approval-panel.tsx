@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 
 import { updateApplicationStatus } from "@/app/actions/application";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
@@ -21,20 +22,28 @@ interface ApprovalPanelProps {
   applicationId: string;
   currentStatus: ApplicationStatus;
   currentRemark: string | null;
+  currentTargetSchool: string | null;
 }
 
 export function ApprovalPanel({
   applicationId,
   currentStatus,
   currentRemark,
+  currentTargetSchool,
 }: ApprovalPanelProps) {
   const router = useRouter();
   const [remark, setRemark] = useState(currentRemark || "");
+  const [targetSchool, setTargetSchool] = useState(currentTargetSchool || "");
   const [isSubmitting, setIsSubmitting] = useState<ApplicationStatus | null>(
     null,
   );
 
   const handleAction = async (status: ApplicationStatus) => {
+    if (status === "APPROVED" && !targetSchool.trim()) {
+      toast.error("通过申请时请填写目标学校");
+      return;
+    }
+
     // 如果是驳回或要求补充，最好强制要求填备注
     if ((status === "REJECTED" || status === "SUPPLEMENT") && !remark.trim()) {
       toast.error("请填写审核备注告知家长原因");
@@ -42,7 +51,12 @@ export function ApprovalPanel({
     }
 
     setIsSubmitting(status);
-    const res = await updateApplicationStatus(applicationId, status, remark);
+    const res = await updateApplicationStatus(
+      applicationId,
+      status,
+      remark,
+      targetSchool,
+    );
     setIsSubmitting(null);
 
     if (res.success) {
@@ -59,6 +73,16 @@ export function ApprovalPanel({
         <CardTitle className="text-lg">审核操作区</CardTitle>
       </CardHeader>
       <CardContent className="pt-4 space-y-4">
+        <div>
+          <label className="text-sm font-medium mb-1 block">
+            目标学校（通过时必填）
+          </label>
+          <Input
+            placeholder="例如：城中区第一小学"
+            value={targetSchool}
+            onChange={(e) => setTargetSchool(e.target.value)}
+          />
+        </div>
         <div>
           <label className="text-sm font-medium mb-1 block">
             审核备注（必填：针对驳回/补充的情况）

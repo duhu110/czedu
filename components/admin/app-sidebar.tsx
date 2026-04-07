@@ -38,7 +38,7 @@ const navItems = [
   },
   {
     title: "申请管理",
-    url: "/admin/users",
+    url: "/admin/applications",
     icon: <FileTextIcon />,
   },
   {

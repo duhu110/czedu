@@ -13,25 +13,25 @@ const mockPages = [
   {
     title: "基本资料录入",
     description: "查看移动端转学申请录入页，表单已预置 Mock 数据。",
-    href: "/user/form",
+    href: "/application/new",
     icon: ClipboardPenLine,
   },
   {
     title: "审核中",
     description: "查看提交申请后的审核进度和时间线展示。",
-    href: "/user/pending",
+    href: "/application/pending",
     icon: FileClock,
   },
   {
     title: "确认结果",
     description: "查看审核通过后的须知确认与下一步动作。",
-    href: "/user/confirmation",
+    href: "/application/confirmation",
     icon: CheckCircle2,
   },
   {
     title: "补充材料",
     description: "查看材料上传页，内置材料预览和提交流程。",
-    href: "/user/supplement",
+    href: "/application/supplement",
     icon: Files,
   },
 ] as const;
@@ -41,7 +41,7 @@ export default function UserPage() {
     <div className="min-h-screen bg-background px-4 py-10">
       <div className="mx-auto max-w-md space-y-6">
         <div className="space-y-2 text-center">
-          <p className="text-sm font-medium text-primary">Mock Navigation</p>
+          <p className="text-sm font-medium text-primary">转学申请系统</p>
           <h1 className="text-2xl font-semibold text-foreground">
             转学申请移动端状态预览
           </h1>
@@ -49,7 +49,6 @@ export default function UserPage() {
             选择任一状态页独立查看，不再依赖流程上下文。
           </p>
         </div>
-
         <div className="space-y-4">
           {mockPages.map((page) => {
             const Icon = page.icon;

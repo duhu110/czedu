@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { mockApplicationId, mockBasicInfo } from "@/lib/transfer-mock";
+import { mockApplicationId, mockBasicInfo } from "../../_mock-data";
 import {
   Clock,
   CheckCircle2,
@@ -13,7 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-export function PendingPage() {
+export default function ApplicationPendingPage() {
   const timeline = [
     {
       title: "提交申请",
@@ -174,7 +174,7 @@ export function PendingPage() {
       {/* Demo Button */}
       <div className="px-4 mt-6">
         <Button asChild className="w-full h-12 gap-2">
-          <Link href="/user/confirmation">
+          <Link href="/application/confirmation">
             <FileText className="w-4 h-4" />
             查看审核结果
             <ArrowRight className="w-4 h-4" />

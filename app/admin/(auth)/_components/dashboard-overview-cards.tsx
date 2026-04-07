@@ -6,31 +6,39 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getTransferDashboardSummary } from "@/lib/admin/mock-transfer-applications";
 
-export function ApplicationOverviewCards() {
-  const summary = getTransferDashboardSummary();
-
+export function DashboardOverviewCards({
+  semesterName,
+  stats,
+}: {
+  semesterName: string;
+  stats: {
+    total: number;
+    pending: number;
+    supplementRequired: number;
+    approved: number;
+  };
+}) {
   const cards = [
     {
       title: "申请总数",
-      value: summary.total,
-      note: "当前系统内全部转学申请记录",
+      value: stats.total,
+      note: "当前启用学期内全部转学申请记录",
     },
     {
-      title: "申请中",
-      value: summary.pending,
-      note: "等待教育局完成初审",
+      title: "待审核",
+      value: stats.pending,
+      note: "等待管理员完成审核处理",
     },
     {
       title: "待补充资料",
-      value: summary.supplementRequired,
+      value: stats.supplementRequired,
       note: "需要通知家长补齐材料",
     },
     {
       title: "审核通过",
-      value: summary.approved,
-      note: "已通过审核并待学校接收",
+      value: stats.approved,
+      note: "已通过并完成目标学校分配",
     },
   ];
 
@@ -42,9 +50,9 @@ export function ApplicationOverviewCards() {
             <CardDescription>{card.title}</CardDescription>
             <CardTitle className="text-3xl">{card.value}</CardTitle>
           </CardHeader>
-          <CardFooter className="flex items-center justify-between text-sm text-muted-foreground">
+          <CardFooter className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
             <span>{card.note}</span>
-            <Badge variant="outline">实时 DEMO</Badge>
+            <Badge variant="outline">{semesterName}</Badge>
           </CardFooter>
         </Card>
       ))}

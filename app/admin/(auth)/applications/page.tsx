@@ -73,6 +73,7 @@ export default async function AdminApplicationsPage({
               <TableHead>身份证号</TableHead>
               <TableHead>当前学校与年级</TableHead>
               <TableHead>申请转入年级</TableHead>
+              <TableHead>分配学校</TableHead>
               <TableHead>户籍类型</TableHead>
               <TableHead>提交时间</TableHead>
               <TableHead>状态</TableHead>
@@ -83,7 +84,7 @@ export default async function AdminApplicationsPage({
             {applications.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={9}
                   className="h-24 text-center text-muted-foreground"
                 >
                   暂无转学申请数据
@@ -101,6 +102,7 @@ export default async function AdminApplicationsPage({
                     </span>
                   </TableCell>
                   <TableCell>{app.targetGrade}</TableCell>
+                  <TableCell>{app.targetSchool || "-"}</TableCell>
                   <TableCell>
                     {app.residencyType === "LOCAL" ? "城中区" : "非城中区"}
                   </TableCell>
