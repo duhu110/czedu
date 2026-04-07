@@ -38,14 +38,34 @@ import {
   type SemesterFormInput,
 } from "@/lib/validations/semester";
 
-type SemesterFormDialogProps = {
-  mode: "create" | "edit";
-  semester?: SemesterLike & { id: string };
+type SharedSemesterFormDialogProps = {
   trigger?: React.ReactNode;
   defaultOpen?: boolean;
 };
 
-function formatDateInputValue(date: Date) {
+type CreateSemesterFormDialogProps = SharedSemesterFormDialogProps & {
+  mode: "create";
+  semester?: never;
+};
+
+type EditSemesterFormDialogProps = SharedSemesterFormDialogProps & {
+  mode: "edit";
+  semester: SemesterLike & { id: string };
+};
+
+type SemesterFormDialogProps =
+  | CreateSemesterFormDialogProps
+  | EditSemesterFormDialogProps;
+
+function isValidDate(date: unknown): date is Date {
+  return date instanceof Date && !Number.isNaN(date.getTime());
+}
+
+function formatDateInputValue(date?: Date | null) {
+  if (!isValidDate(date)) {
+    return "";
+  }
+
   const year = date.getUTCFullYear();
   const month = `${date.getUTCMonth() + 1}`.padStart(2, "0");
   const day = `${date.getUTCDate()}`.padStart(2, "0");
@@ -54,30 +74,41 @@ function formatDateInputValue(date: Date) {
 }
 
 function parseDateInputValue(value: string) {
+  if (!value) {
+    return null;
+  }
+
   const [year, month, day] = value.split("-").map(Number);
 
-  return new Date(Date.UTC(year, month - 1, day));
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+
+  return isValidDate(parsed) ? parsed : null;
 }
 
-export function SemesterFormDialog({
-  mode,
-  semester,
-  trigger,
-  defaultOpen = false,
-}: SemesterFormDialogProps) {
-  const getInitialValues = React.useCallback(() => {
+function getDescribedByValue(...ids: Array<string | undefined>) {
+  const value = ids.filter(Boolean).join(" ");
+
+  return value || undefined;
+}
+
+export function SemesterFormDialog(props: SemesterFormDialogProps) {
+  const { mode, trigger, defaultOpen = false } = props;
+
+  if (mode === "edit" && !props.semester) {
+    throw new Error("SemesterFormDialog requires a semester in edit mode.");
+  }
+
+  const semester = mode === "edit" ? props.semester : undefined;
+  const getDialogValues = React.useCallback(() => {
     return mode === "edit" && semester
       ? inferSemesterFormValues(semester)
       : getDefaultSemesterFormValues();
-  }, [
-    mode,
-    semester,
-  ]);
+  }, [mode, semester]);
   const [open, setOpen] = React.useState(defaultOpen);
-  const initialValues = React.useMemo(() => getInitialValues(), [getInitialValues]);
+  const initialValuesRef = React.useRef(getDialogValues());
   const form = useForm<SemesterFormInput>({
     resolver: zodResolver(semesterFormSchema),
-    defaultValues: initialValues,
+    defaultValues: initialValuesRef.current,
   });
   const year = form.watch("year");
   const term = form.watch("term");
@@ -85,24 +116,30 @@ export function SemesterFormDialog({
   const endDate = form.watch("endDate");
   const allowedWindow = getSemesterWindow(year, term);
   const previousTemplateRef = React.useRef({
-    year: initialValues.year,
-    term: initialValues.term,
+    year: initialValuesRef.current.year,
+    term: initialValuesRef.current.term,
   });
   const generatedName = buildSemesterName(year, term);
   const title = mode === "create" ? "创建学期" : "编辑学期";
   const submitLabel = mode === "create" ? "创建学期" : "保存学期";
+  const yearErrorId = "semester-year-error";
+  const termErrorId = "semester-term-error";
+  const startDateErrorId = "semester-start-date-error";
+  const endDateErrorId = "semester-end-date-error";
+  const activeHelpId = "semester-active-help";
 
   React.useEffect(() => {
     if (!open) {
       return;
     }
 
+    const nextValues = getDialogValues();
     previousTemplateRef.current = {
-      year: initialValues.year,
-      term: initialValues.term,
+      year: nextValues.year,
+      term: nextValues.term,
     };
-    form.reset(initialValues);
-  }, [form, initialValues, open]);
+    form.reset(nextValues);
+  }, [form, getDialogValues, open]);
 
   React.useEffect(() => {
     const previousTemplate = previousTemplateRef.current;
@@ -119,14 +156,20 @@ export function SemesterFormDialog({
       return;
     }
 
-    if (startDate < allowedWindow.start || startDate > allowedWindow.end) {
+    if (
+      isValidDate(startDate) &&
+      (startDate < allowedWindow.start || startDate > allowedWindow.end)
+    ) {
       form.setValue("startDate", allowedWindow.start, {
         shouldDirty: true,
         shouldValidate: true,
       });
     }
 
-    if (endDate < allowedWindow.start || endDate > allowedWindow.end) {
+    if (
+      isValidDate(endDate) &&
+      (endDate < allowedWindow.start || endDate > allowedWindow.end)
+    ) {
       form.setValue("endDate", allowedWindow.end, {
         shouldDirty: true,
         shouldValidate: true,
@@ -147,7 +190,7 @@ export function SemesterFormDialog({
 
     toast.success(mode === "create" ? "学期创建成功" : "学期更新成功");
     setOpen(false);
-    form.reset(getInitialValues());
+    form.reset(getDialogValues());
   }
 
   return (
@@ -174,7 +217,15 @@ export function SemesterFormDialog({
                     value={String(field.value)}
                     onValueChange={(value) => field.onChange(Number(value))}
                   >
-                    <SelectTrigger id="semester-year" aria-label="学年" className="w-full">
+                    <SelectTrigger
+                      id="semester-year"
+                      aria-label="学年"
+                      aria-invalid={Boolean(form.formState.errors.year)}
+                      aria-describedby={getDescribedByValue(
+                        form.formState.errors.year ? yearErrorId : undefined,
+                      )}
+                      className="w-full"
+                    >
                       <SelectValue placeholder="选择学年" />
                     </SelectTrigger>
                     <SelectContent>
@@ -188,7 +239,9 @@ export function SemesterFormDialog({
                 )}
               />
               {form.formState.errors.year ? (
-                <p className="text-sm text-destructive">{form.formState.errors.year.message}</p>
+                <p id={yearErrorId} className="text-sm text-destructive">
+                  {form.formState.errors.year.message}
+                </p>
               ) : null}
             </div>
 
@@ -199,7 +252,15 @@ export function SemesterFormDialog({
                 name="term"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="semester-term" aria-label="学期" className="w-full">
+                    <SelectTrigger
+                      id="semester-term"
+                      aria-label="学期"
+                      aria-invalid={Boolean(form.formState.errors.term)}
+                      aria-describedby={getDescribedByValue(
+                        form.formState.errors.term ? termErrorId : undefined,
+                      )}
+                      className="w-full"
+                    >
                       <SelectValue placeholder="选择学期" />
                     </SelectTrigger>
                     <SelectContent>
@@ -210,7 +271,9 @@ export function SemesterFormDialog({
                 )}
               />
               {form.formState.errors.term ? (
-                <p className="text-sm text-destructive">{form.formState.errors.term.message}</p>
+                <p id={termErrorId} className="text-sm text-destructive">
+                  {form.formState.errors.term.message}
+                </p>
               ) : null}
             </div>
           </div>
@@ -225,6 +288,10 @@ export function SemesterFormDialog({
                   <Input
                     id="semester-start-date"
                     aria-label="开始日期"
+                    aria-invalid={Boolean(form.formState.errors.startDate)}
+                    aria-describedby={getDescribedByValue(
+                      form.formState.errors.startDate ? startDateErrorId : undefined,
+                    )}
                     type="date"
                     min={formatDateInputValue(allowedWindow.start)}
                     max={formatDateInputValue(allowedWindow.end)}
@@ -234,7 +301,9 @@ export function SemesterFormDialog({
                 )}
               />
               {form.formState.errors.startDate ? (
-                <p className="text-sm text-destructive">{form.formState.errors.startDate.message}</p>
+                <p id={startDateErrorId} className="text-sm text-destructive">
+                  {form.formState.errors.startDate.message}
+                </p>
               ) : null}
             </div>
 
@@ -247,6 +316,10 @@ export function SemesterFormDialog({
                   <Input
                     id="semester-end-date"
                     aria-label="结束日期"
+                    aria-invalid={Boolean(form.formState.errors.endDate)}
+                    aria-describedby={getDescribedByValue(
+                      form.formState.errors.endDate ? endDateErrorId : undefined,
+                    )}
                     type="date"
                     min={formatDateInputValue(allowedWindow.start)}
                     max={formatDateInputValue(allowedWindow.end)}
@@ -256,7 +329,9 @@ export function SemesterFormDialog({
                 )}
               />
               {form.formState.errors.endDate ? (
-                <p className="text-sm text-destructive">{form.formState.errors.endDate.message}</p>
+                <p id={endDateErrorId} className="text-sm text-destructive">
+                  {form.formState.errors.endDate.message}
+                </p>
               ) : null}
             </div>
           </div>
@@ -264,7 +339,7 @@ export function SemesterFormDialog({
           <div className="flex items-center justify-between rounded-3xl bg-muted/40 px-4 py-3">
             <div className="space-y-1">
               <Label htmlFor="semester-active">学期启用状态</Label>
-              <p className="text-sm text-muted-foreground">
+              <p id={activeHelpId} className="text-sm text-muted-foreground">
                 停用后，该学期将不能接受新的报名申请。
               </p>
             </div>
@@ -275,6 +350,7 @@ export function SemesterFormDialog({
                 <Switch
                   id="semester-active"
                   aria-label="学期启用状态"
+                  aria-describedby={activeHelpId}
                   checked={field.value}
                   onCheckedChange={field.onChange}
                 />

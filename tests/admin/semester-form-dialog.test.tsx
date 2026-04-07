@@ -92,6 +92,12 @@ describe("SemesterFormDialog", () => {
     expect(screen.getByRole("switch", { name: "学期启用状态" })).not.toBeChecked();
   });
 
+  it("fails safely when edit mode is wired without a semester", () => {
+    expect(() =>
+      render(<SemesterFormDialog mode="edit" defaultOpen semester={undefined as never} />),
+    ).toThrow("SemesterFormDialog requires a semester in edit mode.");
+  });
+
   it("recomputes the generated name and template dates when term or year changes", () => {
     render(<SemesterFormDialog mode="create" defaultOpen />);
 
@@ -118,14 +124,68 @@ describe("SemesterFormDialog", () => {
     expect(screen.getByLabelText("结束日期")).toHaveAttribute("max", "2027-03-01");
   });
 
+  it("recomputes create defaults each time the dialog opens", () => {
+    render(
+      <SemesterFormDialog
+        mode="create"
+        trigger={<button type="button">打开学期表单</button>}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "打开学期表单" }));
+
+    expect(screen.getByLabelText("学期名称")).toHaveValue("2026年秋季");
+    expect(screen.getByLabelText("开始日期")).toHaveValue("2026-03-01");
+    expect(screen.getByLabelText("结束日期")).toHaveValue("2026-09-01");
+
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    vi.setSystemTime(new Date("2026-10-01T08:00:00.000Z"));
+    fireEvent.click(screen.getByRole("button", { name: "打开学期表单" }));
+
+    expect(screen.getByLabelText("学期名称")).toHaveValue("2027年春季");
+    expect(screen.getByLabelText("开始日期")).toHaveValue("2026-09-01");
+    expect(screen.getByLabelText("结束日期")).toHaveValue("2027-03-01");
+  });
+
+  it("keeps cleared native date inputs empty and exposes validation state accessibly", async () => {
+    render(<SemesterFormDialog mode="create" defaultOpen />);
+
+    const startDateInput = screen.getByLabelText("开始日期");
+    const endDateInput = screen.getByLabelText("结束日期");
+    const activeSwitch = screen.getByRole("switch", { name: "学期启用状态" });
+
+    fireEvent.change(startDateInput, { target: { value: "" } });
+
+    expect(startDateInput).toHaveValue("");
+    expect(startDateInput).not.toHaveValue("NaN-NaN-NaN");
+    expect(activeSwitch).toHaveAttribute("aria-describedby", "semester-active-help");
+
+    fireEvent.click(screen.getByRole("button", { name: "创建学期" }));
+    await vi.runAllTimersAsync();
+
+    const startDateError = document.getElementById("semester-start-date-error");
+
+    expect(startDateError).toBeInTheDocument();
+    expect(startDateError?.textContent).not.toBe("");
+    expect(startDateInput).toHaveAttribute("aria-invalid", "true");
+    expect(startDateInput).toHaveAttribute(
+      "aria-describedby",
+      expect.stringContaining("semester-start-date-error"),
+    );
+    expect(endDateInput).toHaveAttribute("aria-invalid", "false");
+  });
+
   it("keeps the create wrapper as the create-mode entry path", async () => {
     vi.resetModules();
 
-    const sharedDialogSpy = vi.fn(() => <div data-testid="shared-dialog" />);
+    const capturedProps: unknown[] = [];
 
     vi.doMock("@/components/admin/semester/semester-form-dialog", () => ({
       CreateSemesterDialogTrigger: () => <button type="button">新增学期</button>,
-      SemesterFormDialog: sharedDialogSpy,
+      SemesterFormDialog: (props: unknown) => {
+        capturedProps.push(props);
+        return <div data-testid="shared-dialog" />;
+      },
     }));
 
     const { CreateSemesterDialog } = await import("@/components/admin/semester/create-dialog");
@@ -133,12 +193,11 @@ describe("SemesterFormDialog", () => {
     render(<CreateSemesterDialog />);
 
     expect(screen.getByTestId("shared-dialog")).toBeInTheDocument();
-    expect(sharedDialogSpy).toHaveBeenCalledWith(
+    expect(capturedProps[0]).toEqual(
       expect.objectContaining({
         mode: "create",
         trigger: expect.anything(),
       }),
-      undefined,
     );
 
     vi.doUnmock("@/components/admin/semester/semester-form-dialog");
