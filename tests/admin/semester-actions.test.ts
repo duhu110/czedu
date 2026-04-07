@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { semesterSchema, type SemesterInput } from "@/lib/validations/semester";
+
 const mocks = vi.hoisted(() => ({
   semesterFindMany: vi.fn(),
   semesterCreate: vi.fn(),
@@ -30,6 +32,17 @@ describe("semester actions", () => {
     vi.clearAllMocks();
   });
 
+  it("keeps the legacy semester validation exports compatible", () => {
+    const values: SemesterInput = {
+      name: "2026年秋季",
+      startDate: new Date("2026-03-01T00:00:00.000Z"),
+      endDate: new Date("2026-09-01T00:00:00.000Z"),
+      isActive: true,
+    };
+
+    expect(semesterSchema.parse(values)).toEqual(values);
+  });
+
   it("creates a semester from form values", async () => {
     const values = {
       year: 2026,
@@ -55,6 +68,7 @@ describe("semester actions", () => {
         isActive: true,
       },
     });
+    expect(mocks.revalidatePath).toHaveBeenCalledTimes(2);
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(1, "/admin/semesters");
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(2, "/admin");
   });
@@ -132,6 +146,7 @@ describe("semester actions", () => {
         isActive: false,
       },
     });
+    expect(mocks.revalidatePath).toHaveBeenCalledTimes(2);
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(1, "/admin/semesters");
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(2, "/admin");
   });
@@ -151,6 +166,7 @@ describe("semester actions", () => {
       where: { id: "semester-2027-spring" },
       data: { isActive: true },
     });
+    expect(mocks.revalidatePath).toHaveBeenCalledTimes(2);
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(1, "/admin/semesters");
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(2, "/admin");
   });

@@ -8,12 +8,8 @@ export const semesterFormSchema = z
   .object({
     year: z.number().int("学年必须是整数"),
     term: z.enum(["春季", "秋季"]),
-    startDate: z.date({
-      required_error: "请选择开始日期",
-    } as z.RawCreateParams),
-    endDate: z.date({
-      required_error: "请选择结束日期",
-    } as z.RawCreateParams),
+    startDate: z.date({ error: "请选择开始日期" }),
+    endDate: z.date({ error: "请选择结束日期" }),
     isActive: z.boolean(),
   })
   .superRefine((values, ctx) => {
@@ -46,17 +42,15 @@ export const semesterFormSchema = z
 
 export const semesterMutationSchema = z.object({
   name: z.string().min(2, "学期名称至少2个字符"),
-  startDate: z.date({
-    required_error: "请选择开始日期",
-  } as z.RawCreateParams),
-  endDate: z.date({
-    required_error: "请选择结束日期",
-  } as z.RawCreateParams),
+  startDate: z.date({ error: "请选择开始日期" }),
+  endDate: z.date({ error: "请选择结束日期" }),
   isActive: z.boolean(),
 });
 
 export type SemesterFormInput = z.infer<typeof semesterFormSchema>;
 export type SemesterMutationInput = z.infer<typeof semesterMutationSchema>;
+export const semesterSchema = semesterMutationSchema;
+export type SemesterInput = SemesterMutationInput;
 
 export function toSemesterMutationInput(values: SemesterFormInput): SemesterMutationInput {
   return semesterMutationSchema.parse({
