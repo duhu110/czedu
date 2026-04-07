@@ -84,6 +84,10 @@ export function SemesterFormDialog({
   const startDate = form.watch("startDate");
   const endDate = form.watch("endDate");
   const allowedWindow = getSemesterWindow(year, term);
+  const previousTemplateRef = React.useRef({
+    year: initialValues.year,
+    term: initialValues.term,
+  });
   const generatedName = buildSemesterName(year, term);
   const title = mode === "create" ? "创建学期" : "编辑学期";
   const submitLabel = mode === "create" ? "创建学期" : "保存学期";
@@ -93,10 +97,28 @@ export function SemesterFormDialog({
       return;
     }
 
+    previousTemplateRef.current = {
+      year: initialValues.year,
+      term: initialValues.term,
+    };
     form.reset(initialValues);
   }, [form, initialValues, open]);
 
   React.useEffect(() => {
+    const previousTemplate = previousTemplateRef.current;
+    if (previousTemplate.year !== year || previousTemplate.term !== term) {
+      previousTemplateRef.current = { year, term };
+      form.setValue("startDate", allowedWindow.start, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      form.setValue("endDate", allowedWindow.end, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      return;
+    }
+
     if (startDate < allowedWindow.start || startDate > allowedWindow.end) {
       form.setValue("startDate", allowedWindow.start, {
         shouldDirty: true,

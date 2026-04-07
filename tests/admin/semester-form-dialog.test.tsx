@@ -92,6 +92,32 @@ describe("SemesterFormDialog", () => {
     expect(screen.getByRole("switch", { name: "学期启用状态" })).not.toBeChecked();
   });
 
+  it("recomputes the generated name and template dates when term or year changes", () => {
+    render(<SemesterFormDialog mode="create" defaultOpen />);
+
+    fireEvent.click(screen.getByRole("combobox", { name: "学期" }));
+    fireEvent.click(screen.getByRole("option", { name: "春季" }));
+
+    expect(screen.getByLabelText("学期名称")).toHaveValue("2026年春季");
+    expect(screen.getByLabelText("开始日期")).toHaveValue("2025-09-01");
+    expect(screen.getByLabelText("结束日期")).toHaveValue("2026-03-01");
+    expect(screen.getByLabelText("开始日期")).toHaveAttribute("min", "2025-09-01");
+    expect(screen.getByLabelText("开始日期")).toHaveAttribute("max", "2026-03-01");
+    expect(screen.getByLabelText("结束日期")).toHaveAttribute("min", "2025-09-01");
+    expect(screen.getByLabelText("结束日期")).toHaveAttribute("max", "2026-03-01");
+
+    fireEvent.click(screen.getByRole("combobox", { name: "学年" }));
+    fireEvent.click(screen.getByRole("option", { name: "2027" }));
+
+    expect(screen.getByLabelText("学期名称")).toHaveValue("2027年春季");
+    expect(screen.getByLabelText("开始日期")).toHaveValue("2026-09-01");
+    expect(screen.getByLabelText("结束日期")).toHaveValue("2027-03-01");
+    expect(screen.getByLabelText("开始日期")).toHaveAttribute("min", "2026-09-01");
+    expect(screen.getByLabelText("开始日期")).toHaveAttribute("max", "2027-03-01");
+    expect(screen.getByLabelText("结束日期")).toHaveAttribute("min", "2026-09-01");
+    expect(screen.getByLabelText("结束日期")).toHaveAttribute("max", "2027-03-01");
+  });
+
   it("keeps the create wrapper as the create-mode entry path", async () => {
     vi.resetModules();
 
