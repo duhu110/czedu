@@ -2,6 +2,10 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { ApplicationPrintSheet } from "./application-print-sheet";
+import {
+  formatPrintTimeLabel,
+  getPendingLookupUrl,
+} from "./application-print-utils";
 
 const application = {
   id: "app-pending-001",
@@ -59,5 +63,19 @@ describe("ApplicationPrintSheet", () => {
     expect(
       screen.getByText("https://czedu.local/application/pending/app-pending-001"),
     ).toBeInTheDocument();
+  });
+});
+
+describe("application-print-utils", () => {
+  it("builds a pending lookup url from an origin", () => {
+    expect(getPendingLookupUrl("app-42", "https://czedu.local")).toBe(
+      "https://czedu.local/application/pending/app-42",
+    );
+  });
+
+  it("formats print time in zh-CN style", () => {
+    expect(
+      formatPrintTimeLabel(new Date("2026-04-07T20:15:00+08:00")),
+    ).toMatch(/2026/);
   });
 });

@@ -32,3 +32,18 @@ export function getFallbackText(
 ) {
   return value && value.trim() ? value : fallback;
 }
+
+export function getPendingLookupUrl(id: string, origin: string) {
+  return new URL(`/application/pending/${id}`, origin).toString();
+}
+
+export function formatPrintTimeLabel(date: Date) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+}

@@ -6,6 +6,10 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import { getApplicationById } from "@/app/actions/application";
 import { ApprovalPanel } from "../_components/approval-panel";
 import { ApplicationPrintSheet } from "../_components/application-print-sheet";
+import {
+  formatPrintTimeLabel,
+  getPendingLookupUrl,
+} from "../_components/application-print-utils";
 import { PrintApplicationButton } from "../_components/print-application-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -73,15 +77,11 @@ export default async function ApplicationDetailPage({
     notFound();
   }
 
-  const printTimeLabel = new Intl.DateTimeFormat("zh-CN", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(new Date());
-  const pendingLookupUrl = `/application/pending/${app.id}`;
+  const printTimeLabel = formatPrintTimeLabel(new Date());
+  const pendingLookupUrl = getPendingLookupUrl(
+    app.id,
+    "https://czedu.local",
+  );
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
