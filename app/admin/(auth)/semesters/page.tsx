@@ -1,6 +1,12 @@
-import prisma from "@/lib/prisma";
 import { format } from "date-fns";
-import { zhCN } from "date-fns/locale";
+
+import { getSemesters } from "@/app/actions/semester";
+import { CreateSemesterDialog } from "@/components/admin/semester/create-dialog";
+import { DeleteSemesterButton } from "@/components/admin/semester/delete-button";
+import { ToggleActiveButton } from "@/components/admin/semester/toggle-active-button";
+import { SemesterFormDialog } from "@/components/admin/semester/semester-form-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -9,14 +15,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CreateSemesterDialog } from "@/components/admin/semester/create-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { getSemesterTimelineStatus } from "@/lib/semester";
 
 export default async function SemesterPage() {
-  const semesters = await prisma.semester.findMany({
-    orderBy: { startDate: "desc" },
-  });
+  const semesters = await getSemesters();
 
   return (
     <div className="p-6 space-y-6">
@@ -36,7 +38,8 @@ export default async function SemesterPage() {
             <TableRow>
               <TableHead>学期名称</TableHead>
               <TableHead>起止日期</TableHead>
-              <TableHead>状态</TableHead>
+              <TableHead>时间状态</TableHead>
+              <TableHead>启用状态</TableHead>
               <TableHead className="text-right">操作</TableHead>
             </TableRow>
           </TableHeader>
@@ -44,7 +47,7 @@ export default async function SemesterPage() {
             {semesters.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={4}
+                  colSpan={5}
                   className="h-32 text-center text-muted-foreground"
                 >
                   尚未创建任何学期，请点击右上角新增。
@@ -59,16 +62,29 @@ export default async function SemesterPage() {
                     {format(s.endDate, "yyyy-MM-dd")}
                   </TableCell>
                   <TableCell>
-                    {new Date() >= s.startDate && new Date() <= s.endDate ? (
-                      <Badge variant="default">进行中</Badge>
-                    ) : (
-                      <Badge variant="secondary">非活动</Badge>
-                    )}
+                    <Badge variant="secondary">
+                      {getSemesterTimelineStatus(s)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={s.isActive ? "default" : "secondary"}>
+                      {s.isActive ? "已启用" : "已停用"}
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">
-                      编辑
-                    </Button>
+                    <div className="flex justify-end gap-2">
+                      <SemesterFormDialog
+                        mode="edit"
+                        semester={s}
+                        trigger={
+                          <Button type="button" variant="ghost" size="sm" aria-label={`编辑 ${s.name}`}>
+                            编辑
+                          </Button>
+                        }
+                      />
+                      <ToggleActiveButton id={s.id} name={s.name} isActive={s.isActive} />
+                      <DeleteSemesterButton id={s.id} name={s.name} />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
