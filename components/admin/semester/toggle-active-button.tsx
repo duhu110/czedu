@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import { Loader2Icon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+
+import { toggleSemesterActive } from "@/app/actions/semester";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,27 +16,33 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { deleteSemester } from "@/app/actions/semester";
-import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
-export function DeleteSemesterButton({
-  id,
-  name,
-}: {
+type ToggleActiveButtonProps = {
   id: string;
   name: string;
-}) {
-  const [isPending, startTransition] = React.useTransition();
+  isActive: boolean;
+};
 
-  const handleDelete = () => {
+export function ToggleActiveButton({
+  id,
+  name,
+  isActive,
+}: ToggleActiveButtonProps) {
+  const [isPending, startTransition] = React.useTransition();
+  const nextIsActive = !isActive;
+  const actionLabel = nextIsActive ? "启用" : "停用";
+
+  const handleToggle = () => {
     startTransition(async () => {
-      const result = await deleteSemester(id);
+      const result = await toggleSemesterActive(id, nextIsActive);
+
       if (!result?.success) {
-        toast.error(result?.error ?? "删除失败，请稍后再试");
+        toast.error(result?.error ?? "更新失败，请稍后再试");
         return;
       }
 
-      toast.success(`学期 ${name} 已删除`);
+      toast.success(`学期 ${name} 已${actionLabel}`);
     });
   };
 
@@ -45,30 +53,25 @@ export function DeleteSemesterButton({
           type="button"
           variant="ghost"
           size="sm"
-          aria-label={`删除 ${name}`}
-          className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          aria-label={`${actionLabel} ${name}`}
         >
-          删除
+          {actionLabel}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>确认删除学期？</AlertDialogTitle>
+          <AlertDialogTitle>确认{actionLabel}学期？</AlertDialogTitle>
           <AlertDialogDescription>
-            你确定要删除{" "}
-            <span className="font-bold text-foreground">{name}</span> 吗？
-            如果该学期下已经有关联的申请数据，删除可能会失败。此操作不可撤销。
+            你确定要{actionLabel}
+            <span className="font-bold text-foreground">{name}</span>吗？
+            {!nextIsActive ? " 停用后，该学期将不能接受新的报名申请。" : null}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>取消</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDelete}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            disabled={isPending}
-          >
+          <AlertDialogAction onClick={handleToggle} disabled={isPending}>
             {isPending ? <Loader2Icon className="mr-2 size-4 animate-spin" /> : null}
-            确认删除
+            确认{actionLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
