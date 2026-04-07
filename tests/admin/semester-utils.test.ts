@@ -105,26 +105,66 @@ describe("semester helpers", () => {
     expect(defaults.endDate).toEqual(new Date("2027-03-01T00:00:00.000Z"));
   });
 
-  it("keeps the semester current at the exact end boundary when the selection falls back", () => {
+  it("treats the exact end boundary as ended for timeline status", () => {
+    expect(
+      getSemesterTimelineStatus({
+        startDate: new Date("2025-09-01T00:00:00.000Z"),
+        endDate: new Date("2026-03-01T00:00:00.000Z"),
+      }, new Date("2026-03-01T00:00:00.000Z")),
+    ).toBe("已结束");
+  });
+
+  it("chooses the autumn semester at the March handoff regardless of array order", () => {
+    const springSemester = {
+      id: "spring-2026",
+      name: "2026年春季",
+      startDate: new Date("2025-09-01T00:00:00.000Z"),
+      endDate: new Date("2026-03-01T00:00:00.000Z"),
+    };
+    const autumnSemester = {
+      id: "autumn-2026",
+      name: "2026年秋季",
+      startDate: new Date("2026-03-01T00:00:00.000Z"),
+      endDate: new Date("2026-09-01T00:00:00.000Z"),
+    };
+
+    expect(
+      pickPreferredSemester(
+        [springSemester, autumnSemester],
+        "missing-id",
+        new Date("2026-03-01T00:00:00.000Z"),
+      )?.name,
+    ).toBe("2026年秋季");
+
+    expect(
+      pickPreferredSemester(
+        [autumnSemester, springSemester],
+        "missing-id",
+        new Date("2026-03-01T00:00:00.000Z"),
+      )?.name,
+    ).toBe("2026年秋季");
+  });
+
+  it("chooses the next semester at the September handoff", () => {
     expect(
       pickPreferredSemester(
         [
-          {
-            id: "spring-2026",
-            name: "2026年春季",
-            startDate: new Date("2025-09-01T00:00:00.000Z"),
-            endDate: new Date("2026-03-01T00:00:00.000Z"),
-          },
           {
             id: "autumn-2026",
             name: "2026年秋季",
             startDate: new Date("2026-03-01T00:00:00.000Z"),
             endDate: new Date("2026-09-01T00:00:00.000Z"),
           },
+          {
+            id: "spring-2027",
+            name: "2027年春季",
+            startDate: new Date("2026-09-01T00:00:00.000Z"),
+            endDate: new Date("2027-03-01T00:00:00.000Z"),
+          },
         ],
         "missing-id",
         new Date("2026-09-01T00:00:00.000Z"),
       )?.name,
-    ).toBe("2026年秋季");
+    ).toBe("2027年春季");
   });
 });

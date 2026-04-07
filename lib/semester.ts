@@ -93,7 +93,7 @@ export function getSemesterTimelineStatus(
     return "未开始";
   }
 
-  if (now > semester.endDate) {
+  if (now >= semester.endDate) {
     return "已结束";
   }
 
@@ -115,7 +115,7 @@ export function pickPreferredSemester<T extends Pick<SemesterLike, "id" | "start
 
   return (
     semesters.find(
-      (semester) => now >= semester.startDate && now <= semester.endDate,
+      (semester) => now >= semester.startDate && now < semester.endDate,
     ) ?? semesters[0] ?? null
   );
 }
