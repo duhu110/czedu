@@ -45,7 +45,9 @@ describe("SemesterPage", () => {
     expect(
       screen.getByText("尚未创建任何学期，请点击右上角新增。"),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "新增学期" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "新增学期" }));
+
+    expect(screen.getByRole("heading", { name: "创建学期" })).toBeInTheDocument();
   });
 
   it("renders timeline status, active status, and row operations for all semesters", async () => {

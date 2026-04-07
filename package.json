@@ -20,6 +20,8 @@
     "@libsql/client": "^0.17.2",
     "@prisma/adapter-libsql": "^7.6.0",
     "@prisma/client": "^7.6.0",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-slot": "^1.2.4",
     "@tabler/icons-react": "^3.41.1",
     "@tanstack/react-table": "^8.21.3",
     "@types/qrcode": "^1.5.6",

@@ -369,9 +369,11 @@ export function SemesterFormDialog(props: SemesterFormDialogProps) {
   );
 }
 
-export function CreateSemesterDialogTrigger() {
+export function CreateSemesterDialogTrigger(
+  props: React.ComponentProps<typeof Button>,
+) {
   return (
-    <Button size="sm">
+    <Button size="sm" {...props}>
       <PlusIcon className="mr-2 h-4 w-4" />
       新增学期
     </Button>

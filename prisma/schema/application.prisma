@@ -1,0 +1,69 @@
+// === 枚举定义 ===
+enum ResidencyType {
+  LOCAL // 城中区户籍
+  NON_LOCAL // 非城中区户籍
+}
+
+enum Gender {
+  MALE // 男
+  FEMALE // 女
+}
+
+enum ApplicationStatus {
+  PENDING // 待审核
+  APPROVED // 已通过
+  REJECTED // 已驳回
+  SUPPLEMENT // 待补充
+}
+
+// === 转学申请模型 ===
+model Application {
+  id String @id @default(uuid())
+
+  // 1. 学期关联
+  semesterId String
+  semester   Semester @relation(fields: [semesterId], references: [id])
+
+  // 2. 户籍与基本信息
+  residencyType ResidencyType
+  name          String
+  gender        Gender
+  idCard        String // 身份证号
+  studentId     String // 学籍号
+
+  // 3. 联系人信息
+  guardian1Name  String
+  guardian1Phone String
+  guardian2Name  String? // 监护人2 (选填)
+  guardian2Phone String? // 监护人2电话 (选填)
+
+  // 4. 学校与年级信息
+  currentSchool String // 当前就读学校
+  currentGrade  String // 当前就读年级
+  targetGrade   String // 申请转入年级
+
+  // 5. 地址信息
+  hukouAddress  String // 户籍地址
+  livingAddress String // 居住地址
+
+  // 6. 申请资料 (以 JSON Array 格式序列化为 String 存储，默认空数组)
+  // 无论户籍还是非户籍都要传的：
+  fileHukou       String @default("[]") // 户口本 (多图)
+  fileProperty    String @default("[]") // 房产证或房屋租赁备案证明 (多图)
+  fileStudentCard String @default("[]") // 学籍信息卡 (多图)
+
+  // 非户籍额外需要传的：
+  fileResidencePermit String @default("[]") // 居住证 (多图)
+
+  // 7. 审核状态与系统字段
+  status      ApplicationStatus @default(PENDING)
+  adminRemark String? // 审核人员备注
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 建立索引以优化查询速度
+  @@index([semesterId])
+  @@index([idCard])
+  @@index([studentId])
+}
