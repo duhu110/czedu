@@ -26,6 +26,19 @@ function createUtcDate(year: number, month: number, day: number) {
   return new Date(Date.UTC(year, month, day));
 }
 
+function getShanghaiCalendarParts(now: Date) {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "numeric",
+  });
+  const parts = formatter.formatToParts(now);
+  const year = Number(parts.find((part) => part.type === "year")?.value);
+  const month = Number(parts.find((part) => part.type === "month")?.value) - 1;
+
+  return { year, month };
+}
+
 export function buildSemesterName(year: number, term: SemesterTerm) {
   return `${year}年${term}`;
 }
@@ -47,8 +60,7 @@ export function getSemesterWindow(year: number, term: SemesterTerm): SemesterWin
 export function getDefaultSemesterFormValues(
   now = new Date(),
 ): SemesterFormValues {
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth();
+  const { year: currentYear, month: currentMonth } = getShanghaiCalendarParts(now);
   const term: SemesterTerm = currentMonth >= 2 && currentMonth < 8 ? "秋季" : "春季";
   const year =
     term === "秋季" ? currentYear : currentMonth >= 8 ? currentYear + 1 : currentYear;
@@ -63,7 +75,7 @@ export function getDefaultSemesterFormValues(
   };
 }
 
-export function getYearOptions(currentYear = new Date().getFullYear()) {
+export function getYearOptions(currentYear = getShanghaiCalendarParts(new Date()).year) {
   return Array.from({ length: 11 }, (_, index) => currentYear - 5 + index);
 }
 

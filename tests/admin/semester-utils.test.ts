@@ -17,6 +17,7 @@ describe("semester helpers", () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     vi.useRealTimers();
   });
 
@@ -110,7 +111,13 @@ describe("semester helpers", () => {
     });
   });
 
-  it("uses local calendar fields for Shanghai rollover defaults", () => {
+  it("uses Shanghai-local calendar fields for rollover defaults", () => {
+    vi.spyOn(Date.prototype, "getFullYear").mockImplementation(function (this: Date) {
+      return this.getUTCFullYear();
+    });
+    vi.spyOn(Date.prototype, "getMonth").mockImplementation(function (this: Date) {
+      return this.getUTCMonth();
+    });
     vi.setSystemTime(new Date("2026-09-01T00:30:00+08:00"));
 
     expect(getDefaultSemesterFormValues()).toEqual({
@@ -134,7 +141,10 @@ describe("semester helpers", () => {
     expect(defaults.endDate).toEqual(new Date("2027-03-01T00:00:00.000Z"));
   });
 
-  it("returns the local-year range for year options during Shanghai rollover", () => {
+  it("returns the Shanghai-local year range during rollover", () => {
+    vi.spyOn(Date.prototype, "getFullYear").mockImplementation(function (this: Date) {
+      return this.getUTCFullYear();
+    });
     vi.setSystemTime(new Date("2027-01-01T00:30:00+08:00"));
 
     expect(getYearOptions()).toEqual([
