@@ -12,11 +12,19 @@ import { CustomSidebarTrigger } from "@/components/admin/custom-sidebar-trigger"
 import { NavUser } from "@/components/admin/nav-user";
 import { ThemeSwitch } from "@/components/admin/theme-switch";
 
-export function AppNavbar() {
+// 1. 定义接口
+interface AppNavbarProps {
+  user: {
+    name: string | null;
+    username: string;
+  };
+}
+
+export function AppNavbar({ user }: AppNavbarProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 mb-6 flex items-center justify-between gap-2 rounded-xl border bg-background/95 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-3",
+        "sticky top-0 z-40 mb-6 flex items-center justify-between gap-2 rounded-xl border bg-background/95 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/80 md:px-3 print:hidden",
       )}
     >
       <div className="flex items-center gap-3">
@@ -35,7 +43,7 @@ export function AppNavbar() {
       </div>
       <div className="flex items-center gap-3">
         <ThemeSwitch />
-        <NavUser />
+        <NavUser user={user} />
       </div>
     </header>
   );

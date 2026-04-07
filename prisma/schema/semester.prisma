@@ -1,0 +1,12 @@
+// prisma/schema/semester.prisma
+
+model Semester {
+  id        String   @id @default(uuid())
+  name      String   @unique // 学期名称，如 "2026年春季学期"
+  startDate DateTime // 学期开始日期
+  endDate   DateTime // 学期结束日期
+  isCurrent Boolean  @default(false) // 是否为当前正在进行的学期
+  isActive  Boolean  @default(true) // 是否启用
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

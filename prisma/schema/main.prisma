@@ -1,0 +1,9 @@
+// prisma/schema/main.prisma
+
+generator client {
+  provider = "prisma-client-js" // 修正1：标准JS/TS客户端
+}
+
+datasource db {
+  provider = "sqlite"
+}
