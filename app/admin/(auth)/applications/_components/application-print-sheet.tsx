@@ -9,6 +9,7 @@ type ApplicationPrintSheetProps = {
   application: PrintableApplication;
   printTimeLabel: string;
   pendingLookupUrl: string;
+  qrCodeDataUrl?: string | null;
 };
 
 function Field({
@@ -30,6 +31,7 @@ export function ApplicationPrintSheet({
   application,
   printTimeLabel,
   pendingLookupUrl,
+  qrCodeDataUrl,
 }: ApplicationPrintSheetProps) {
   return (
     <section className="hidden print:block print:px-6 print:py-5">
@@ -100,9 +102,25 @@ export function ApplicationPrintSheet({
             <h2 className="border-b border-black pb-2 text-base font-semibold">
               查询结果二维码
             </h2>
-            <div className="mt-2 space-y-2">
-              <p>扫码查看申请处理进度</p>
-              <p>{pendingLookupUrl}</p>
+            <div className="mt-3 grid grid-cols-[140px_1fr] gap-4">
+              <div
+                className="flex h-[140px] w-[140px] items-center justify-center border border-black"
+                data-testid="application-pending-qrcode"
+              >
+                {qrCodeDataUrl ? (
+                  <img
+                    src={qrCodeDataUrl}
+                    alt="申请查询二维码"
+                    className="h-[132px] w-[132px]"
+                  />
+                ) : (
+                  <span className="text-xs text-muted-foreground">二维码生成失败</span>
+                )}
+              </div>
+              <div className="space-y-2">
+                <p>扫码查看申请处理进度</p>
+                <p>{pendingLookupUrl}</p>
+              </div>
             </div>
           </section>
 

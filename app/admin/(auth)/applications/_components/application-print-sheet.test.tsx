@@ -38,6 +38,7 @@ describe("ApplicationPrintSheet", () => {
         application={application}
         printTimeLabel="2026-04-07 20:15"
         pendingLookupUrl="https://czedu.local/application/pending/app-pending-001"
+        qrCodeDataUrl="data:image/png;base64,qr-code"
       />,
     );
 
@@ -57,12 +58,26 @@ describe("ApplicationPrintSheet", () => {
         application={application}
         printTimeLabel="2026-04-07 20:15"
         pendingLookupUrl="https://czedu.local/application/pending/app-pending-001"
+        qrCodeDataUrl="data:image/png;base64,qr-code"
       />,
     );
 
     expect(
       screen.getByText("https://czedu.local/application/pending/app-pending-001"),
     ).toBeInTheDocument();
+  });
+
+  it("renders a qrcode image for the pending lookup url", () => {
+    render(
+      <ApplicationPrintSheet
+        application={application}
+        printTimeLabel="2026-04-07 20:15"
+        pendingLookupUrl="https://czedu.local/application/pending/app-pending-001"
+        qrCodeDataUrl="data:image/png;base64,qr-code"
+      />,
+    );
+
+    expect(screen.getByTestId("application-pending-qrcode")).toBeInTheDocument();
   });
 });
 

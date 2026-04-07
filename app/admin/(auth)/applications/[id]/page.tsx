@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
+import QRCode from "qrcode";
 
 import { getApplicationById } from "@/app/actions/application";
 import { ApprovalPanel } from "../_components/approval-panel";
@@ -82,6 +83,16 @@ export default async function ApplicationDetailPage({
     app.id,
     "https://czedu.local",
   );
+  let qrCodeDataUrl: string | null = null;
+
+  try {
+    qrCodeDataUrl = await QRCode.toDataURL(pendingLookupUrl, {
+      margin: 1,
+      width: 132,
+    });
+  } catch (error) {
+    console.error("Generate Application Print QR Error:", error);
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -248,6 +259,7 @@ export default async function ApplicationDetailPage({
         application={app}
         printTimeLabel={printTimeLabel}
         pendingLookupUrl={pendingLookupUrl}
+        qrCodeDataUrl={qrCodeDataUrl}
       />
     </div>
   );
