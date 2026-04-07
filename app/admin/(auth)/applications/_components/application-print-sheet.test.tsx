@@ -48,8 +48,10 @@ describe("ApplicationPrintSheet", () => {
     expect(screen.getByText("学校与地址")).toBeInTheDocument();
     expect(screen.getByText("扫码查看申请处理进度")).toBeInTheDocument();
     expect(screen.getByText("监护人签字")).toBeInTheDocument();
-    expect(screen.getAllByText("无")).toHaveLength(2);
+    expect(screen.getByText("姓名：无")).toBeInTheDocument();
+    expect(screen.getByText("电话：无")).toBeInTheDocument();
     expect(screen.getByText("尚未分配")).toBeInTheDocument();
+    expect(screen.queryByText("申请学期")).not.toBeInTheDocument();
   });
 
   it("prints the pending-page query url text", () => {
@@ -78,6 +80,32 @@ describe("ApplicationPrintSheet", () => {
     );
 
     expect(screen.getByTestId("application-pending-qrcode")).toBeInTheDocument();
+  });
+
+  it("uses a compact two-column guardian layout", () => {
+    render(
+      <ApplicationPrintSheet
+        application={application}
+        printTimeLabel="2026-04-07 20:15"
+        pendingLookupUrl="https://czedu.local/application/pending/app-pending-001"
+        qrCodeDataUrl="data:image/png;base64,qr-code"
+      />,
+    );
+
+    expect(screen.getByTestId("guardian-grid")).toHaveClass("grid-cols-2");
+  });
+
+  it("keeps qrcode and signature area in one compact row", () => {
+    render(
+      <ApplicationPrintSheet
+        application={application}
+        printTimeLabel="2026-04-07 20:15"
+        pendingLookupUrl="https://czedu.local/application/pending/app-pending-001"
+        qrCodeDataUrl="data:image/png;base64,qr-code"
+      />,
+    );
+
+    expect(screen.getByTestId("print-footer-grid")).toHaveClass("grid-cols-[140px_1fr]");
   });
 });
 

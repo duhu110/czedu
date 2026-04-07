@@ -154,69 +154,67 @@ export default async function ApplicationDetailPage({
               </CardContent>
             </Card>
 
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">2. 监护人信息</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
                 <div className="grid grid-cols-3 py-1 border-b">
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base">2. 监护人信息</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3 text-sm">
-                      <div className="grid grid-cols-3 py-1 border-b">
-                        <span className="text-muted-foreground">监护人1</span>
-                        <span className="col-span-2">
-                          {app.guardian1Name} ({app.guardian1Phone})
-                        </span>
-                      </div>
-                      {app.guardian2Name && (
-                        <div className="grid grid-cols-3 py-1 border-b">
-                          <span className="text-muted-foreground">监护人2</span>
-                          <span className="col-span-2">
-                            {app.guardian2Name} ({app.guardian2Phone})
-                          </span>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base">3. 学校与地址</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3 text-sm">
-                      <div className="grid grid-cols-3 py-1 border-b">
-                        <span className="text-muted-foreground">当前学校</span>
-                        <span className="col-span-2">{app.currentSchool}</span>
-                      </div>
-                      <div className="grid grid-cols-3 py-1 border-b">
-                        <span className="text-muted-foreground">年级变更</span>
-                        <span className="col-span-2 text-primary font-medium">
-                          {app.currentGrade} ➡️ {app.targetGrade}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-3 py-1 border-b">
-                        <span className="text-muted-foreground">分配学校</span>
-                        <span className="col-span-2">
-                          {app.targetSchool || "尚未分配"}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-3 py-1 border-b">
-                        <span className="text-muted-foreground">户籍地址</span>
-                        <span className="col-span-2">{app.hukouAddress}</span>
-                      </div>
-                      <div className="grid grid-cols-3 py-1">
-                        <span className="text-muted-foreground">居住地址</span>
-                        <span className="col-span-2">{app.livingAddress}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* 审批操作面板 (引入刚才写的客户端组件) */}
-                  <ApprovalPanel
-                    applicationId={app.id}
-                    currentStatus={app.status}
-                    currentRemark={app.adminRemark}
-                    currentTargetSchool={app.targetSchool}
-                  />
+                  <span className="text-muted-foreground">监护人1</span>
+                  <span className="col-span-2">
+                    {app.guardian1Name} ({app.guardian1Phone})
+                  </span>
                 </div>
+                {app.guardian2Name && (
+                  <div className="grid grid-cols-3 py-1 border-b">
+                    <span className="text-muted-foreground">监护人2</span>
+                    <span className="col-span-2">
+                      {app.guardian2Name} ({app.guardian2Phone})
+                    </span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">3. 学校与地址</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="grid grid-cols-3 py-1 border-b">
+                  <span className="text-muted-foreground">当前学校</span>
+                  <span className="col-span-2">{app.currentSchool}</span>
+                </div>
+                <div className="grid grid-cols-3 py-1 border-b">
+                  <span className="text-muted-foreground">年级变更</span>
+                  <span className="col-span-2 text-primary font-medium">
+                    {app.currentGrade} ➡️ {app.targetGrade}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 py-1 border-b">
+                  <span className="text-muted-foreground">分配学校</span>
+                  <span className="col-span-2">
+                    {app.targetSchool || "尚未分配"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 py-1 border-b">
+                  <span className="text-muted-foreground">户籍地址</span>
+                  <span className="col-span-2">{app.hukouAddress}</span>
+                </div>
+                <div className="grid grid-cols-3 py-1">
+                  <span className="text-muted-foreground">居住地址</span>
+                  <span className="col-span-2">{app.livingAddress}</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 审批操作面板 (引入刚才写的客户端组件) */}
+            <ApprovalPanel
+              applicationId={app.id}
+              currentStatus={app.status}
+              currentRemark={app.adminRemark}
+              currentTargetSchool={app.targetSchool}
+            />
           </div>
 
           {/* 右列：上传的附件资料 */}

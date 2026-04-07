@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { getApplicationByIdMock } = vi.hoisted(() => ({
   getApplicationByIdMock: vi.fn(),
@@ -14,6 +14,10 @@ vi.mock("../_components/approval-panel", () => ({
 }));
 
 describe("Admin application detail page", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     getApplicationByIdMock.mockReset();
     getApplicationByIdMock.mockResolvedValue({
@@ -61,5 +65,19 @@ describe("Admin application detail page", () => {
     expect(
       screen.getByText(/\/application\/pending\/app-pending-001/),
     ).toBeInTheDocument();
+  });
+
+  it("keeps guardian, school, and approval sections out of the 3-column field grid", async () => {
+    const Page = (await import("./page")).default;
+
+    render(
+      await Page({
+        params: Promise.resolve({ id: "app-pending-001" }),
+      }),
+    );
+
+    expect(screen.getByText("2. 监护人信息").closest(".grid.grid-cols-3")).toBeNull();
+    expect(screen.getByText("3. 学校与地址").closest(".grid.grid-cols-3")).toBeNull();
+    expect(screen.getByText("审批面板占位").closest(".grid.grid-cols-3")).toBeNull();
   });
 });
