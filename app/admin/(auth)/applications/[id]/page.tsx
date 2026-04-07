@@ -2,9 +2,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink } from "lucide-react";
+import QRCode from "qrcode";
 
 import { getApplicationById } from "@/app/actions/application";
 import { ApprovalPanel } from "../_components/approval-panel";
+import { ApplicationPrintSheet } from "../_components/application-print-sheet";
+import {
+  formatPrintTimeLabel,
+  getPendingLookupUrl,
+} from "../_components/application-print-utils";
+import { PrintApplicationButton } from "../_components/print-application-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -71,158 +78,189 @@ export default async function ApplicationDetailPage({
     notFound();
   }
 
+  const printTimeLabel = formatPrintTimeLabel(new Date());
+  const pendingLookupUrl = getPendingLookupUrl(
+    app.id,
+    "https://czedu.local",
+  );
+  let qrCodeDataUrl: string | null = null;
+
+  try {
+    qrCodeDataUrl = await QRCode.toDataURL(pendingLookupUrl, {
+      margin: 1,
+      width: 132,
+    });
+  } catch (error) {
+    console.error("Generate Application Print QR Error:", error);
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* 头部导航 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/admin/applications">
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-3">
-              {app.name} 的转学申请
-              <Badge variant={statusMap[app.status].variant}>
-                {statusMap[app.status].label}
-              </Badge>
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              学期：{app.semester.name} | 提交于{" "}
-              {app.createdAt.toLocaleString("zh-CN")}
-            </p>
+      <div className="space-y-6 print:hidden">
+        {/* 头部导航 */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/admin/applications">
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold flex items-center gap-3">
+                {app.name} 的转学申请
+                <Badge variant={statusMap[app.status].variant}>
+                  {statusMap[app.status].label}
+                </Badge>
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                学期：{app.semester.name} | 提交于{" "}
+                {app.createdAt.toLocaleString("zh-CN")}
+              </p>
+            </div>
+          </div>
+          <PrintApplicationButton />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* 左列：文本信息 */}
+          <div className="lg:col-span-5 space-y-6">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">1. 基本信息</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="grid grid-cols-3 py-1 border-b">
+                  <span className="text-muted-foreground">户籍类型</span>
+                  <span className="col-span-2">
+                    {app.residencyType === "LOCAL"
+                      ? "城中区户籍"
+                      : "非城中区户籍"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 py-1 border-b">
+                  <span className="text-muted-foreground">身份证号</span>
+                  <span className="col-span-2 font-mono">{app.idCard}</span>
+                </div>
+                <div className="grid grid-cols-3 py-1 border-b">
+                  <span className="text-muted-foreground">学籍号</span>
+                  <span className="col-span-2 font-mono">{app.studentId}</span>
+                </div>
+                <div className="grid grid-cols-3 py-1 border-b">
+                  <span className="text-muted-foreground">性别</span>
+                  <span className="col-span-2">
+                    {app.gender === "MALE" ? "男" : "女"}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+                <div className="grid grid-cols-3 py-1 border-b">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">2. 监护人信息</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-sm">
+                      <div className="grid grid-cols-3 py-1 border-b">
+                        <span className="text-muted-foreground">监护人1</span>
+                        <span className="col-span-2">
+                          {app.guardian1Name} ({app.guardian1Phone})
+                        </span>
+                      </div>
+                      {app.guardian2Name && (
+                        <div className="grid grid-cols-3 py-1 border-b">
+                          <span className="text-muted-foreground">监护人2</span>
+                          <span className="col-span-2">
+                            {app.guardian2Name} ({app.guardian2Phone})
+                          </span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base">3. 学校与地址</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-sm">
+                      <div className="grid grid-cols-3 py-1 border-b">
+                        <span className="text-muted-foreground">当前学校</span>
+                        <span className="col-span-2">{app.currentSchool}</span>
+                      </div>
+                      <div className="grid grid-cols-3 py-1 border-b">
+                        <span className="text-muted-foreground">年级变更</span>
+                        <span className="col-span-2 text-primary font-medium">
+                          {app.currentGrade} ➡️ {app.targetGrade}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 py-1 border-b">
+                        <span className="text-muted-foreground">分配学校</span>
+                        <span className="col-span-2">
+                          {app.targetSchool || "尚未分配"}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 py-1 border-b">
+                        <span className="text-muted-foreground">户籍地址</span>
+                        <span className="col-span-2">{app.hukouAddress}</span>
+                      </div>
+                      <div className="grid grid-cols-3 py-1">
+                        <span className="text-muted-foreground">居住地址</span>
+                        <span className="col-span-2">{app.livingAddress}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* 审批操作面板 (引入刚才写的客户端组件) */}
+                  <ApprovalPanel
+                    applicationId={app.id}
+                    currentStatus={app.status}
+                    currentRemark={app.adminRemark}
+                    currentTargetSchool={app.targetSchool}
+                  />
+                </div>
+          </div>
+
+          {/* 右列：上传的附件资料 */}
+          <div className="lg:col-span-7">
+            <Card className="h-full">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center justify-between">
+                  4. 证明材料原件
+                  <span className="text-xs font-normal text-muted-foreground">
+                    点击图片可全屏查看
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6 bg-muted/10 pt-4 rounded-b-xl">
+                <ImageSection
+                  title="户口本（首页及学生页）"
+                  urls={app.fileHukou}
+                />
+                <ImageSection
+                  title="房产证或房屋租赁备案证明"
+                  urls={app.fileProperty}
+                />
+                <ImageSection
+                  title="学生学籍信息卡"
+                  urls={app.fileStudentCard}
+                />
+                {app.residencyType === "NON_LOCAL" && (
+                  <ImageSection
+                    title="监护人或学生居住证"
+                    urls={app.fileResidencePermit}
+                  />
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* 左列：文本信息 */}
-        <div className="lg:col-span-5 space-y-6">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">1. 基本信息</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="grid grid-cols-3 py-1 border-b">
-                <span className="text-muted-foreground">户籍类型</span>
-                <span className="col-span-2">
-                  {app.residencyType === "LOCAL"
-                    ? "城中区户籍"
-                    : "非城中区户籍"}
-                </span>
-              </div>
-              <div className="grid grid-cols-3 py-1 border-b">
-                <span className="text-muted-foreground">身份证号</span>
-                <span className="col-span-2 font-mono">{app.idCard}</span>
-              </div>
-              <div className="grid grid-cols-3 py-1 border-b">
-                <span className="text-muted-foreground">学籍号</span>
-                <span className="col-span-2 font-mono">{app.studentId}</span>
-              </div>
-              <div className="grid grid-cols-3 py-1 border-b">
-                <span className="text-muted-foreground">性别</span>
-                <span className="col-span-2">
-                  {app.gender === "MALE" ? "男" : "女"}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">2. 监护人信息</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="grid grid-cols-3 py-1 border-b">
-                <span className="text-muted-foreground">监护人1</span>
-                <span className="col-span-2">
-                  {app.guardian1Name} ({app.guardian1Phone})
-                </span>
-              </div>
-              {app.guardian2Name && (
-                <div className="grid grid-cols-3 py-1 border-b">
-                  <span className="text-muted-foreground">监护人2</span>
-                  <span className="col-span-2">
-                    {app.guardian2Name} ({app.guardian2Phone})
-                  </span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">3. 学校与地址</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="grid grid-cols-3 py-1 border-b">
-                <span className="text-muted-foreground">当前学校</span>
-                <span className="col-span-2">{app.currentSchool}</span>
-              </div>
-              <div className="grid grid-cols-3 py-1 border-b">
-                <span className="text-muted-foreground">年级变更</span>
-                <span className="col-span-2 text-primary font-medium">
-                  {app.currentGrade} ➡️ {app.targetGrade}
-                </span>
-              </div>
-              <div className="grid grid-cols-3 py-1 border-b">
-                <span className="text-muted-foreground">分配学校</span>
-                <span className="col-span-2">
-                  {app.targetSchool || "尚未分配"}
-                </span>
-              </div>
-              <div className="grid grid-cols-3 py-1 border-b">
-                <span className="text-muted-foreground">户籍地址</span>
-                <span className="col-span-2">{app.hukouAddress}</span>
-              </div>
-              <div className="grid grid-cols-3 py-1">
-                <span className="text-muted-foreground">居住地址</span>
-                <span className="col-span-2">{app.livingAddress}</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 审批操作面板 (引入刚才写的客户端组件) */}
-          <ApprovalPanel
-            applicationId={app.id}
-            currentStatus={app.status}
-            currentRemark={app.adminRemark}
-            currentTargetSchool={app.targetSchool}
-          />
-        </div>
-
-        {/* 右列：上传的附件资料 */}
-        <div className="lg:col-span-7">
-          <Card className="h-full">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center justify-between">
-                4. 证明材料原件
-                <span className="text-xs font-normal text-muted-foreground">
-                  点击图片可全屏查看
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 bg-muted/10 pt-4 rounded-b-xl">
-              <ImageSection
-                title="户口本（首页及学生页）"
-                urls={app.fileHukou}
-              />
-              <ImageSection
-                title="房产证或房屋租赁备案证明"
-                urls={app.fileProperty}
-              />
-              <ImageSection title="学生学籍信息卡" urls={app.fileStudentCard} />
-              {app.residencyType === "NON_LOCAL" && (
-                <ImageSection
-                  title="监护人或学生居住证"
-                  urls={app.fileResidencePermit}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <ApplicationPrintSheet
+        application={app}
+        printTimeLabel={printTimeLabel}
+        pendingLookupUrl={pendingLookupUrl}
+        qrCodeDataUrl={qrCodeDataUrl}
+      />
     </div>
   );
 }
