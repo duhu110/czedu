@@ -83,6 +83,16 @@ describe("semester helpers", () => {
     ).toBe("进行中");
   });
 
+  it("uses the frozen baseline default on 2026-04-07", () => {
+    expect(getDefaultSemesterFormValues()).toEqual({
+      year: 2026,
+      term: "秋季",
+      startDate: new Date("2026-03-01T00:00:00.000Z"),
+      endDate: new Date("2026-09-01T00:00:00.000Z"),
+      isActive: true,
+    });
+  });
+
   it("resolves autumn dates to the next spring semester when building defaults", () => {
     const defaults = getDefaultSemesterFormValues(new Date("2026-10-01T00:00:00.000Z"));
 
@@ -93,5 +103,28 @@ describe("semester helpers", () => {
     });
     expect(defaults.startDate).toEqual(new Date("2026-09-01T00:00:00.000Z"));
     expect(defaults.endDate).toEqual(new Date("2027-03-01T00:00:00.000Z"));
+  });
+
+  it("keeps the semester current at the exact end boundary when the selection falls back", () => {
+    expect(
+      pickPreferredSemester(
+        [
+          {
+            id: "spring-2026",
+            name: "2026年春季",
+            startDate: new Date("2025-09-01T00:00:00.000Z"),
+            endDate: new Date("2026-03-01T00:00:00.000Z"),
+          },
+          {
+            id: "autumn-2026",
+            name: "2026年秋季",
+            startDate: new Date("2026-03-01T00:00:00.000Z"),
+            endDate: new Date("2026-09-01T00:00:00.000Z"),
+          },
+        ],
+        "missing-id",
+        new Date("2026-09-01T00:00:00.000Z"),
+      )?.name,
+    ).toBe("2026年秋季");
   });
 });
