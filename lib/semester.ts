@@ -47,8 +47,8 @@ export function getSemesterWindow(year: number, term: SemesterTerm): SemesterWin
 export function getDefaultSemesterFormValues(
   now = new Date(),
 ): SemesterFormValues {
-  const currentYear = now.getUTCFullYear();
-  const currentMonth = now.getUTCMonth();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
   const term: SemesterTerm = currentMonth >= 2 && currentMonth < 8 ? "秋季" : "春季";
   const year =
     term === "秋季" ? currentYear : currentMonth >= 8 ? currentYear + 1 : currentYear;
@@ -63,7 +63,7 @@ export function getDefaultSemesterFormValues(
   };
 }
 
-export function getYearOptions(currentYear = new Date().getUTCFullYear()) {
+export function getYearOptions(currentYear = new Date().getFullYear()) {
   return Array.from({ length: 11 }, (_, index) => currentYear - 5 + index);
 }
 

@@ -6,6 +6,7 @@ import {
   getSemesterTimelineStatus,
   getSemesterWindow,
   inferSemesterFormValues,
+  getYearOptions,
   pickPreferredSemester,
 } from "@/lib/semester";
 
@@ -52,6 +53,22 @@ describe("semester helpers", () => {
     });
   });
 
+  it("infers same-year autumn semester form values", () => {
+    expect(
+      inferSemesterFormValues({
+        id: "autumn-2026",
+        name: "2026年秋季",
+        startDate: new Date("2026-03-01T00:00:00.000Z"),
+        endDate: new Date("2026-09-01T00:00:00.000Z"),
+        isActive: false,
+      }),
+    ).toMatchObject({
+      year: 2026,
+      term: "秋季",
+      isActive: false,
+    });
+  });
+
   it("falls back to the current-date matching semester when the selected semester disappears", () => {
     expect(
       pickPreferredSemester(
@@ -93,6 +110,18 @@ describe("semester helpers", () => {
     });
   });
 
+  it("uses local calendar fields for Shanghai rollover defaults", () => {
+    vi.setSystemTime(new Date("2026-09-01T00:30:00+08:00"));
+
+    expect(getDefaultSemesterFormValues()).toEqual({
+      year: 2027,
+      term: "春季",
+      startDate: new Date("2026-09-01T00:00:00.000Z"),
+      endDate: new Date("2027-03-01T00:00:00.000Z"),
+      isActive: true,
+    });
+  });
+
   it("resolves autumn dates to the next spring semester when building defaults", () => {
     const defaults = getDefaultSemesterFormValues(new Date("2026-10-01T00:00:00.000Z"));
 
@@ -103,6 +132,14 @@ describe("semester helpers", () => {
     });
     expect(defaults.startDate).toEqual(new Date("2026-09-01T00:00:00.000Z"));
     expect(defaults.endDate).toEqual(new Date("2027-03-01T00:00:00.000Z"));
+  });
+
+  it("returns the local-year range for year options during Shanghai rollover", () => {
+    vi.setSystemTime(new Date("2027-01-01T00:30:00+08:00"));
+
+    expect(getYearOptions()).toEqual([
+      2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032,
+    ]);
   });
 
   it("treats the exact end boundary as ended for timeline status", () => {
@@ -166,5 +203,28 @@ describe("semester helpers", () => {
         new Date("2026-09-01T00:00:00.000Z"),
       )?.name,
     ).toBe("2027年春季");
+  });
+
+  it("falls back to the first semester when nothing is active and nothing is selected", () => {
+    expect(
+      pickPreferredSemester(
+        [
+          {
+            id: "spring-2026",
+            name: "2026年春季",
+            startDate: new Date("2025-09-01T00:00:00.000Z"),
+            endDate: new Date("2026-03-01T00:00:00.000Z"),
+          },
+          {
+            id: "autumn-2026",
+            name: "2026年秋季",
+            startDate: new Date("2026-03-01T00:00:00.000Z"),
+            endDate: new Date("2026-09-01T00:00:00.000Z"),
+          },
+        ],
+        undefined,
+        new Date("2027-04-01T00:00:00.000Z"),
+      )?.name,
+    ).toBe("2026年春季");
   });
 });
