@@ -17,13 +17,18 @@ function revalidateSemesterPaths() {
   }
 }
 
-function getErrorMessage(error: unknown, fallback: string) {
+function getUniqueConflictMessage(error: unknown) {
   const code = typeof error === "object" && error !== null ? Reflect.get(error, "code") : undefined;
-  const message = typeof error === "object" && error !== null ? Reflect.get(error, "message") : "";
-
   if (code === "P2002") {
     return "该学期已存在";
   }
+
+  return null;
+}
+
+function getDeleteErrorMessage(error: unknown, fallback: string) {
+  const code = typeof error === "object" && error !== null ? Reflect.get(error, "code") : undefined;
+  const message = typeof error === "object" && error !== null ? Reflect.get(error, "message") : "";
 
   if (code === "P2003" || code === "P2014" || /foreign key|relation/i.test(String(message))) {
     return "该学期存在关联数据，无法删除";
@@ -59,7 +64,9 @@ export async function createSemester(values: SemesterFormInput) {
     revalidateSemesterPaths();
     return { success: true };
   } catch (error) {
-    return { error: getErrorMessage(error, "创建失败，请稍后再试") };
+    return {
+      error: getUniqueConflictMessage(error) ?? "创建失败，请稍后再试",
+    };
   }
 }
 
@@ -78,7 +85,9 @@ export async function updateSemester(id: string, values: SemesterFormInput) {
     revalidateSemesterPaths();
     return { success: true };
   } catch (error) {
-    return { error: getErrorMessage(error, "更新失败，请稍后再试") };
+    return {
+      error: getUniqueConflictMessage(error) ?? "更新失败，请稍后再试",
+    };
   }
 }
 
@@ -91,7 +100,9 @@ export async function toggleSemesterActive(id: string, isActive: boolean) {
     revalidateSemesterPaths();
     return { success: true };
   } catch (error) {
-    return { error: getErrorMessage(error, "更新失败，请稍后再试") };
+    return {
+      error: getUniqueConflictMessage(error) ?? "更新失败，请稍后再试",
+    };
   }
 }
 
@@ -101,6 +112,6 @@ export async function deleteSemester(id: string) {
     revalidateSemesterPaths();
     return { success: true };
   } catch (error) {
-    return { error: getErrorMessage(error, "删除失败，请稍后再试") };
+    return { error: getDeleteErrorMessage(error, "删除失败，请稍后再试") };
   }
 }

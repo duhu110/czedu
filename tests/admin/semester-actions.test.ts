@@ -76,6 +76,34 @@ describe("semester actions", () => {
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 
+  it("falls back to the create-specific generic error when a relation delete error occurs", async () => {
+    const values = {
+      year: 2026,
+      term: "秋季" as const,
+      startDate: new Date("2026-03-01T00:00:00.000Z"),
+      endDate: new Date("2026-09-01T00:00:00.000Z"),
+      isActive: true,
+    };
+
+    mocks.semesterCreate.mockRejectedValueOnce({
+      code: "P2003",
+    });
+
+    await expect(semesterActions.createSemester(values)).resolves.toEqual({
+      error: "创建失败，请稍后再试",
+    });
+
+    expect(mocks.semesterCreate).toHaveBeenCalledWith({
+      data: {
+        name: "2026年秋季",
+        startDate: values.startDate,
+        endDate: values.endDate,
+        isActive: true,
+      },
+    });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
   it("updates a semester with the computed name and full form payload", async () => {
     const values = {
       year: 2027,
@@ -138,6 +166,9 @@ describe("semester actions", () => {
       },
     );
 
+    expect(mocks.semesterDelete).toHaveBeenCalledWith({
+      where: { id: "semester-2026-autumn" },
+    });
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 });
