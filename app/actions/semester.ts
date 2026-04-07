@@ -4,7 +4,9 @@ import prisma from "@/lib/prisma";
 import {
   semesterFormSchema,
   semesterWindowErrorMessage,
+  semesterMutationSchema,
   toSemesterMutationInput,
+  type SemesterCreateInput,
   type SemesterFormInput,
 } from "@/lib/validations/semester";
 import { revalidatePath } from "next/cache";
@@ -37,7 +39,33 @@ function getDeleteErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
-function getValidationErrorMessage(values: SemesterFormInput) {
+function normalizeCreateSemesterInput(values: SemesterCreateInput) {
+  if ("year" in values && "term" in values) {
+    const parsed = semesterFormSchema.safeParse(values);
+    if (!parsed.success) {
+      return {
+        error: parsed.error.issues[0]?.message ?? semesterWindowErrorMessage,
+      } as const;
+    }
+
+    return {
+      data: toSemesterMutationInput(parsed.data),
+    } as const;
+  }
+
+  const parsed = semesterMutationSchema.safeParse(values);
+  if (!parsed.success) {
+    return {
+      error: parsed.error.issues[0]?.message ?? "输入数据非法",
+    } as const;
+  }
+
+  return {
+    data: parsed.data,
+  } as const;
+}
+
+function getSemesterFormValidationError(values: SemesterFormInput) {
   const parsed = semesterFormSchema.safeParse(values);
   if (parsed.success) {
     return null;
@@ -52,15 +80,14 @@ export async function getSemesters() {
   });
 }
 
-export async function createSemester(values: SemesterFormInput) {
-  const validationError = getValidationErrorMessage(values);
-  if (validationError) {
-    return { error: validationError };
+export async function createSemester(values: SemesterCreateInput) {
+  const normalized = normalizeCreateSemesterInput(values);
+  if ("error" in normalized) {
+    return { error: normalized.error };
   }
 
   try {
-    const data = toSemesterMutationInput(values);
-    await prisma.semester.create({ data });
+    await prisma.semester.create({ data: normalized.data });
     revalidateSemesterPaths();
     return { success: true };
   } catch (error) {
@@ -71,7 +98,7 @@ export async function createSemester(values: SemesterFormInput) {
 }
 
 export async function updateSemester(id: string, values: SemesterFormInput) {
-  const validationError = getValidationErrorMessage(values);
+  const validationError = getSemesterFormValidationError(values);
   if (validationError) {
     return { error: validationError };
   }

@@ -4,6 +4,22 @@ import { buildSemesterName, getSemesterWindow, type SemesterTerm } from "@/lib/s
 
 export const semesterWindowErrorMessage = "学期日期超出允许范围";
 
+const shanghaiDateFormatter = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Shanghai",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+function getShanghaiBusinessDayKey(date: Date) {
+  const parts = shanghaiDateFormatter.formatToParts(date);
+  const year = Number(parts.find((part) => part.type === "year")?.value);
+  const month = Number(parts.find((part) => part.type === "month")?.value) - 1;
+  const day = Number(parts.find((part) => part.type === "day")?.value);
+
+  return Date.UTC(year, month, day);
+}
+
 export const semesterFormSchema = z
   .object({
     year: z.number().int("学年必须是整数"),
@@ -13,7 +29,13 @@ export const semesterFormSchema = z
     isActive: z.boolean(),
   })
   .superRefine((values, ctx) => {
-    if (values.endDate < values.startDate) {
+    const startDateKey = getShanghaiBusinessDayKey(values.startDate);
+    const endDateKey = getShanghaiBusinessDayKey(values.endDate);
+    const window = getSemesterWindow(values.year, values.term);
+    const windowStartKey = getShanghaiBusinessDayKey(window.start);
+    const windowEndKey = getShanghaiBusinessDayKey(window.end);
+
+    if (endDateKey < startDateKey) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["endDate"],
@@ -21,9 +43,7 @@ export const semesterFormSchema = z
       });
     }
 
-    const window = getSemesterWindow(values.year, values.term);
-
-    if (values.startDate < window.start || values.startDate > window.end) {
+    if (startDateKey < windowStartKey || startDateKey > windowEndKey) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["startDate"],
@@ -31,7 +51,7 @@ export const semesterFormSchema = z
       });
     }
 
-    if (values.endDate < window.start || values.endDate > window.end) {
+    if (endDateKey < windowStartKey || endDateKey > windowEndKey) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["endDate"],
@@ -51,6 +71,7 @@ export type SemesterFormInput = z.infer<typeof semesterFormSchema>;
 export type SemesterMutationInput = z.infer<typeof semesterMutationSchema>;
 export const semesterSchema = semesterMutationSchema;
 export type SemesterInput = SemesterMutationInput;
+export type SemesterCreateInput = SemesterFormInput | SemesterInput;
 
 export function toSemesterMutationInput(values: SemesterFormInput): SemesterMutationInput {
   return semesterMutationSchema.parse({

@@ -73,6 +73,30 @@ describe("semester actions", () => {
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(2, "/admin");
   });
 
+  it("creates a semester from the legacy payload used by the current dialog", async () => {
+    const values: SemesterInput = {
+      name: "2026年秋季",
+      startDate: new Date("2026-03-01T00:00:00.000Z"),
+      endDate: new Date("2026-09-01T00:00:00.000Z"),
+      isActive: true,
+    };
+
+    mocks.semesterCreate.mockResolvedValueOnce({
+      id: "semester-2026-autumn",
+    });
+
+    await expect(semesterActions.createSemester(values as never)).resolves.toEqual({
+      success: true,
+    });
+
+    expect(mocks.semesterCreate).toHaveBeenCalledWith({
+      data: values,
+    });
+    expect(mocks.revalidatePath).toHaveBeenCalledTimes(2);
+    expect(mocks.revalidatePath).toHaveBeenNthCalledWith(1, "/admin/semesters");
+    expect(mocks.revalidatePath).toHaveBeenNthCalledWith(2, "/admin");
+  });
+
   it("rejects dates outside the allowed seasonal window with a friendly error", async () => {
     const values = {
       year: 2026,
@@ -88,6 +112,36 @@ describe("semester actions", () => {
 
     expect(mocks.semesterCreate).not.toHaveBeenCalled();
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("accepts the first Shanghai-valid day on the spring boundary", async () => {
+    const values = {
+      year: 2026,
+      term: "春季" as const,
+      startDate: new Date("2025-09-01T00:00:00+08:00"),
+      endDate: new Date("2026-03-01T00:00:00+08:00"),
+      isActive: true,
+    };
+
+    mocks.semesterCreate.mockResolvedValueOnce({
+      id: "semester-2026-spring",
+    });
+
+    await expect(semesterActions.createSemester(values)).resolves.toEqual({
+      success: true,
+    });
+
+    expect(mocks.semesterCreate).toHaveBeenCalledWith({
+      data: {
+        name: "2026年春季",
+        startDate: values.startDate,
+        endDate: values.endDate,
+        isActive: true,
+      },
+    });
+    expect(mocks.revalidatePath).toHaveBeenCalledTimes(2);
+    expect(mocks.revalidatePath).toHaveBeenNthCalledWith(1, "/admin/semesters");
+    expect(mocks.revalidatePath).toHaveBeenNthCalledWith(2, "/admin");
   });
 
   it("falls back to the create-specific generic error when a relation delete error occurs", async () => {
