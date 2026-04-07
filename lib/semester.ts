@@ -48,13 +48,14 @@ export function getDefaultSemesterFormValues(
   now = new Date(),
 ): SemesterFormValues {
   const currentYear = now.getUTCFullYear();
-  const autumnWindow = getSemesterWindow(currentYear, "秋季");
-  const term: SemesterTerm =
-    now >= autumnWindow.start && now < autumnWindow.end ? "秋季" : "春季";
-  const window = getSemesterWindow(currentYear, term);
+  const currentMonth = now.getUTCMonth();
+  const term: SemesterTerm = currentMonth >= 2 && currentMonth < 8 ? "秋季" : "春季";
+  const year =
+    term === "秋季" ? currentYear : currentMonth >= 8 ? currentYear + 1 : currentYear;
+  const window = getSemesterWindow(year, term);
 
   return {
-    year: currentYear,
+    year,
     term,
     startDate: window.start,
     endDate: window.end,

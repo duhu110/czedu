@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildSemesterName,
+  getDefaultSemesterFormValues,
   getSemesterTimelineStatus,
   getSemesterWindow,
   inferSemesterFormValues,
@@ -80,5 +81,17 @@ describe("semester helpers", () => {
         endDate: new Date("2026-09-01T00:00:00.000Z"),
       }),
     ).toBe("进行中");
+  });
+
+  it("resolves autumn dates to the next spring semester when building defaults", () => {
+    const defaults = getDefaultSemesterFormValues(new Date("2026-10-01T00:00:00.000Z"));
+
+    expect(defaults).toMatchObject({
+      year: 2027,
+      term: "春季",
+      isActive: true,
+    });
+    expect(defaults.startDate).toEqual(new Date("2026-09-01T00:00:00.000Z"));
+    expect(defaults.endDate).toEqual(new Date("2027-03-01T00:00:00.000Z"));
   });
 });
