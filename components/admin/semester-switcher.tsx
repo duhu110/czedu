@@ -27,7 +27,11 @@ export interface Semester {
   isActive: boolean;
 }
 
-export function SemesterSwitcher({ semesters }: { semesters: Semester[] }) {
+export function SemesterSwitcher({
+  semesters = [],
+}: {
+  semesters?: Semester[];
+}) {
   const [selectedId, setSelectedId] = React.useState<string | undefined>(() =>
     pickPreferredSemester(semesters)?.id,
   );

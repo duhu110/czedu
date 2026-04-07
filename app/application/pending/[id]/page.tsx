@@ -1,189 +1,128 @@
-"use client";
-
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { mockApplicationId, mockBasicInfo } from "../../_mock-data";
-import {
-  Clock,
-  CheckCircle2,
-  FileText,
-  Bell,
-  ArrowRight,
-  Loader2,
-} from "lucide-react";
+import { notFound, redirect } from "next/navigation";
+import { AlertCircle, ArrowRight, Clock3, FileClock } from "lucide-react";
 
-export default function ApplicationPendingPage() {
-  const timeline = [
-    {
-      title: "提交申请",
-      time: "刚刚",
-      status: "completed",
-      description: "您的转学申请已成功提交",
-    },
-    {
-      title: "资料审核中",
-      time: "预计1-3个工作日",
-      status: "current",
-      description: "学校正在审核您的基本资料",
-    },
-    {
-      title: "确认结果",
-      time: "待定",
-      status: "pending",
-      description: "审核通过后需确认并补充材料",
-    },
-    {
-      title: "完成转学",
-      time: "待定",
-      status: "pending",
-      description: "材料齐全后完成转学手续",
-    },
-  ];
+import { getApplicationById } from "@/app/actions/application";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export default async function ApplicationPendingPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const result = await getApplicationById(id);
+
+  if (!result.data) {
+    notFound();
+  }
+
+  const application = result.data;
+
+  if (application.status === "APPROVED" || application.status === "REJECTED") {
+    redirect(`/application/confirmation/${application.id}`);
+  }
+
+  const isSupplement = application.status === "SUPPLEMENT";
 
   return (
     <div className="min-h-screen bg-background pb-8">
-      {/* Header */}
-      <div className="bg-primary px-4 pt-12 pb-6">
-        <h1 className="text-xl font-bold text-primary-foreground">审核中</h1>
-        <p className="text-sm text-primary-foreground/80 mt-1">
-          请耐心等待审核结果
+      <div className="bg-primary px-4 pb-6 pt-12">
+        <h1 className="text-xl font-bold text-primary-foreground">
+          {isSupplement ? "待补充资料" : "审核中"}
+        </h1>
+        <p className="mt-1 text-sm text-primary-foreground/80">
+          {isSupplement
+            ? "请补传学籍信息卡后继续审核"
+            : "您的申请已提交，正在等待教育局和学校审核"}
         </p>
       </div>
 
-      {/* Status Card */}
-      <div className="px-4 -mt-3">
+      <div className="-mt-3 px-4">
         <Card className="overflow-hidden">
-          <div className="bg-warning/10 px-4 py-5 flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-warning/20 flex items-center justify-center">
-              <Loader2 className="w-7 h-7 text-warning animate-spin" />
+          <div className="flex items-center gap-4 px-4 py-5">
+            <div
+              className={`flex h-14 w-14 items-center justify-center rounded-full ${
+                isSupplement ? "bg-orange-100" : "bg-yellow-100"
+              }`}
+            >
+              {isSupplement ? (
+                <AlertCircle className="h-7 w-7 text-orange-600" />
+              ) : (
+                <Clock3 className="h-7 w-7 text-yellow-600" />
+              )}
             </div>
             <div>
-              <h2 className="font-semibold text-foreground">申请审核中</h2>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                预计1-3个工作日内完成审核
+              <div className="flex items-center gap-2">
+                <h2 className="font-semibold text-foreground">{application.name}</h2>
+                <Badge variant={isSupplement ? "outline" : "secondary"}>
+                  {isSupplement ? "待补充资料" : "待审核"}
+                </Badge>
+              </div>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                申请编号：{application.id}
               </p>
             </div>
           </div>
-          <CardContent className="pt-4">
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">申请人</span>
-                <span className="font-medium text-foreground">
-                  {mockBasicInfo.studentName}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">学籍号</span>
-                <span className="font-medium text-foreground">
-                  {mockBasicInfo.studentId}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">目标学校</span>
-                <span className="font-medium text-foreground">
-                  {mockBasicInfo.targetSchool}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">申请编号</span>
-                <span className="font-medium text-primary">
-                  {mockApplicationId}
-                </span>
-              </div>
+          <CardContent className="space-y-3 pt-0 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">当前学校</span>
+              <span className="font-medium text-foreground">
+                {application.currentSchool}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">申请转入年级</span>
+              <span className="font-medium text-foreground">
+                {application.targetGrade}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">主监护人电话</span>
+              <span className="font-medium text-foreground">
+                {application.guardian1Phone}
+              </span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Timeline */}
-      <div className="px-4 mt-6">
-        <h3 className="font-semibold text-foreground mb-4">申请进度</h3>
-        <div className="space-y-0">
-          {timeline.map((item, index) => (
-            <div key={index} className="flex gap-3">
-              <div className="flex flex-col items-center">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    item.status === "completed"
-                      ? "bg-success text-success-foreground"
-                      : item.status === "current"
-                        ? "bg-warning text-warning-foreground"
-                        : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {item.status === "completed" ? (
-                    <CheckCircle2 className="w-4 h-4" />
-                  ) : item.status === "current" ? (
-                    <Clock className="w-4 h-4" />
-                  ) : (
-                    <span className="text-xs font-medium">{index + 1}</span>
-                  )}
-                </div>
-                {index < timeline.length - 1 && (
-                  <div
-                    className={`w-0.5 h-16 ${
-                      item.status === "completed" ? "bg-success" : "bg-border"
-                    }`}
-                  />
-                )}
-              </div>
-              <div className="flex-1 pb-4">
-                <div className="flex items-center justify-between">
-                  <h4
-                    className={`font-medium ${
-                      item.status === "pending"
-                        ? "text-muted-foreground"
-                        : "text-foreground"
-                    }`}
-                  >
-                    {item.title}
-                  </h4>
-                  <span className="text-xs text-muted-foreground">
-                    {item.time}
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {item.description}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Notice */}
-      <div className="px-4 mt-4">
+      <div className="mt-6 px-4">
         <Card className="bg-muted/50">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <Bell className="w-5 h-5 text-primary mt-0.5" />
-              <div>
-                <h4 className="font-medium text-foreground text-sm">
-                  温馨提示
-                </h4>
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  审核结果将通过短信和邮件通知您，请保持通讯畅通。如有疑问，请联系学校招生办：400-123-4567
-                </p>
-              </div>
-            </div>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <FileClock className="h-5 w-5 text-primary" />
+              当前处理说明
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-muted-foreground">
+            {isSupplement ? (
+              <>
+                <p>系统已收到您的基本申请资料，但学籍信息卡尚未上传。</p>
+                <p>请补传学籍信息卡后，申请会自动转入正式审核流程。</p>
+              </>
+            ) : (
+              <>
+                <p>当前申请资料已经齐全，工作人员正在进行审核。</p>
+                <p>审核完成后，系统会进入“通过”或“驳回”结果页。</p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Demo Button */}
-      <div className="px-4 mt-6">
-        <Button asChild className="w-full h-12 gap-2">
-          <Link href="/application/confirmation">
-            <FileText className="w-4 h-4" />
-            查看审核结果
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </Button>
-        <p className="text-xs text-muted-foreground text-center mt-2">
-          当前为 Mock 页面，按钮将直接进入确认结果页
-        </p>
-      </div>
+      {isSupplement ? (
+        <div className="mt-6 px-4">
+          <Button asChild className="h-12 w-full gap-2">
+            <Link href={`/application/supplement/${application.id}`}>
+              去补充学籍信息卡
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

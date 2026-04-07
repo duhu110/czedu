@@ -4,8 +4,10 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import {
   applicationSchema,
+  applicationSupplementSchema,
   applicationApprovalSchema,
   type ApplicationInput,
+  type ApplicationSupplementInput,
 } from "@/lib/validations/application";
 // ✅ 1. 引入生成的数据库模型类型
 import {
@@ -19,7 +21,7 @@ const serializeFiles = (data: ApplicationInput) => ({
   ...data,
   fileHukou: JSON.stringify(data.fileHukou),
   fileProperty: JSON.stringify(data.fileProperty),
-  fileStudentCard: JSON.stringify(data.fileStudentCard),
+  fileStudentCard: JSON.stringify(data.fileStudentCard || []),
   fileResidencePermit: JSON.stringify(data.fileResidencePermit || []),
 });
 
@@ -45,9 +47,16 @@ export async function createApplication(data: ApplicationInput) {
     }
 
     const finalData = serializeFiles(parsed.data);
+    const initialStatus =
+      parsed.data.fileStudentCard && parsed.data.fileStudentCard.length > 0
+        ? "PENDING"
+        : "SUPPLEMENT";
 
     await prisma.application.create({
-      data: finalData,
+      data: {
+        ...finalData,
+        status: initialStatus,
+      },
     });
 
     revalidatePath("/admin/applications");
@@ -55,6 +64,55 @@ export async function createApplication(data: ApplicationInput) {
   } catch (e) {
     console.error("Create Application Error:", e);
     return { success: false, error: "系统内部错误，创建申请失败" };
+  }
+}
+
+// ==========================================
+// 1.1 Update - 补传学籍信息卡
+// ==========================================
+export async function submitApplicationSupplement(
+  id: string,
+  data: ApplicationSupplementInput,
+) {
+  try {
+    const parsed = applicationSupplementSchema.safeParse(data);
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: parsed.error.issues[0]?.message || "补件数据校验失败",
+      };
+    }
+
+    const application = await prisma.application.findUnique({
+      where: { id },
+      select: { id: true, status: true },
+    });
+
+    if (!application) {
+      return { success: false, error: "未找到该申请记录" };
+    }
+
+    if (application.status !== "SUPPLEMENT") {
+      return { success: false, error: "当前申请状态不允许补充学籍信息卡" };
+    }
+
+    await prisma.application.update({
+      where: { id },
+      data: {
+        fileStudentCard: JSON.stringify(parsed.data.fileStudentCard),
+        status: "PENDING",
+      },
+    });
+
+    revalidatePath(`/application/pending/${id}`);
+    revalidatePath(`/application/supplement/${id}`);
+    revalidatePath(`/application/confirmation/${id}`);
+    revalidatePath("/admin/applications");
+    revalidatePath(`/admin/applications/${id}`);
+    return { success: true, error: null };
+  } catch (e) {
+    console.error("Submit Application Supplement Error:", e);
+    return { success: false, error: "补充资料提交失败" };
   }
 }
 

@@ -7,32 +7,45 @@ import {
   ClipboardPenLine,
   FileClock,
   Files,
+  CircleX,
 } from "lucide-react";
+import { applicationTestRecordIds } from "@/lib/application-test-records";
 
-const mockPages = [
+const applicationPages = [
   {
-    title: "基本资料录入",
-    description: "查看移动端转学申请录入页，表单已预置 Mock 数据。",
+    title: "新建申请",
+    description: "填写并提交新的转学申请，学籍信息卡可后续补传。",
     href: "/application/new",
     icon: ClipboardPenLine,
+    actionLabel: "发起申请",
   },
   {
-    title: "审核中",
-    description: "查看提交申请后的审核进度和时间线展示。",
-    href: "/application/pending",
+    title: "审核中申请",
+    description: "查看一条状态为待审核的测试申请。",
+    href: `/application/pending/${applicationTestRecordIds.pending}`,
     icon: FileClock,
+    actionLabel: "查看审核中",
   },
   {
-    title: "确认结果",
-    description: "查看审核通过后的须知确认与下一步动作。",
-    href: "/application/confirmation",
+    title: "审核通过结果",
+    description: "查看一条已通过且已分配目标学校的测试申请。",
+    href: `/application/confirmation/${applicationTestRecordIds.approved}`,
     icon: CheckCircle2,
+    actionLabel: "查看通过结果",
   },
   {
-    title: "补充材料",
-    description: "查看材料上传页，内置材料预览和提交流程。",
-    href: "/application/supplement",
+    title: "审核驳回结果",
+    description: "查看一条已驳回且带审核备注的测试申请。",
+    href: `/application/confirmation/${applicationTestRecordIds.rejected}`,
+    icon: CircleX,
+    actionLabel: "查看驳回结果",
+  },
+  {
+    title: "待补充资料",
+    description: "查看一条缺少学籍信息卡、等待补件的测试申请。",
+    href: `/application/supplement/${applicationTestRecordIds.supplement}`,
     icon: Files,
+    actionLabel: "查看待补充资料",
   },
 ] as const;
 
@@ -46,11 +59,11 @@ export default function UserPage() {
             转学申请移动端状态预览
           </h1>
           <p className="text-sm text-muted-foreground">
-            选择任一状态页独立查看，不再依赖流程上下文。
+            选择真实业务入口或固定测试申请，直接查看当前状态页。
           </p>
         </div>
         <div className="space-y-4">
-          {mockPages.map((page) => {
+          {applicationPages.map((page) => {
             const Icon = page.icon;
 
             return (
@@ -69,7 +82,7 @@ export default function UserPage() {
                   </p>
                   <Button asChild className="w-full h-11 gap-2">
                     <Link href={page.href}>
-                      进入页面
+                      {page.actionLabel}
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </Button>

@@ -51,7 +51,7 @@ model Application {
   // 无论户籍还是非户籍都要传的：
   fileHukou       String @default("[]") // 户口本 (多图)
   fileProperty    String @default("[]") // 房产证或房屋租赁备案证明 (多图)
-  fileStudentCard String @default("[]") // 学籍信息卡 (多图)
+  fileStudentCard String? @default("[]") // 学籍信息卡 (多图，可后补)
 
   // 非户籍额外需要传的：
   fileResidencePermit String @default("[]") // 居住证 (多图)

@@ -48,7 +48,7 @@ export const applicationSchema = z
     fileProperty: z
       .array(z.string())
       .min(1, "至少上传一张房产证或房屋租赁证明"),
-    fileStudentCard: z.array(z.string()).min(1, "至少上传一张学籍信息卡"),
+    fileStudentCard: z.array(z.string()).optional(),
     fileResidencePermit: z.array(z.string()).optional(),
   })
   .superRefine((data, ctx) => {
@@ -64,6 +64,10 @@ export const applicationSchema = z
       });
     }
   });
+
+export const applicationSupplementSchema = z.object({
+  fileStudentCard: z.array(z.string()).min(1, "至少上传一张学籍信息卡"),
+});
 
 export const applicationApprovalSchema = z
   .object({
@@ -94,4 +98,7 @@ export const applicationApprovalSchema = z
 
 // 导出前端推导类型
 export type ApplicationInput = z.infer<typeof applicationSchema>;
+export type ApplicationSupplementInput = z.infer<
+  typeof applicationSupplementSchema
+>;
 export type ApplicationApprovalInput = z.infer<typeof applicationApprovalSchema>;

@@ -113,12 +113,13 @@ export function getSemesterTimelineStatus(
 }
 
 export function pickPreferredSemester<T extends Pick<SemesterLike, "id" | "startDate" | "endDate">>(
-  semesters: T[],
+  semesters: T[] | undefined,
   selectedId?: string,
   now = new Date(),
 ) {
+  const safeSemesters = semesters ?? [];
   const selected = selectedId
-    ? semesters.find((semester) => semester.id === selectedId)
+    ? safeSemesters.find((semester) => semester.id === selectedId)
     : undefined;
 
   if (selected) {
@@ -126,8 +127,8 @@ export function pickPreferredSemester<T extends Pick<SemesterLike, "id" | "start
   }
 
   return (
-    semesters.find(
+    safeSemesters.find(
       (semester) => now >= semester.startDate && now < semester.endDate,
-    ) ?? semesters[0] ?? null
+    ) ?? safeSemesters[0] ?? null
   );
 }

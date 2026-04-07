@@ -406,7 +406,12 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
               </div>
 
               <div className="border rounded-lg p-4 bg-muted/30">
-                <p className="text-sm font-medium mb-2">3. 学生学籍信息卡 *</p>
+                <p className="text-sm font-medium mb-2">
+                  3. 学生学籍信息卡（可后补）
+                </p>
+                <p className="mb-2 text-xs text-muted-foreground">
+                  如果暂时没有学籍信息卡，也可以先提交申请，系统会将工单标记为待补充资料。
+                </p>
                 <FormField
                   control={form.control}
                   name="fileStudentCard"
