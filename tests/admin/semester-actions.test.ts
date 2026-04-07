@@ -73,6 +73,26 @@ describe("semester actions", () => {
     expect(mocks.revalidatePath).toHaveBeenNthCalledWith(2, "/admin");
   });
 
+  it("returns semesters ordered by start date descending", async () => {
+    const semesters = [
+      {
+        id: "semester-2027-spring",
+        name: "2027年春季",
+        startDate: new Date("2026-09-01T00:00:00.000Z"),
+        endDate: new Date("2027-03-01T00:00:00.000Z"),
+        isActive: true,
+      },
+    ];
+
+    mocks.semesterFindMany.mockResolvedValueOnce(semesters);
+
+    await expect(semesterActions.getSemesters()).resolves.toEqual(semesters);
+
+    expect(mocks.semesterFindMany).toHaveBeenCalledWith({
+      orderBy: { startDate: "desc" },
+    });
+  });
+
   it("creates a semester from the legacy payload used by the current dialog", async () => {
     const values: SemesterInput = {
       name: "2026年秋季",
@@ -240,5 +260,22 @@ describe("semester actions", () => {
       where: { id: "semester-2026-autumn" },
     });
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("deletes a semester and revalidates both admin paths", async () => {
+    mocks.semesterDelete.mockResolvedValueOnce({
+      id: "semester-2026-autumn",
+    });
+
+    await expect(semesterActions.deleteSemester("semester-2026-autumn")).resolves.toEqual({
+      success: true,
+    });
+
+    expect(mocks.semesterDelete).toHaveBeenCalledWith({
+      where: { id: "semester-2026-autumn" },
+    });
+    expect(mocks.revalidatePath).toHaveBeenCalledTimes(2);
+    expect(mocks.revalidatePath).toHaveBeenNthCalledWith(1, "/admin/semesters");
+    expect(mocks.revalidatePath).toHaveBeenNthCalledWith(2, "/admin");
   });
 });
