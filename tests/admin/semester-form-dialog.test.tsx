@@ -138,7 +138,9 @@ describe("SemesterFormDialog", () => {
     expect(screen.getByLabelText("开始日期")).toHaveValue("2026-03-01");
     expect(screen.getByLabelText("结束日期")).toHaveValue("2026-09-01");
 
-    fireEvent.click(screen.getByRole("button", { name: "Close" }));
+    fireEvent.keyDown(screen.getByRole("dialog", { name: "创建学期" }), {
+      key: "Escape",
+    });
     vi.setSystemTime(new Date("2026-10-01T08:00:00.000Z"));
     fireEvent.click(screen.getByRole("button", { name: "打开学期表单" }));
 
