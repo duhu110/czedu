@@ -3,6 +3,7 @@
 
 import * as React from "react";
 import { ChevronsUpDown, CalendarIcon } from "lucide-react";
+import { pickPreferredSemester } from "@/lib/semester";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,22 +24,31 @@ export interface Semester {
   name: string;
   startDate: Date;
   endDate: Date;
+  isActive: boolean;
 }
 
 export function SemesterSwitcher({ semesters }: { semesters: Semester[] }) {
-  // 1. 自动计算当前选中的学期逻辑
-  const activeSemester = React.useMemo(() => {
-    if (semesters.length === 0) return null;
-    const now = new Date();
-    // 优先找当前日期在范围内的
-    const matched = semesters.find(
-      (s) => now >= new Date(s.startDate) && now <= new Date(s.endDate),
-    );
-    // 找不到就选开始日期离现在最近的一个
-    return matched || semesters[0];
-  }, [semesters]);
+  const [selectedId, setSelectedId] = React.useState<string | undefined>(() =>
+    pickPreferredSemester(semesters)?.id,
+  );
 
-  const [selected, setSelected] = React.useState(activeSemester);
+  const selected = React.useMemo(
+    () => pickPreferredSemester(semesters, selectedId),
+    [selectedId, semesters],
+  );
+
+  React.useEffect(() => {
+    const preferredSemester = pickPreferredSemester(semesters, selectedId);
+    const preferredId = preferredSemester?.id;
+
+    if (preferredId !== selectedId) {
+      setSelectedId(preferredId);
+    }
+  }, [selectedId, semesters]);
+
+  const selectedStatus = selected
+    ? `业务学期 · ${selected.isActive ? "已启用" : "已停用"}`
+    : "业务学期";
 
   return (
     <SidebarMenu>
@@ -57,7 +67,7 @@ export function SemesterSwitcher({ semesters }: { semesters: Semester[] }) {
                   {selected?.name || "暂无学期"}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  业务学期
+                  {selectedStatus}
                 </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -80,10 +90,15 @@ export function SemesterSwitcher({ semesters }: { semesters: Semester[] }) {
               semesters.map((s) => (
                 <DropdownMenuItem
                   key={s.id}
-                  onClick={() => setSelected(s)}
+                  onClick={() => setSelectedId(s.id)}
                   className="gap-2 p-2"
                 >
-                  {s.name}
+                  <div className="flex flex-col">
+                    <span>{s.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {s.isActive ? "已启用" : "已停用"}
+                    </span>
+                  </div>
                 </DropdownMenuItem>
               ))
             )}
