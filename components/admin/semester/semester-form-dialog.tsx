@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { PlusIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -105,19 +105,19 @@ export function SemesterFormDialog(props: SemesterFormDialogProps) {
       : getDefaultSemesterFormValues();
   }, [mode, semester]);
   const [open, setOpen] = React.useState(defaultOpen);
-  const initialValuesRef = React.useRef(getDialogValues());
+  const [initialValues] = React.useState(() => getDialogValues());
   const form = useForm<SemesterFormInput>({
     resolver: zodResolver(semesterFormSchema),
-    defaultValues: initialValuesRef.current,
+    defaultValues: initialValues,
   });
-  const year = form.watch("year");
-  const term = form.watch("term");
-  const startDate = form.watch("startDate");
-  const endDate = form.watch("endDate");
+  const year = useWatch({ control: form.control, name: "year" });
+  const term = useWatch({ control: form.control, name: "term" });
+  const startDate = useWatch({ control: form.control, name: "startDate" });
+  const endDate = useWatch({ control: form.control, name: "endDate" });
   const allowedWindow = getSemesterWindow(year, term);
   const previousTemplateRef = React.useRef({
-    year: initialValuesRef.current.year,
-    term: initialValuesRef.current.term,
+    year: initialValues.year,
+    term: initialValues.term,
   });
   const generatedName = buildSemesterName(year, term);
   const title = mode === "create" ? "创建学期" : "编辑学期";
@@ -175,7 +175,7 @@ export function SemesterFormDialog(props: SemesterFormDialogProps) {
         shouldValidate: true,
       });
     }
-  }, [allowedWindow.end, allowedWindow.start, endDate, form, startDate]);
+  }, [allowedWindow.end, allowedWindow.start, endDate, form, startDate, term, year]);
 
   async function onSubmit(values: SemesterFormInput) {
     const result =
