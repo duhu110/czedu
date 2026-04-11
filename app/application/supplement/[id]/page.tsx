@@ -45,12 +45,25 @@ export default async function ApplicationSupplementPage({
     redirect(`/application/confirmation/${application.id}`);
   }
 
+  // 判断户口本是否完整上传
+  const hukouUploaded =
+    !!application.fileHukou.frontPage &&
+    !!application.fileHukou.householderPage &&
+    !!application.fileHukou.guardianPage &&
+    !!application.fileHukou.studentPage;
+
+  // 判断住房证明是否上传（仅城中区户籍）
+  const propertyUploaded =
+    !!application.fileProperty.propertyDeed ||
+    !!application.fileProperty.purchaseContract ||
+    !!application.fileProperty.rentalCert;
+
   return (
     <div className="min-h-screen bg-background pb-8">
       <div className="bg-primary px-4 pb-6 pt-12">
         <h1 className="text-xl font-bold text-primary-foreground">补充资料</h1>
         <p className="mt-1 text-sm text-primary-foreground/80">
-          该申请缺少学籍信息卡，请补传后继续审核。
+          该申请缺少学籍信息表，请补传后继续审核。
         </p>
       </div>
 
@@ -98,15 +111,17 @@ export default async function ApplicationSupplementPage({
           </CardHeader>
           <CardContent className="space-y-3">
             <UploadStatusRow
-              label="户口本（首页及学生页）"
-              uploaded={application.fileHukou.length > 0}
+              label="户口本（首页、户主页、监护人页、学生页）"
+              uploaded={hukouUploaded}
             />
+            {application.residencyType === "LOCAL" && (
+              <UploadStatusRow
+                label="住房证明（不动产权证/购房合同/租赁备案证明）"
+                uploaded={propertyUploaded}
+              />
+            )}
             <UploadStatusRow
-              label="房产证或房屋租赁备案证明"
-              uploaded={application.fileProperty.length > 0}
-            />
-            <UploadStatusRow
-              label="学生学籍信息卡"
+              label="学生学籍信息表"
               uploaded={application.fileStudentCard.length > 0}
             />
             {application.residencyType === "NON_LOCAL" ? (

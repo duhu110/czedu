@@ -38,19 +38,33 @@ const baseApplicationInput = {
   residencyType: "LOCAL" as const,
   name: "张三",
   gender: "MALE" as const,
+  ethnicity: "汉族",
   idCard: "110101201001011234",
-  studentId: "G20240001",
+  studentId: "G2024000100001",
   guardian1Name: "李四",
+  guardian1Relation: "父亲",
   guardian1Phone: "13800138000",
   guardian2Name: "",
+  guardian2Relation: "",
   guardian2Phone: "",
   currentSchool: "城中区实验小学",
   currentGrade: "二年级",
   targetGrade: "三年级",
   hukouAddress: "城中区幸福路100号",
   livingAddress: "城中区幸福路100号2单元301",
-  fileHukou: ["/uploads/hukou-1.png"],
-  fileProperty: ["/uploads/property-1.png"],
+  fileHukou: {
+    frontPage: "/uploads/hukou-front.png",
+    householderPage: "/uploads/hukou-householder.png",
+    guardianPage: "/uploads/hukou-guardian.png",
+    studentPage: "/uploads/hukou-student.png",
+    others: [],
+  },
+  fileProperty: {
+    propertyDeed: "/uploads/property-deed.png",
+    purchaseContract: "",
+    rentalCert: "",
+    others: [],
+  },
   fileStudentCard: [] as string[],
   fileResidencePermit: [] as string[],
 };
@@ -92,6 +106,61 @@ describe("application actions", () => {
         fileStudentCard: JSON.stringify(["/uploads/student-card-1.png"]),
       }),
     });
+  });
+
+  it("serializes fileHukou as structured JSON object", async () => {
+    createMock.mockResolvedValue({ id: "app-1" });
+
+    await createApplication(baseApplicationInput);
+
+    expect(createMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        fileHukou: JSON.stringify(baseApplicationInput.fileHukou),
+      }),
+    });
+  });
+
+  it("serializes fileProperty as structured JSON object", async () => {
+    createMock.mockResolvedValue({ id: "app-1" });
+
+    await createApplication(baseApplicationInput);
+
+    expect(createMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        fileProperty: JSON.stringify(baseApplicationInput.fileProperty),
+      }),
+    });
+  });
+
+  it("accepts NON_LOCAL applications without fileProperty", async () => {
+    createMock.mockResolvedValue({ id: "app-nonlocal" });
+
+    const result = await createApplication({
+      ...baseApplicationInput,
+      residencyType: "NON_LOCAL",
+      fileProperty: undefined,
+      fileResidencePermit: ["/uploads/residence-permit.png"],
+    });
+
+    expect(result).toEqual({ success: true, error: null });
+  });
+
+  it("rejects LOCAL applications without any housing certificate", async () => {
+    const result = await createApplication({
+      ...baseApplicationInput,
+      fileProperty: {
+        propertyDeed: "",
+        purchaseContract: "",
+        rentalCert: "",
+        others: [],
+      },
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: "数据验证失败，请检查填写内容",
+    });
+    expect(createMock).not.toHaveBeenCalled();
   });
 
   it("rejects supplement uploads for non-supplement applications", async () => {

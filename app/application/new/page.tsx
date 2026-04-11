@@ -1,7 +1,32 @@
+import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
+import { verifyQrToken } from "@/lib/qrcode-token";
 import { ApplicationForm } from "./_components/application-form";
 
-export default async function NewApplicationPage() {
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function NewApplicationPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const token =
+    typeof params.token === "string" ? params.token : undefined;
+  const expiresAt =
+    typeof params.expiresAt === "string" ? params.expiresAt : undefined;
+  const sig =
+    typeof params.sig === "string" ? params.sig : undefined;
+
+  // 强制要求二维码参数
+  if (!token || !expiresAt || !sig) {
+    redirect("/application/new/outdate");
+  }
+
+  // HMAC 签名验证 + 过期检查
+  const result = verifyQrToken(token, expiresAt, sig);
+  if (!result.valid) {
+    redirect("/application/new/outdate");
+  }
+
   const now = new Date();
 
   // 查找当前时间处于起止范围内的学期

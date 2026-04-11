@@ -1,3 +1,5 @@
+import { QR_VALIDATION_WINDOW_SECONDS } from "@/lib/qrcode-token";
+
 export const QR_REFRESH_INTERVAL_SECONDS = 30;
 const QR_REFRESH_INTERVAL_MS = QR_REFRESH_INTERVAL_SECONDS * 1000;
 
@@ -29,7 +31,9 @@ export function buildRegistrationQrSession(
   origin = "https://demo.czedu.local",
 ): RegistrationQrSession {
   const issuedAt = new Date(getWindowStart(now));
-  const expiresAt = new Date(issuedAt.getTime() + QR_REFRESH_INTERVAL_MS);
+  const expiresAt = new Date(
+    issuedAt.getTime() + QR_VALIDATION_WINDOW_SECONDS * 1000,
+  );
   const token = `REG-${issuedAt.toISOString().replace(/\D/g, "").slice(0, 14)}`;
   const url = new URL("/application/new", origin);
 

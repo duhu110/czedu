@@ -1,113 +1,164 @@
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ApplicationPrintSheet } from "./application-print-sheet";
 import {
   formatPrintTimeLabel,
   getPendingLookupUrl,
+  maskPhoneNumber,
+  getStatusPrintLabel,
 } from "./application-print-utils";
+
+const { mockMaskPhone } = vi.hoisted(() => ({
+  mockMaskPhone: { value: false },
+}));
+
+vi.mock("./print-context", () => ({
+  usePrintContext: () => ({
+    maskPhone: mockMaskPhone.value,
+    triggerPrint: vi.fn(),
+  }),
+}));
 
 const application = {
   id: "app-pending-001",
   name: "张三",
   gender: "MALE" as const,
-  idCard: "450123201501010011",
-  studentId: "XJ2026001",
+  ethnicity: "汉族",
+  idCard: "630103201501010011",
+  studentId: "G2026001001",
   residencyType: "LOCAL" as const,
   guardian1Name: "张父",
-  guardian1Phone: "13800000000",
-  guardian2Name: null,
-  guardian2Phone: null,
+  guardian1Relation: "父亲",
+  guardian1Phone: "13800001234",
+  guardian2Name: "张母",
+  guardian2Relation: "母亲",
+  guardian2Phone: "13900005678",
   currentSchool: "城中区第三小学",
   currentGrade: "四年级",
   targetGrade: "五年级",
   targetSchool: null,
-  hukouAddress: "柳州市城中区户籍地址1号",
-  livingAddress: "柳州市城中区居住地址2号",
+  hukouAddress: "城中区南关街25号",
+  livingAddress: "城中区南关街25号",
+  status: "PENDING" as const,
+  adminRemark: null,
   semester: { name: "2026年春季学期" },
+};
+
+const baseProps = {
+  application,
+  printTimeLabel: "2026/04/07 20:15",
+  qrCodeDataUrl: "data:image/png;base64,qr-code",
+  transferNoticeContent: "转学须知内容示例",
+  consentFormContent: "知情同意书内容示例",
 };
 
 describe("ApplicationPrintSheet", () => {
   afterEach(() => {
     cleanup();
+    mockMaskPhone.value = false;
   });
 
-  it("renders the print sections and fallback values", () => {
-    render(
-      <ApplicationPrintSheet
-        application={application}
-        printTimeLabel="2026-04-07 20:15"
-        pendingLookupUrl="https://czedu.local/application/pending/app-pending-001"
-        qrCodeDataUrl="data:image/png;base64,qr-code"
-      />,
-    );
+  it("renders 4-row print layout structure", () => {
+    render(<ApplicationPrintSheet {...baseProps} />);
+
+    expect(screen.getByTestId("print-row-1")).toBeInTheDocument();
+    expect(screen.getByTestId("print-row-2")).toBeInTheDocument();
+    expect(screen.getByTestId("print-row-3")).toBeInTheDocument();
+    expect(screen.getByTestId("print-row-4")).toBeInTheDocument();
+  });
+
+  it("renders header with title and semester", () => {
+    render(<ApplicationPrintSheet {...baseProps} />);
 
     expect(screen.getByText("转学申请单")).toBeInTheDocument();
-    expect(screen.getByText("基本信息")).toBeInTheDocument();
-    expect(screen.getByText("监护人信息")).toBeInTheDocument();
-    expect(screen.getByText("学校与地址")).toBeInTheDocument();
-    expect(screen.getByText("扫码查看申请处理进度")).toBeInTheDocument();
-    expect(screen.getByText("监护人签字")).toBeInTheDocument();
-    expect(screen.getByText("姓名：无")).toBeInTheDocument();
-    expect(screen.getByText("电话：无")).toBeInTheDocument();
-    expect(screen.getByText("尚未分配")).toBeInTheDocument();
-    expect(screen.queryByText("申请学期")).not.toBeInTheDocument();
+    expect(screen.getByText("2026年春季学期")).toBeInTheDocument();
   });
 
-  it("prints the pending-page query url text", () => {
+  it("renders student basic info in row 1", () => {
+    render(<ApplicationPrintSheet {...baseProps} />);
+
+    expect(screen.getByText("张三")).toBeInTheDocument();
+    expect(screen.getByText("男")).toBeInTheDocument();
+    expect(screen.getByText("汉族")).toBeInTheDocument();
+    expect(screen.getByText("630103201501010011")).toBeInTheDocument();
+  });
+
+  it("renders transfer notice in row 2", () => {
+    render(<ApplicationPrintSheet {...baseProps} />);
+
+    expect(screen.getByText("转学须知")).toBeInTheDocument();
+    expect(screen.getByText("转学须知内容示例")).toBeInTheDocument();
+  });
+
+  it("shows fallback when transfer notice is empty", () => {
     render(
       <ApplicationPrintSheet
-        application={application}
-        printTimeLabel="2026-04-07 20:15"
-        pendingLookupUrl="https://czedu.local/application/pending/app-pending-001"
-        qrCodeDataUrl="data:image/png;base64,qr-code"
+        {...baseProps}
+        transferNoticeContent={null}
       />,
     );
 
-    expect(
-      screen.getByText("https://czedu.local/application/pending/app-pending-001"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("暂未设置转学须知")).toBeInTheDocument();
   });
 
-  it("renders a qrcode image for the pending lookup url", () => {
-    render(
-      <ApplicationPrintSheet
-        application={application}
-        printTimeLabel="2026-04-07 20:15"
-        pendingLookupUrl="https://czedu.local/application/pending/app-pending-001"
-        qrCodeDataUrl="data:image/png;base64,qr-code"
-      />,
-    );
+  it("renders consent form in row 4", () => {
+    render(<ApplicationPrintSheet {...baseProps} />);
 
+    expect(screen.getByText("转学知情同意书")).toBeInTheDocument();
+    expect(screen.getByText("知情同意书内容示例")).toBeInTheDocument();
+  });
+
+  it("renders status info and QR code in row 3", () => {
+    render(<ApplicationPrintSheet {...baseProps} />);
+
+    expect(screen.getByText("审核处理中")).toBeInTheDocument();
     expect(screen.getByTestId("application-pending-qrcode")).toBeInTheDocument();
   });
 
-  it("uses a compact two-column guardian layout", () => {
+  it("renders SUPPLEMENT status with reminder in row 3", () => {
     render(
       <ApplicationPrintSheet
-        application={application}
-        printTimeLabel="2026-04-07 20:15"
-        pendingLookupUrl="https://czedu.local/application/pending/app-pending-001"
-        qrCodeDataUrl="data:image/png;base64,qr-code"
+        {...baseProps}
+        application={{
+          ...application,
+          status: "SUPPLEMENT",
+          adminRemark: "请补充学籍信息卡",
+        }}
       />,
     );
 
-    expect(screen.getByTestId("guardian-grid")).toHaveClass("grid-cols-2");
+    expect(screen.getByText(/需要补充学籍信息卡/)).toBeInTheDocument();
+    expect(screen.getByText(/还需补充学籍信息卡/)).toBeInTheDocument();
   });
 
-  it("keeps qrcode and signature area in one compact row", () => {
-    render(
-      <ApplicationPrintSheet
-        application={application}
-        printTimeLabel="2026-04-07 20:15"
-        pendingLookupUrl="https://czedu.local/application/pending/app-pending-001"
-        qrCodeDataUrl="data:image/png;base64,qr-code"
-      />,
-    );
+  it("renders signature area in row 4", () => {
+    render(<ApplicationPrintSheet {...baseProps} />);
 
-    expect(screen.getByTestId("print-footer-grid")).toHaveClass("grid-cols-[140px_1fr]");
+    expect(screen.getByText("监护人签字：")).toBeInTheDocument();
+    expect(screen.getByText("日期：")).toBeInTheDocument();
+  });
+
+  // ============ 手机号脱敏 ============
+
+  it("shows full phone numbers when maskPhone is false (archive print)", () => {
+    mockMaskPhone.value = false;
+    render(<ApplicationPrintSheet {...baseProps} />);
+
+    expect(screen.getByText(/13800001234/)).toBeInTheDocument();
+    expect(screen.getByText(/13900005678/)).toBeInTheDocument();
+  });
+
+  it("masks phone numbers when maskPhone is true (parent print)", () => {
+    mockMaskPhone.value = true;
+    render(<ApplicationPrintSheet {...baseProps} />);
+
+    expect(screen.getByText(/138\*\*\*\*1234/)).toBeInTheDocument();
+    expect(screen.getByText(/139\*\*\*\*5678/)).toBeInTheDocument();
   });
 });
+
+// ============ 工具函数测试 ============
 
 describe("application-print-utils", () => {
   it("builds a pending lookup url from an origin", () => {
@@ -120,5 +171,25 @@ describe("application-print-utils", () => {
     expect(
       formatPrintTimeLabel(new Date("2026-04-07T20:15:00+08:00")),
     ).toMatch(/2026/);
+  });
+
+  it("masks phone number correctly", () => {
+    expect(maskPhoneNumber("13800001234")).toBe("138****1234");
+    expect(maskPhoneNumber("13900005678")).toBe("139****5678");
+  });
+
+  it("returns short phone unchanged", () => {
+    expect(maskPhoneNumber("12345")).toBe("12345");
+  });
+
+  it("returns correct status labels", () => {
+    expect(getStatusPrintLabel("APPROVED", null)).toBe("已通过审核");
+    expect(getStatusPrintLabel("REJECTED", "不符合要求")).toContain(
+      "申请已驳回",
+    );
+    expect(getStatusPrintLabel("SUPPLEMENT", null)).toContain(
+      "补充学籍信息卡",
+    );
+    expect(getStatusPrintLabel("PENDING", null)).toBe("审核处理中");
   });
 });

@@ -26,9 +26,9 @@ describe("application pages", () => {
 
     render(await Page());
 
-    expect(screen.getByRole("link", { name: "发起申请" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "需扫描二维码" })).toHaveAttribute(
       "href",
-      "/application/new",
+      "/application/new/outdate",
     );
     expect(screen.getByRole("link", { name: "查看审核中" })).toHaveAttribute(
       "href",

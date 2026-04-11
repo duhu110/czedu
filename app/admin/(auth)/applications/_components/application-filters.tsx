@@ -67,6 +67,7 @@ export function ApplicationFilters() {
           <SelectItem value="APPROVED">已通过</SelectItem>
           <SelectItem value="REJECTED">已驳回</SelectItem>
           <SelectItem value="SUPPLEMENT">待补充</SelectItem>
+          <SelectItem value="EDITING">待修改</SelectItem>
         </SelectContent>
       </Select>
 

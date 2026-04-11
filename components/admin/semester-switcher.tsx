@@ -1,9 +1,8 @@
 // components/admin/semester-switcher.tsx
 "use client";
 
-import * as React from "react";
 import { ChevronsUpDown, CalendarIcon } from "lucide-react";
-import { pickPreferredSemester } from "@/lib/semester";
+import { useSemester } from "@/lib/semester-context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,39 +18,11 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 
-export interface Semester {
-  id: string;
-  name: string;
-  startDate: Date;
-  endDate: Date;
-  isActive: boolean;
-}
+export function SemesterSwitcher() {
+  const { semesters, selectedSemester, setSelectedSemesterId } = useSemester();
 
-export function SemesterSwitcher({
-  semesters = [],
-}: {
-  semesters?: Semester[];
-}) {
-  const [selectedId, setSelectedId] = React.useState<string | undefined>(() =>
-    pickPreferredSemester(semesters)?.id,
-  );
-
-  const selected = React.useMemo(
-    () => pickPreferredSemester(semesters, selectedId),
-    [selectedId, semesters],
-  );
-
-  React.useEffect(() => {
-    const preferredSemester = pickPreferredSemester(semesters, selectedId);
-    const preferredId = preferredSemester?.id;
-
-    if (preferredId !== selectedId) {
-      setSelectedId(preferredId);
-    }
-  }, [selectedId, semesters]);
-
-  const selectedStatus = selected
-    ? `业务学期 · ${selected.isActive ? "已启用" : "已停用"}`
+  const selectedStatus = selectedSemester
+    ? `业务学期 · ${selectedSemester.isActive ? "已启用" : "已停用"}`
     : "业务学期";
 
   return (
@@ -68,7 +39,7 @@ export function SemesterSwitcher({
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {selected?.name || "暂无学期"}
+                  {selectedSemester?.name || "暂无学期"}
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
                   {selectedStatus}
@@ -94,7 +65,7 @@ export function SemesterSwitcher({
               semesters.map((s) => (
                 <DropdownMenuItem
                   key={s.id}
-                  onClick={() => setSelectedId(s.id)}
+                  onClick={() => setSelectedSemesterId(s.id)}
                   className="gap-2 p-2"
                 >
                   <div className="flex flex-col">

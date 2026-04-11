@@ -8,7 +8,10 @@ import {
   applicationApprovalSchema,
   type ApplicationInput,
   type ApplicationSupplementInput,
+  type FileHukouInput,
+  type FilePropertyInput,
 } from "@/lib/validations/application";
+import { signEditToken } from "@/lib/qrcode-token";
 // ✅ 1. 引入生成的数据库模型类型
 import {
   Prisma,
@@ -16,25 +19,89 @@ import {
   type ApplicationStatus,
 } from "@prisma/client";
 
-// 辅助函数：安全地将前端的数组转换为 JSON 字符串
+// ========== 文件序列化/反序列化 ==========
+
+// 辅助函数：安全地将前端的结构化数据转换为 JSON 字符串
 const serializeFiles = (data: ApplicationInput) => ({
   ...data,
   fileHukou: JSON.stringify(data.fileHukou),
-  fileProperty: JSON.stringify(data.fileProperty),
+  fileProperty: JSON.stringify(data.fileProperty || {}),
   fileStudentCard: JSON.stringify(data.fileStudentCard || []),
   fileResidencePermit: JSON.stringify(data.fileResidencePermit || []),
 });
 
-// 辅助函数：安全地将数据库的 JSON 字符串还原为数组
-const deserializeFiles = <T extends Application>(record: T) => ({
-  ...record,
-  fileHukou: JSON.parse(record.fileHukou || "[]") as string[],
-  fileProperty: JSON.parse(record.fileProperty || "[]") as string[],
-  fileStudentCard: JSON.parse(record.fileStudentCard || "[]") as string[],
-  fileResidencePermit: JSON.parse(
-    record.fileResidencePermit || "[]",
-  ) as string[],
-});
+// 默认的空户口本结构
+const emptyHukou: FileHukouInput = {
+  frontPage: "",
+  householderPage: "",
+  guardianPage: "",
+  studentPage: "",
+  others: [],
+};
+
+// 默认的空住房证明结构
+const emptyProperty: FilePropertyInput = {
+  propertyDeed: "",
+  purchaseContract: "",
+  rentalCert: "",
+  others: [],
+};
+
+// 辅助函数：安全地将数据库的 JSON 字符串还原为结构化对象
+const deserializeFiles = <T extends Application>(record: T) => {
+  // 解析户口本：兼容旧版扁平数组格式
+  let fileHukou: FileHukouInput;
+  try {
+    const parsed = JSON.parse(record.fileHukou || "{}");
+    if (Array.isArray(parsed)) {
+      // 旧格式：扁平数组 → 转换为结构化对象
+      fileHukou = {
+        frontPage: parsed[0] || "",
+        householderPage: parsed[1] || "",
+        guardianPage: parsed[2] || "",
+        studentPage: parsed[3] || "",
+        others: parsed.slice(4),
+      };
+    } else {
+      fileHukou = { ...emptyHukou, ...parsed };
+    }
+  } catch {
+    fileHukou = { ...emptyHukou };
+  }
+
+  // 解析住房证明：兼容旧版扁平数组格式
+  let fileProperty: FilePropertyInput;
+  try {
+    const parsed = JSON.parse(record.fileProperty || "{}");
+    if (Array.isArray(parsed)) {
+      // 旧格式：扁平数组 → 转换为结构化对象
+      fileProperty = {
+        propertyDeed: parsed[0] || "",
+        purchaseContract: parsed[1] || "",
+        rentalCert: "",
+        others: parsed.slice(2),
+      };
+    } else {
+      fileProperty = { ...emptyProperty, ...parsed };
+    }
+  } catch {
+    fileProperty = { ...emptyProperty };
+  }
+
+  return {
+    ...record,
+    fileHukou,
+    fileProperty,
+    fileStudentCard: JSON.parse(record.fileStudentCard || "[]") as string[],
+    fileResidencePermit: JSON.parse(
+      record.fileResidencePermit || "[]",
+    ) as string[],
+    rejectedFields: JSON.parse(record.rejectedFields || "[]") as string[],
+  };
+};
+
+// 反序列化后的应用类型
+export type DeserializedApplication = ReturnType<typeof deserializeFiles<Application>>;
 
 // ==========================================
 // 1. Create - 新增申请
@@ -284,4 +351,105 @@ export async function deleteApplication(id: string) {
     console.error("Delete Application Error:", e);
     return { success: false, error: "删除失败" };
   }
+}
+
+// ==========================================
+// 7. 驳回修改 - 标记问题字段并设置 EDITING 状态
+// ==========================================
+export async function rejectForEditing(
+  id: string,
+  rejectedFields: string[],
+  adminRemark: string,
+) {
+  try {
+    const parsed = applicationApprovalSchema.safeParse({
+      status: "EDITING",
+      adminRemark,
+      rejectedFields,
+    });
+
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: parsed.error.issues[0]?.message || "数据校验失败",
+      };
+    }
+
+    await prisma.application.update({
+      where: { id },
+      data: {
+        status: "EDITING",
+        adminRemark: parsed.data.adminRemark,
+        rejectedFields: JSON.stringify(rejectedFields),
+        targetSchool: null,
+      },
+    });
+
+    revalidatePath("/admin/applications");
+    revalidatePath(`/admin/applications/${id}`);
+    return { success: true, error: null };
+  } catch (e) {
+    console.error("Reject For Editing Error:", e);
+    return { success: false, error: "驳回修改操作失败" };
+  }
+}
+
+// ==========================================
+// 8. 提交编辑 - 家长扫码编辑后提交
+// ==========================================
+export async function submitApplicationEdit(
+  id: string,
+  data: ApplicationInput,
+) {
+  try {
+    const parsed = applicationSchema.safeParse(data);
+    if (!parsed.success) {
+      return { success: false, error: "数据验证失败，请检查填写内容" };
+    }
+
+    // 原子检查状态，防止竞态条件
+    const application = await prisma.application.findUnique({
+      where: { id },
+      select: { id: true, status: true },
+    });
+
+    if (!application) {
+      return { success: false, error: "未找到该申请记录" };
+    }
+
+    if (application.status !== "EDITING") {
+      return { success: false, error: "该申请当前状态不允许编辑" };
+    }
+
+    const finalData = serializeFiles(parsed.data);
+
+    await prisma.application.update({
+      where: { id },
+      data: {
+        ...finalData,
+        status: "PENDING",
+        rejectedFields: "[]",
+        adminRemark: null,
+        targetSchool: null,
+      },
+    });
+
+    revalidatePath(`/application/pending/${id}`);
+    revalidatePath(`/application/edit/${id}`);
+    revalidatePath("/admin/applications");
+    revalidatePath(`/admin/applications/${id}`);
+    return { success: true, error: null };
+  } catch (e) {
+    console.error("Submit Application Edit Error:", e);
+    return { success: false, error: "修改提交失败" };
+  }
+}
+
+// ==========================================
+// 9. 签名编辑 Token - 供管理端生成编辑二维码
+// ==========================================
+export async function signEditTokenAction(
+  applicationId: string,
+): Promise<string> {
+  return signEditToken(applicationId);
 }

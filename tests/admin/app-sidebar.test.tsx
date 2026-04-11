@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { AppSidebar } from "@/components/admin/app-sidebar";
+import { SemesterProvider } from "@/lib/semester-context";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -27,7 +28,9 @@ describe("AppSidebar", () => {
     render(
       <TooltipProvider>
         <SidebarProvider>
-          <AppSidebar />
+          <SemesterProvider semesters={[]}>
+            <AppSidebar />
+          </SemesterProvider>
         </SidebarProvider>
       </TooltipProvider>,
     );
@@ -41,7 +44,9 @@ describe("AppSidebar", () => {
     render(
       <TooltipProvider>
         <SidebarProvider>
-          <AppSidebar />
+          <SemesterProvider semesters={[]}>
+            <AppSidebar />
+          </SemesterProvider>
         </SidebarProvider>
       </TooltipProvider>,
     );

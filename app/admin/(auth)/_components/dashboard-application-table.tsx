@@ -23,6 +23,7 @@ const statusMap = {
   APPROVED: { label: "已通过", variant: "default" },
   REJECTED: { label: "已驳回", variant: "destructive" },
   SUPPLEMENT: { label: "待补充资料", variant: "outline" },
+  EDITING: { label: "待修改", variant: "outline" },
 } as const;
 
 export function DashboardApplicationTable({

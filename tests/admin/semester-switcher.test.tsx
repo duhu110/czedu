@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SemesterSwitcher } from "@/components/admin/semester-switcher";
+import { SemesterProvider } from "@/lib/semester-context";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -28,7 +29,9 @@ function renderSemesterSwitcher(
   return render(
     <TooltipProvider>
       <SidebarProvider>
-        <SemesterSwitcher semesters={semesters} />
+        <SemesterProvider semesters={semesters}>
+          <SemesterSwitcher />
+        </SemesterProvider>
       </SidebarProvider>
     </TooltipProvider>,
   );
@@ -77,7 +80,9 @@ describe("SemesterSwitcher", () => {
     rerender(
       <TooltipProvider>
         <SidebarProvider>
-          <SemesterSwitcher semesters={[autumn2026]} />
+          <SemesterProvider semesters={[autumn2026]}>
+            <SemesterSwitcher />
+          </SemesterProvider>
         </SidebarProvider>
       </TooltipProvider>,
     );

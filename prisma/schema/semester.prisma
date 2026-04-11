@@ -11,4 +11,5 @@ model Semester {
   updatedAt DateTime @updatedAt
 
   applications Application[]
+  systemTexts  SystemText[]
 }

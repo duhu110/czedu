@@ -14,6 +14,7 @@ enum ApplicationStatus {
   APPROVED // 已通过
   REJECTED // 已驳回
   SUPPLEMENT // 待补充
+  EDITING // 待修改（管理员驳回修改后，等待家长扫码编辑）
 }
 
 // === 转学申请模型 ===
@@ -28,14 +29,17 @@ model Application {
   residencyType ResidencyType
   name          String
   gender        Gender
+  ethnicity     String @default("汉族") // 民族
   idCard        String // 身份证号
   studentId     String // 学籍号
 
   // 3. 联系人信息
-  guardian1Name  String
-  guardian1Phone String
-  guardian2Name  String? // 监护人2 (选填)
-  guardian2Phone String? // 监护人2电话 (选填)
+  guardian1Name     String
+  guardian1Relation String   // 与学生关系：父亲/母亲/外公/外婆/爷爷/奶奶/其他
+  guardian1Phone    String
+  guardian2Name     String?  // 监护人2 (选填)
+  guardian2Relation String?  // 与学生关系 (选填)
+  guardian2Phone    String?  // 监护人2电话 (选填)
 
   // 4. 学校与年级信息
   currentSchool String // 当前就读学校
@@ -57,8 +61,9 @@ model Application {
   fileResidencePermit String @default("[]") // 居住证 (多图)
 
   // 7. 审核状态与系统字段
-  status      ApplicationStatus @default(PENDING)
-  adminRemark String? // 审核人员备注
+  status         ApplicationStatus @default(PENDING)
+  adminRemark    String? // 审核人员备注
+  rejectedFields String  @default("[]") // 驳回修改时标记的问题字段路径列表 (JSON)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

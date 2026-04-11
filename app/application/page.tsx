@@ -4,20 +4,20 @@ import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   CheckCircle2,
-  ClipboardPenLine,
   FileClock,
   Files,
   CircleX,
+  ScanLine,
 } from "lucide-react";
 import { applicationTestRecordIds } from "@/lib/application-test-records";
 
 const applicationPages = [
   {
     title: "新建申请",
-    description: "填写并提交新的转学申请，学籍信息卡可后续补传。",
-    href: "/application/new",
-    icon: ClipboardPenLine,
-    actionLabel: "发起申请",
+    description: "请在登记处扫描二维码进入申请页面，直接访问链接无法打开。",
+    href: "/application/new/outdate",
+    icon: ScanLine,
+    actionLabel: "需扫描二维码",
   },
   {
     title: "审核中申请",

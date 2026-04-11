@@ -1,0 +1,19 @@
+// prisma/schema/system-text.prisma
+
+enum SystemTextType {
+  TRANSFER_NOTICE
+  CONSENT_FORM
+}
+
+model SystemText {
+  id         String         @id @default(uuid())
+  semesterId String
+  semester   Semester       @relation(fields: [semesterId], references: [id])
+  type       SystemTextType
+  content    String
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([semesterId, type])
+  @@index([semesterId])
+}

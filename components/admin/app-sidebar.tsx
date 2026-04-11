@@ -6,9 +6,10 @@ import {
   FileTextIcon,
   PlusIcon,
   SettingsIcon,
+  NewspaperIcon,
+  ScrollTextIcon,
 } from "lucide-react";
 
-import { LogoIcon } from "@/components/admin/logo";
 import {
   Sidebar,
   SidebarContent,
@@ -20,15 +21,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import {
-  SemesterSwitcher,
-  type Semester,
-} from "@/components/admin/semester-switcher";
-
-// 1. 扩展 Props 接收学期数据
-interface AppSidebarProps {
-  semesters: Semester[];
-}
+import { SemesterSwitcher } from "@/components/admin/semester-switcher";
 
 const navItems = [
   {
@@ -42,18 +35,27 @@ const navItems = [
     icon: <FileTextIcon />,
   },
   {
+    title: "文章管理",
+    url: "/admin/articles",
+    icon: <NewspaperIcon />,
+  },
+  {
+    title: "文字管理",
+    url: "/admin/system-texts",
+    icon: <ScrollTextIcon />,
+  },
+  {
     title: "学期管理",
     url: "/admin/semesters",
     icon: <SettingsIcon />,
   },
 ];
 
-export function AppSidebar({ semesters }: AppSidebarProps) {
+export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader className="h-14 justify-center">
-        {/* 2. 替换为学期切换器 */}
-        <SemesterSwitcher semesters={semesters} />
+        <SemesterSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

@@ -11,6 +11,7 @@ interface ImageUploaderProps {
   onChange: (value: string[]) => void; // 值改变时的回调
   disabled?: boolean;
   maxCount?: number; // 最大上传张数限制，默认不限
+  hasError?: boolean;
 }
 
 // 单张图片上传状态接口
@@ -26,6 +27,7 @@ export function ImageUploader({
   onChange,
   disabled,
   maxCount,
+  hasError,
 }: ImageUploaderProps) {
   // 内部状态：记录正在上传中的文件信息
   const [uploadingFiles, setUploadingFiles] = React.useState<UploadingFile[]>(
@@ -148,7 +150,7 @@ export function ImageUploader({
       />
 
       {/* 照片预览网格 */}
-      <div className="grid grid-cols-3 gap-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="grid grid-cols-3 gap-3">
         {/* 1. 渲染已上传完成的照片 */}
         {value.map((url) => (
           <div
@@ -221,6 +223,7 @@ export function ImageUploader({
             className={cn(
               "relative aspect-square rounded-lg border border-dashed flex flex-col items-center justify-center cursor-pointer transition",
               "border-muted-foreground/30 hover:border-primary hover:bg-primary/5 hover:text-primary text-muted-foreground",
+              hasError && "border-destructive/50 bg-destructive/5",
               isGlobalLoading &&
                 "opacity-60 cursor-not-allowed hover:border-muted-foreground/30 hover:bg-transparent",
             )}

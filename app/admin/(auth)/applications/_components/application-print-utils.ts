@@ -1,13 +1,18 @@
+import type { ApplicationStatus } from "@prisma/client";
+
 export type PrintableApplication = {
   id: string;
   name: string;
   gender: "MALE" | "FEMALE";
+  ethnicity: string;
   idCard: string;
   studentId: string;
   residencyType: "LOCAL" | "NON_LOCAL";
   guardian1Name: string;
+  guardian1Relation: string;
   guardian1Phone: string;
   guardian2Name: string | null;
+  guardian2Relation: string | null;
   guardian2Phone: string | null;
   currentSchool: string;
   currentGrade: string;
@@ -15,6 +20,8 @@ export type PrintableApplication = {
   targetSchool: string | null;
   hukouAddress: string;
   livingAddress: string;
+  status: ApplicationStatus;
+  adminRemark: string | null;
   semester: { name: string };
 };
 
@@ -46,4 +53,29 @@ export function formatPrintTimeLabel(date: Date) {
     minute: "2-digit",
     hour12: false,
   }).format(date);
+}
+
+export function maskPhoneNumber(phone: string): string {
+  if (phone.length < 7) return phone;
+  return phone.slice(0, 3) + "****" + phone.slice(7);
+}
+
+export function getStatusPrintLabel(
+  status: ApplicationStatus,
+  adminRemark: string | null,
+): string {
+  switch (status) {
+    case "APPROVED":
+      return "已通过审核";
+    case "REJECTED":
+      return `申请已驳回${adminRemark ? `（${adminRemark}）` : ""}`;
+    case "SUPPLEMENT":
+      return "审核中，需要补充学籍信息卡";
+    case "PENDING":
+      return "审核处理中";
+    case "EDITING":
+      return "待修改";
+    default:
+      return "";
+  }
 }
