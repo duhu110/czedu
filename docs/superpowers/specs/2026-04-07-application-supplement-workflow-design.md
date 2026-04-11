@@ -1,5 +1,7 @@
 # 转学申请补件流程设计
 
+> 当前项目的完整状态定义与管理端审核规则，统一见 [2026-04-11-application-status-machine.md](./2026-04-11-application-status-machine.md)。
+
 ## 背景
 
 当前用户端 `application` 路由下的 `pending`、`confirmation`、`supplement` 页面仍然是基于 mock 数据的独立演示页，而真实申请数据已经通过 `app/actions/application.ts` 与 Prisma 模型落库。现有流程把 `SUPPLEMENT` 作为管理员审核动作的一部分，但业务要求已经变化：用户在创建申请时可以先不上传 `fileStudentCard`，系统先生成申请单，并允许用户稍后通过补件入口补传。
@@ -33,7 +35,7 @@
 `app/application/pending/[id]/page.tsx` 负责处理中间态：
 
 1. `PENDING`：展示审核中信息。
-2. `SUPPLEMENT`：展示“待补充资料”，并给出跳转到 `app/application/supplement/[id]/page.tsx` 的入口。
+2. `SUPPLEMENT`：展示“待补学籍信息卡”，并给出跳转到 `app/application/supplement/[id]/page.tsx` 的入口。
 3. `APPROVED` 或 `REJECTED`：自动跳转到 `app/application/confirmation/[id]/page.tsx`。
 
 ### 补件页
@@ -102,7 +104,7 @@
 2. 审核中申请
 3. 审核通过结果
 4. 审核驳回结果
-5. 待补充资料
+5. 待补学籍信息卡
 
 其中四个状态入口都使用脚本生成的固定申请 ID。
 

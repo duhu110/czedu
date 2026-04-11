@@ -31,7 +31,7 @@ export function DashboardOverviewCards({
       note: "等待管理员完成审核处理",
     },
     {
-      title: "待补充资料",
+      title: "待补学籍信息卡",
       value: stats.supplementRequired,
       note: "需要通知家长补齐材料",
     },

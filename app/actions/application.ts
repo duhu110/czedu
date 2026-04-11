@@ -103,6 +103,21 @@ const deserializeFiles = <T extends Application>(record: T) => {
 // 反序列化后的应用类型
 export type DeserializedApplication = ReturnType<typeof deserializeFiles<Application>>;
 
+const ALLOWED_ADMIN_STATUS_TRANSITIONS: Partial<
+  Record<ApplicationStatus, readonly ApplicationStatus[]>
+> = {
+  PENDING: ["APPROVED", "REJECTED"],
+  SUPPLEMENT: ["REJECTED"],
+  EDITING: ["REJECTED"],
+};
+
+function canAdminTransition(
+  currentStatus: ApplicationStatus,
+  nextStatus: ApplicationStatus,
+) {
+  return ALLOWED_ADMIN_STATUS_TRANSITIONS[currentStatus]?.includes(nextStatus) ?? false;
+}
+
 // ==========================================
 // 1. Create - 新增申请
 // ==========================================
@@ -179,7 +194,7 @@ export async function submitApplicationSupplement(
     return { success: true, error: null };
   } catch (e) {
     console.error("Submit Application Supplement Error:", e);
-    return { success: false, error: "补充资料提交失败" };
+    return { success: false, error: "学籍信息卡提交失败" };
   }
 }
 
@@ -317,6 +332,19 @@ export async function updateApplicationStatus(
       };
     }
 
+    const application = await prisma.application.findUnique({
+      where: { id },
+      select: { id: true, status: true },
+    });
+
+    if (!application) {
+      return { success: false, error: "未找到该申请记录" };
+    }
+
+    if (!canAdminTransition(application.status, parsed.data.status)) {
+      return { success: false, error: "当前申请状态不允许执行该审核操作" };
+    }
+
     await prisma.application.update({
       where: { id },
       data: {
@@ -373,6 +401,19 @@ export async function rejectForEditing(
         success: false,
         error: parsed.error.issues[0]?.message || "数据校验失败",
       };
+    }
+
+    const application = await prisma.application.findUnique({
+      where: { id },
+      select: { id: true, status: true },
+    });
+
+    if (!application) {
+      return { success: false, error: "未找到该申请记录" };
+    }
+
+    if (application.status !== "PENDING") {
+      return { success: false, error: "当前申请状态不允许驳回修改" };
     }
 
     await prisma.application.update({

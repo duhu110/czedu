@@ -39,7 +39,7 @@ const statusMap: Record<
   PENDING: { label: "待审核", variant: "secondary" },
   APPROVED: { label: "已通过", variant: "default" },
   REJECTED: { label: "已驳回", variant: "destructive" },
-  SUPPLEMENT: { label: "待补充资料", variant: "outline" },
+  SUPPLEMENT: { label: "待补学籍信息卡", variant: "outline" },
   EDITING: { label: "待修改", variant: "outline" },
 };
 

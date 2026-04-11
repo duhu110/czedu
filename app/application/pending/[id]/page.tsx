@@ -32,7 +32,7 @@ export default async function ApplicationPendingPage({
     <div className="min-h-screen bg-background pb-8">
       <div className="bg-primary px-4 pb-6 pt-12">
         <h1 className="text-xl font-bold text-primary-foreground">
-          {isEditing ? "需要修改" : isSupplement ? "待补充资料" : "审核中"}
+          {isEditing ? "需要修改" : isSupplement ? "待补学籍信息卡" : "审核中"}
         </h1>
         <p className="mt-1 text-sm text-primary-foreground/80">
           {isEditing
@@ -63,7 +63,7 @@ export default async function ApplicationPendingPage({
               <div className="flex items-center gap-2">
                 <h2 className="font-semibold text-foreground">{application.name}</h2>
                 <Badge variant={isEditing || isSupplement ? "outline" : "secondary"}>
-                  {isEditing ? "待修改" : isSupplement ? "待补充资料" : "待审核"}
+                  {isEditing ? "待修改" : isSupplement ? "待补学籍信息卡" : "待审核"}
                 </Badge>
               </div>
               <p className="mt-0.5 text-sm text-muted-foreground">
@@ -121,7 +121,7 @@ export default async function ApplicationPendingPage({
             ) : (
               <>
                 <p>当前申请资料已经齐全，工作人员正在进行审核。</p>
-                <p>审核完成后，系统会进入"通过"或"驳回"结果页。</p>
+                <p>审核完成后，系统会进入“通过”或“驳回”结果页。</p>
               </>
             )}
           </CardContent>

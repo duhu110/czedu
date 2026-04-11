@@ -61,7 +61,7 @@ export default async function ApplicationSupplementPage({
   return (
     <div className="min-h-screen bg-background pb-8">
       <div className="bg-primary px-4 pb-6 pt-12">
-        <h1 className="text-xl font-bold text-primary-foreground">补充资料</h1>
+        <h1 className="text-xl font-bold text-primary-foreground">补传学籍信息卡</h1>
         <p className="mt-1 text-sm text-primary-foreground/80">
           该申请缺少学籍信息表，请补传后继续审核。
         </p>

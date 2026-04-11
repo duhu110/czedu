@@ -135,8 +135,8 @@ export function ApplicationPrintSheet({
               )}
               {application.status === "SUPPLEMENT" && (
                 <div className="text-[10px] leading-snug space-y-0.5">
-                  <p>您的转学申请审核中发现需要补充材料。</p>
-                  <p className="font-semibold">请尽快补传缺失的学籍信息卡等资料，以免影响审核进度。</p>
+                  <p>您的转学申请审核中发现缺少学籍信息卡。</p>
+                  <p className="font-semibold">请尽快补传学籍信息卡，以免影响审核进度。</p>
                   <p>请关注城中区教育局官方发布的相关消息通知，并可随时扫描右侧二维码查询最新审核进度。</p>
                 </div>
               )}
@@ -162,11 +162,15 @@ export function ApplicationPrintSheet({
                 data-testid="application-pending-qrcode"
               >
                 {qrCodeDataUrl ? (
+                  <>
+                    {/* Print output relies on a plain data URL image instead of Next/Image optimization. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={qrCodeDataUrl}
                     alt="申请查询二维码"
                     className="h-[92px] w-[92px]"
                   />
+                  </>
                 ) : (
                   <span className="text-[9px] text-gray-500">二维码生成失败</span>
                 )}

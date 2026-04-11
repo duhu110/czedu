@@ -41,11 +41,11 @@ const applicationPages = [
     actionLabel: "查看驳回结果",
   },
   {
-    title: "待补充资料",
+    title: "待补学籍信息卡",
     description: "查看一条缺少学籍信息卡、等待补件的测试申请。",
     href: `/application/supplement/${applicationTestRecordIds.supplement}`,
     icon: Files,
-    actionLabel: "查看待补充资料",
+    actionLabel: "查看待补学籍信息卡",
   },
 ] as const;
 

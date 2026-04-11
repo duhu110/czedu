@@ -41,7 +41,7 @@ export function SupplementForm({
           请上传学生学籍信息卡
         </p>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          提交后，申请状态会从“待补充资料”变为“待审核”。
+          提交后，申请状态会从“待补学籍信息卡”变为“待审核”。
         </p>
         <div className="mt-4">
           <ImageUploader
@@ -61,7 +61,7 @@ export function SupplementForm({
         {isSubmitting ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            正在提交补充资料...
+            正在提交学籍信息卡...
           </>
         ) : (
           <>

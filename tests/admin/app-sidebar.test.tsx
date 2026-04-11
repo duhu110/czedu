@@ -37,6 +37,7 @@ describe("AppSidebar", () => {
 
     expect(screen.getByText("总览")).toBeInTheDocument();
     expect(screen.getByText("申请管理")).toBeInTheDocument();
+    expect(screen.queryByText("文章管理")).not.toBeInTheDocument();
     expect(screen.getByText("城中区教育局")).toBeInTheDocument();
   });
 

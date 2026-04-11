@@ -623,7 +623,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                   {residencyType === "LOCAL" ? "3" : "2"}. 学生学籍信息表
                 </p>
                 <p className="mb-2 text-xs text-muted-foreground">
-                  由原就读学校打印并加盖学校公章，需包含学生姓名、身份证号、学籍号、当前年级、当前班级等信息。如果暂时没有，也可以先提交申请，系统会将工单标记为待补充资料。
+                  由原就读学校打印并加盖学校公章，需包含学生姓名、身份证号、学籍号、当前年级、当前班级等信息。如果暂时没有，也可以先提交申请，系统会将工单标记为待补学籍信息卡。
                 </p>
                 <FormField
                   control={form.control}

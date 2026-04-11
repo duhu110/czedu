@@ -6,7 +6,6 @@ import {
   FileTextIcon,
   PlusIcon,
   SettingsIcon,
-  NewspaperIcon,
   ScrollTextIcon,
 } from "lucide-react";
 
@@ -33,11 +32,6 @@ const navItems = [
     title: "申请管理",
     url: "/admin/applications",
     icon: <FileTextIcon />,
-  },
-  {
-    title: "文章管理",
-    url: "/admin/articles",
-    icon: <NewspaperIcon />,
   },
   {
     title: "文字管理",

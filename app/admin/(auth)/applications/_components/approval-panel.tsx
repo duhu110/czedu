@@ -60,6 +60,8 @@ export function ApprovalPanel({
 }: ApprovalPanelProps) {
   const router = useRouter();
   const { triggerPrint } = usePrintContext();
+  const canPrint =
+    currentStatus === "PENDING" || currentStatus === "SUPPLEMENT";
 
   // 自动推荐学校（仅 PENDING 且无已选学校时）
   const recommendedSchool = getRecommendedSchool(
@@ -87,7 +89,7 @@ export function ApprovalPanel({
       toast.error("通过申请时请填写目标学校");
       return;
     }
-    if ((status === "REJECTED" || status === "SUPPLEMENT") && !remark.trim()) {
+    if (status === "REJECTED" && !remark.trim()) {
       toast.error("请填写审核备注告知家长原因");
       return;
     }
@@ -123,6 +125,7 @@ export function ApprovalPanel({
   };
 
   const handlePrint = (mode: "archive" | "parent") => {
+    if (!canPrint) return;
     if (currentStatus === "SUPPLEMENT") {
       setSupplementPrintMode(mode);
     } else {
@@ -148,7 +151,7 @@ export function ApprovalPanel({
             {currentStatus === "PENDING" && "待审核 — 申请已提交，等待管理员审核处理"}
             {currentStatus === "APPROVED" && "已通过 — 申请已审核通过并分配学校"}
             {currentStatus === "REJECTED" && "已驳回 — 申请未通过审核"}
-            {currentStatus === "SUPPLEMENT" && "待补充 — 需要家长补充学籍信息卡等材料"}
+            {currentStatus === "SUPPLEMENT" && "待补学籍信息卡 — 需要家长尽快补传学籍信息卡"}
             {currentStatus === "EDITING" && "修改中 — 已驳回修改，等待家长重新提交"}
           </span>
         </div>
@@ -178,10 +181,15 @@ export function ApprovalPanel({
         {currentStatus === "PENDING" && (
           <>
             <div>
-              <label className="text-sm font-medium mb-1 block">
-                审核备注（驳回/补充时必填）
+              <label
+                htmlFor="approval-remark"
+                className="text-sm font-medium mb-1 block"
+              >
+                审核备注
               </label>
               <Textarea
+                id="approval-remark"
+                aria-label="审核备注"
                 placeholder="例如：户口本照片不清晰，请重新拍摄首页及学生页..."
                 value={remark}
                 onChange={(e) => setRemark(e.target.value)}
@@ -222,9 +230,9 @@ export function ApprovalPanel({
         )}
 
         {currentStatus === "SUPPLEMENT" && (
-          <div className="space-y-2 text-sm">
+          <div className="space-y-4 text-sm">
             <div className="grid grid-cols-3 py-1">
-              <span className="text-muted-foreground">操作时间</span>
+              <span className="text-muted-foreground">补件时间</span>
               <span className="col-span-2">{formatDate(updatedAt)}</span>
             </div>
             {currentRemark && (
@@ -233,17 +241,33 @@ export function ApprovalPanel({
                 <span className="col-span-2">{currentRemark}</span>
               </div>
             )}
+            <div>
+              <label
+                htmlFor="approval-remark"
+                className="text-sm font-medium mb-1 block"
+              >
+                审核备注
+              </label>
+              <Textarea
+                id="approval-remark"
+                aria-label="审核备注"
+                placeholder="请填写驳回申请原因"
+                value={remark}
+                onChange={(e) => setRemark(e.target.value)}
+                className="h-24"
+              />
+            </div>
             <div className="rounded-md border border-orange-200 bg-orange-50 px-3 py-2 text-orange-700 text-xs">
-              请提醒家长补充学籍信息卡
+              请提醒家长尽快补传学籍信息卡
             </div>
           </div>
         )}
 
         {currentStatus === "EDITING" && (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="space-y-2 text-sm">
               <div className="grid grid-cols-3 py-1">
-                <span className="text-muted-foreground">操作时间</span>
+                <span className="text-muted-foreground">驳回修改时间</span>
                 <span className="col-span-2">{formatDate(updatedAt)}</span>
               </div>
               {currentRemark && (
@@ -252,6 +276,25 @@ export function ApprovalPanel({
                   <span className="col-span-2">{currentRemark}</span>
                 </div>
               )}
+            </div>
+            <div>
+              <label
+                htmlFor="approval-remark"
+                className="text-sm font-medium mb-1 block"
+              >
+                审核备注
+              </label>
+              <Textarea
+                id="approval-remark"
+                aria-label="审核备注"
+                placeholder="请填写驳回申请原因"
+                value={remark}
+                onChange={(e) => setRemark(e.target.value)}
+                className="h-24"
+              />
+            </div>
+            <div className="rounded-md border border-orange-200 bg-orange-50 px-3 py-2 text-orange-700 text-xs">
+              当前申请已进入驳回修改流程，如需终止该申请，请填写审核备注后驳回申请。
             </div>
           </div>
         )}
@@ -270,17 +313,6 @@ export function ApprovalPanel({
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               通过申请
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={() => handleAction("SUPPLEMENT")}
-              disabled={!!isSubmitting}
-            >
-              {isSubmitting === "SUPPLEMENT" && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              打回补充
             </Button>
 
             <RejectEditDialog
@@ -305,65 +337,61 @@ export function ApprovalPanel({
               {isSubmitting === "REJECTED" && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              直接驳回
+              驳回申请
             </Button>
           </div>
         )}
 
-        {/* EDITING 状态操作按钮 */}
-        {currentStatus === "EDITING" && (
+        {/* SUPPLEMENT / EDITING 状态操作按钮 */}
+        {(currentStatus === "SUPPLEMENT" || currentStatus === "EDITING") && (
           <div className="flex flex-wrap gap-3 w-full">
-            <RejectEditDialog
-              applicationId={applicationId}
-              residencyType={residencyType}
-              currentRemark={currentRemark}
-            >
-              <Button
-                variant="outline"
-                className="border-orange-300 text-orange-700 hover:bg-orange-50"
-              >
-                驳回修改
-              </Button>
-            </RejectEditDialog>
-
             <Button
-              variant="outline"
-              onClick={() => setShowQrCode(true)}
+              variant="destructive"
+              onClick={() => handleAction("REJECTED")}
+              disabled={!!isSubmitting}
             >
-              重新生成二维码
+              {isSubmitting === "REJECTED" && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              驳回申请
             </Button>
-            <EditQrcodeDialog
-              applicationId={applicationId}
-              open={showQrCode}
-              onOpenChange={setShowQrCode}
-            />
+
+            {currentStatus === "EDITING" && (
+              <>
+                <Button variant="outline" onClick={() => setShowQrCode(true)}>
+                  重新生成二维码
+                </Button>
+                <EditQrcodeDialog
+                  applicationId={applicationId}
+                  open={showQrCode}
+                  onOpenChange={setShowQrCode}
+                />
+              </>
+            )}
           </div>
         )}
 
-        {/* 打印按钮区（EDITING 除外） */}
-        {currentStatus !== "EDITING" && (
-          <>
-            <Separator />
-            <div className="flex gap-3 w-full print:hidden">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePrint("archive")}
-              >
-                <Printer className="mr-2 h-4 w-4" />
-                留底页打印
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handlePrint("parent")}
-              >
-                <Printer className="mr-2 h-4 w-4" />
-                家长页打印
-              </Button>
-            </div>
-          </>
-        )}
+        <Separator />
+        <div className="flex gap-3 w-full print:hidden">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePrint("archive")}
+            disabled={!canPrint}
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            留底页打印
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePrint("parent")}
+            disabled={!canPrint}
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            家长页打印
+          </Button>
+        </div>
 
         {/* 删除按钮 */}
         <Separator />
@@ -411,9 +439,9 @@ export function ApprovalPanel({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>该申请尚需补充资料</AlertDialogTitle>
+            <AlertDialogTitle>该申请尚缺学籍信息卡</AlertDialogTitle>
             <AlertDialogDescription>
-              此申请还需要补充学籍信息卡，确认打印当前内容吗？
+              此申请尚缺学籍信息卡。请先提醒家长尽快补传后，再确认打印当前内容。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

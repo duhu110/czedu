@@ -29,6 +29,7 @@ vi.mock("next/cache", () => ({
 
 import {
   createApplication,
+  rejectForEditing,
   submitApplicationSupplement,
   updateApplicationStatus,
 } from "@/app/actions/application";
@@ -220,6 +221,10 @@ describe("application actions", () => {
   });
 
   it("persists targetSchool when approving an application", async () => {
+    findUniqueMock.mockResolvedValue({
+      id: "app-1",
+      status: "PENDING",
+    });
     updateMock.mockResolvedValue({ id: "app-1" });
 
     const result = await updateApplicationStatus(
@@ -240,5 +245,89 @@ describe("application actions", () => {
     });
     expect(revalidatePathMock).toHaveBeenCalledWith("/admin/applications");
     expect(revalidatePathMock).toHaveBeenCalledWith("/admin/applications/app-1");
+  });
+
+  it("rejects approving applications from non-pending states", async () => {
+    findUniqueMock.mockResolvedValue({
+      id: "app-1",
+      status: "SUPPLEMENT",
+    });
+
+    const result = await updateApplicationStatus(
+      "app-1",
+      "APPROVED",
+      "统筹安排",
+      "城中区第一小学",
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "当前申请状态不允许执行该审核操作",
+    });
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects moving pending applications back to supplement status from admin review", async () => {
+    findUniqueMock.mockResolvedValue({
+      id: "app-1",
+      status: "PENDING",
+    });
+
+    const result = await updateApplicationStatus(
+      "app-1",
+      "SUPPLEMENT",
+      "请补充学籍信息卡",
+      "",
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "当前申请状态不允许执行该审核操作",
+    });
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+
+  it("allows rejecting an application from supplement status", async () => {
+    findUniqueMock.mockResolvedValue({
+      id: "app-1",
+      status: "SUPPLEMENT",
+    });
+    updateMock.mockResolvedValue({ id: "app-1" });
+
+    const result = await updateApplicationStatus(
+      "app-1",
+      "REJECTED",
+      "逾期未补齐资料",
+      "",
+    );
+
+    expect(result).toEqual({ success: true, error: null });
+    expect(updateMock).toHaveBeenCalledWith({
+      where: { id: "app-1" },
+      data: {
+        status: "REJECTED",
+        adminRemark: "逾期未补齐资料",
+        targetSchool: null,
+      },
+    });
+  });
+
+  it("rejects reject-for-editing from non-pending states", async () => {
+    findUniqueMock.mockResolvedValue({
+      id: "app-1",
+      status: "EDITING",
+    });
+
+    const result = await rejectForEditing(
+      "app-1",
+      ["name"],
+      "请修改姓名",
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "当前申请状态不允许驳回修改",
+    });
+    expect(updateMock).not.toHaveBeenCalled();
   });
 });

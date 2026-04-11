@@ -111,9 +111,9 @@ describe("ApprovalPanel", () => {
     );
 
     expect(screen.getByRole("button", { name: "通过申请" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "打回补充" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "打回补充" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "驳回修改" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "直接驳回" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "驳回申请" })).toBeInTheDocument();
   });
 
   it("renders school combobox for PENDING status", () => {
@@ -129,18 +129,7 @@ describe("ApprovalPanel", () => {
       <ApprovalPanel {...baseProps} currentStatus="PENDING" />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "直接驳回" }));
-
-    expect(toastErrorMock).toHaveBeenCalledWith("请填写审核备注告知家长原因");
-    expect(updateApplicationStatusMock).not.toHaveBeenCalled();
-  });
-
-  it("blocks supplement when remark is empty", () => {
-    render(
-      <ApprovalPanel {...baseProps} currentStatus="PENDING" />,
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "打回补充" }));
+    fireEvent.click(screen.getByRole("button", { name: "驳回申请" }));
 
     expect(toastErrorMock).toHaveBeenCalledWith("请填写审核备注告知家长原因");
     expect(updateApplicationStatusMock).not.toHaveBeenCalled();
@@ -201,7 +190,8 @@ describe("ApprovalPanel", () => {
     );
 
     expect(screen.queryByRole("button", { name: "通过申请" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "打回补充" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "驳回申请" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("审核备注")).not.toBeInTheDocument();
   });
 
   // ============ REJECTED 状态 ============
@@ -230,13 +220,44 @@ describe("ApprovalPanel", () => {
       />,
     );
 
-    expect(screen.getByText("请提醒家长补充学籍信息卡")).toBeInTheDocument();
-    expect(screen.getByText("请补充学籍信息卡")).toBeInTheDocument();
+    expect(screen.getByText("请提醒家长尽快补传学籍信息卡")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("请补充学籍信息卡")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "驳回申请" })).toBeInTheDocument();
+    expect(screen.getByLabelText("审核备注")).toBeInTheDocument();
+  });
+
+  it("submits rejection from SUPPLEMENT status when remark is filled", async () => {
+    updateApplicationStatusMock.mockResolvedValue({
+      success: true,
+      error: null,
+    });
+
+    render(
+      <ApprovalPanel
+        {...baseProps}
+        currentStatus="SUPPLEMENT"
+        currentRemark="请补充学籍信息卡"
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("审核备注"), {
+      target: { value: "逾期未补齐资料，驳回申请" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "驳回申请" }));
+
+    await waitFor(() => {
+      expect(updateApplicationStatusMock).toHaveBeenCalledWith(
+        "app-1",
+        "REJECTED",
+        "逾期未补齐资料，驳回申请",
+        "",
+      );
+    });
   });
 
   // ============ EDITING 状态 ============
 
-  it("renders EDITING status with edit buttons and no print buttons", () => {
+  it("renders EDITING status with rejection input, qrcode action, and disabled print buttons", () => {
     render(
       <ApprovalPanel
         {...baseProps}
@@ -245,39 +266,42 @@ describe("ApprovalPanel", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "驳回修改" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "驳回修改" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "驳回申请" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "重新生成二维码" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "留底页打印" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "家长页打印" })).not.toBeInTheDocument();
+    expect(screen.getByLabelText("审核备注")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "留底页打印" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "家长页打印" })).toBeDisabled();
   });
 
   // ============ 打印按钮 ============
 
-  it("renders print buttons for non-EDITING statuses", () => {
+  it("renders print buttons for EDITING status too", () => {
     render(
-      <ApprovalPanel {...baseProps} currentStatus="PENDING" />,
+      <ApprovalPanel {...baseProps} currentStatus="EDITING" currentRemark="请修改姓名" />,
     );
 
     expect(screen.getByRole("button", { name: "留底页打印" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "家长页打印" })).toBeInTheDocument();
   });
 
-  it("triggers archive print", () => {
+  it("triggers archive print for PENDING status", () => {
     render(
-      <ApprovalPanel {...baseProps} currentStatus="APPROVED" currentTargetSchool="西关街小学" />,
+      <ApprovalPanel {...baseProps} currentStatus="PENDING" currentTargetSchool="西关街小学" />,
     );
 
     fireEvent.click(screen.getByRole("button", { name: "留底页打印" }));
     expect(triggerPrintMock).toHaveBeenCalledWith("archive");
   });
 
-  it("triggers parent print", () => {
+  it("disables print buttons for APPROVED status", () => {
     render(
       <ApprovalPanel {...baseProps} currentStatus="APPROVED" currentTargetSchool="西关街小学" />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "家长页打印" }));
-    expect(triggerPrintMock).toHaveBeenCalledWith("parent");
+    expect(screen.getByRole("button", { name: "留底页打印" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "家长页打印" })).toBeDisabled();
+    expect(triggerPrintMock).not.toHaveBeenCalled();
   });
 
   // ============ 删除功能 ============
@@ -333,9 +357,9 @@ describe("ApprovalPanel", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "留底页打印" }));
 
-    expect(screen.getByText("该申请尚需补充资料")).toBeInTheDocument();
+    expect(screen.getByText("该申请尚缺学籍信息卡")).toBeInTheDocument();
     expect(
-      screen.getByText("此申请还需要补充学籍信息卡，确认打印当前内容吗？"),
+      screen.getByText("此申请尚缺学籍信息卡。请先提醒家长尽快补传后，再确认打印当前内容。"),
     ).toBeInTheDocument();
   });
 

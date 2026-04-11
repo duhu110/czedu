@@ -71,7 +71,7 @@ describe("ApplicationPrintSheet", () => {
   it("renders header with title and semester", () => {
     render(<ApplicationPrintSheet {...baseProps} />);
 
-    expect(screen.getByText("转学申请单")).toBeInTheDocument();
+    expect(screen.getByText("城中区教育局转学申请单")).toBeInTheDocument();
     expect(screen.getByText("2026年春季学期")).toBeInTheDocument();
   });
 
@@ -106,7 +106,7 @@ describe("ApplicationPrintSheet", () => {
     render(<ApplicationPrintSheet {...baseProps} />);
 
     expect(screen.getByText("转学知情同意书")).toBeInTheDocument();
-    expect(screen.getByText("知情同意书内容示例")).toBeInTheDocument();
+    expect(screen.getByText(/知情同意书内容示例/)).toBeInTheDocument();
   });
 
   it("renders status info and QR code in row 3", () => {
@@ -129,7 +129,7 @@ describe("ApplicationPrintSheet", () => {
     );
 
     expect(screen.getByText(/需要补充学籍信息卡/)).toBeInTheDocument();
-    expect(screen.getByText(/还需补充学籍信息卡/)).toBeInTheDocument();
+    expect(screen.getByText(/请尽快补传学籍信息卡/)).toBeInTheDocument();
   });
 
   it("renders signature area in row 4", () => {

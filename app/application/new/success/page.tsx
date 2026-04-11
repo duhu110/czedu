@@ -21,7 +21,7 @@ export default function ApplicationSuccessPage() {
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground space-y-2">
           <p>您的转学申请已成功创建并提交至系统后台。</p>
-          <p>如果暂未上传学籍信息卡，申请会先进入“待补充资料”状态，后续补齐后再转为正式审核。</p>
+            <p>如果暂未上传学籍信息卡，申请会先进入“待补学籍信息卡”状态，后续补齐后再转为正式审核。</p>
           <div className="mt-4 rounded-md bg-blue-50 p-3 text-left text-xs text-blue-700">
             <strong>温馨提示：</strong>
             <br />

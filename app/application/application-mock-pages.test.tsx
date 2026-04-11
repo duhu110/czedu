@@ -42,7 +42,7 @@ describe("application pages", () => {
       "href",
       `/application/confirmation/${applicationTestRecordIds.rejected}`,
     );
-    expect(screen.getByRole("link", { name: "查看待补充资料" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "查看待补学籍信息卡" })).toHaveAttribute(
       "href",
       `/application/supplement/${applicationTestRecordIds.supplement}`,
     );
