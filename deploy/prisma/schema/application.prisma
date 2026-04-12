@@ -1,0 +1,72 @@
+enum ResidencyType {
+  LOCAL
+  NON_LOCAL
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUPPLEMENT
+  EDITING
+}
+
+model Application {
+  id String @id @default(uuid())
+
+  semesterId String
+  semester   Semester @relation(fields: [semesterId], references: [id])
+
+  residencyType ResidencyType
+  name          String
+  gender        Gender
+  ethnicity     String @default("汉族")
+  idCard        String
+  studentId     String
+
+  guardian1Name     String
+  guardian1Relation String
+  guardian1Phone    String
+  guardian2Name     String?
+  guardian2Relation String?
+  guardian2Phone    String?
+
+  currentSchool String
+  currentGrade  String
+  targetGrade   String
+  targetSchool  String?
+
+  hukouAddress  String
+  livingAddress String
+
+  fileHukou       String  @default("[]")
+  fileProperty    String  @default("[]")
+  fileStudentCard String? @default("[]")
+
+  fileResidencePermit String @default("[]")
+
+  status         ApplicationStatus @default(PENDING)
+  adminRemark    String?
+  rejectedFields String            @default("[]")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([semesterId])
+  @@index([idCard])
+  @@index([studentId])
+}
+
+model ApplicationAccessAttempt {
+  applicationId String    @id
+  failedCount   Int       @default(0)
+  lockedUntil   DateTime?
+  lastFailedAt  DateTime?
+  lastSuccessAt DateTime?
+  updatedAt     DateTime  @updatedAt
+}

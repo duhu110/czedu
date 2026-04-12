@@ -1,0 +1,26 @@
+enum OperationLogAction {
+  APPLICATION_STATUS_CHANGED
+}
+
+enum OperationLogTargetType {
+  APPLICATION
+}
+
+model OperationLog {
+  id            String                 @id @default(uuid())
+  adminId       String
+  action        OperationLogAction
+  targetType    OperationLogTargetType
+  targetId      String
+  targetLabel   String?
+  adminUsername String
+  adminName     String?
+  details       String                 @default("{}")
+  createdAt     DateTime               @default(now())
+
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId, createdAt])
+  @@index([targetType, targetId, createdAt])
+  @@index([createdAt])
+}

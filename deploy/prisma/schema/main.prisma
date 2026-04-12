@@ -1,0 +1,9 @@
+// PostgreSQL schema entrypoint used only by deploy/Dockerfile.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}

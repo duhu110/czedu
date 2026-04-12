@@ -1,0 +1,33 @@
+// lib/prisma.ts override used only by deploy/Dockerfile.
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+
+type PrismaClientWithApplicationAccessAttempt = PrismaClient & {
+  applicationAccessAttempt?: unknown;
+};
+
+const globalForPrisma = global as unknown as {
+  prisma?: PrismaClientWithApplicationAccessAttempt;
+};
+
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error("DATABASE_URL is required for PostgreSQL deployment.");
+}
+
+const adapter = new PrismaPg({ connectionString });
+
+function hasApplicationAccessAttemptDelegate(
+  client: PrismaClientWithApplicationAccessAttempt | undefined,
+): client is PrismaClient {
+  return Boolean(client?.applicationAccessAttempt);
+}
+
+export const prisma = hasApplicationAccessAttemptDelegate(globalForPrisma.prisma)
+  ? globalForPrisma.prisma
+  : new PrismaClient({ adapter });
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+export default prisma;

@@ -1,0 +1,27 @@
+services:
+  czedu:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: czedu:postgres
+    container_name: czedu
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: ${PORT:-3000}
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in deploy/.env}
+      PRISMA_DB_PUSH: ${PRISMA_DB_PUSH:-true}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      - type: bind
+        source: ${UPLOAD_HOST_DIR:-/home/oss/xnczjyj}
+        target: /app/public/uploads
+    networks:
+      - postgres_net
+
+networks:
+  postgres_net:
+    external: true
+    name: ${POSTGRES_DOCKER_NETWORK:-postgres_net}

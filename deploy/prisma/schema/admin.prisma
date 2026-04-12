@@ -1,0 +1,12 @@
+model Admin {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  password     String
+  name         String?
+  isActive     Boolean  @default(true)
+  isSuperAdmin Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  operationLogs OperationLog[]
+}
