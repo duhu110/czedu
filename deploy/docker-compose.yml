@@ -13,15 +13,14 @@ services:
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in deploy/.env}
       PRISMA_DB_PUSH: ${PRISMA_DB_PUSH:-true}
     ports:
-      - "${APP_PORT:-3000}:3000"
+      - "127.0.0.1:${APP_PORT:-3002}:3000"
     volumes:
       - type: bind
         source: ${UPLOAD_HOST_DIR:-/home/oss/xnczjyj}
         target: /app/public/uploads
     networks:
-      - postgres_net
+      - 1panel-network
 
 networks:
-  postgres_net:
+  1panel-network:
     external: true
-    name: ${POSTGRES_DOCKER_NETWORK:-postgres_net}

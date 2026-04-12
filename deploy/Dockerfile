@@ -17,7 +17,7 @@ ENV DATABASE_URL=postgresql://czedu:czedu@localhost:5432/czedu?schema=public
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 COPY deploy/prisma/schema ./prisma/schema
-COPY deploy/overrides/lib/prisma.ts ./lib/prisma.ts
+COPY deploy/overrides/lib/prisma.ts.template ./lib/prisma.ts
 
 RUN ./node_modules/.bin/prisma generate --schema prisma/schema
 RUN bun run build

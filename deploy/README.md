@@ -4,7 +4,7 @@
 
 - 本地开发继续使用根目录 `prisma/schema/main.prisma` 的 SQLite provider 和根目录 `.env`。
 - Docker 构建会把 `deploy/prisma/schema` 覆盖到镜像内的 `prisma/schema`，使用 PostgreSQL provider。
-- Docker 构建会把 `deploy/overrides/lib/prisma.ts` 覆盖到镜像内的 `lib/prisma.ts`，使用 `@prisma/adapter-pg`。
+- Docker 构建会把 `deploy/overrides/lib/prisma.ts.template` 覆盖到镜像内的 `lib/prisma.ts`，使用 `@prisma/adapter-pg`。
 - 上传文件通过 volume 存储到宿主机 `/home/oss/xnczjyj`，容器内路径是 `/app/public/uploads`。
 
 ## 前置条件
@@ -50,7 +50,7 @@ docker compose logs -f czedu
 默认 `PRISMA_DB_PUSH=true`，容器启动时会执行：
 
 ```bash
-prisma db push --skip-generate --schema prisma/schema
+prisma db push --schema prisma/schema
 ```
 
 这用于把 `deploy/prisma/schema` 同步到 PostgreSQL。数据库结构稳定后，可以在 `deploy/.env` 里改成：

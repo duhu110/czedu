@@ -21,14 +21,14 @@ export async function listOperationLogs(filters: OperationLogFilters = {}) {
 
   try {
     const trimmedTargetId = filters.targetId?.trim();
+    const andFilters: Prisma.OperationLogWhereInput[] = [];
     const where: Prisma.OperationLogWhereInput = {
       adminId: filters.adminId || undefined,
       action: filters.action || undefined,
-      AND: [],
     };
 
     if (trimmedTargetId) {
-      where.AND?.push({
+      andFilters.push({
         targetId: { contains: trimmedTargetId },
       });
     }
@@ -44,10 +44,14 @@ export async function listOperationLogs(filters: OperationLogFilters = {}) {
         return { success: true, error: null, data: [] };
       }
 
-      where.AND?.push({
+      andFilters.push({
         targetType: "APPLICATION",
         targetId: { in: applicationIds },
       });
+    }
+
+    if (andFilters.length > 0) {
+      where.AND = andFilters;
     }
 
     const records = await prisma.operationLog.findMany({
