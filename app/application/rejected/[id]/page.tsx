@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { Clock3, FileClock } from "lucide-react";
+import { XCircle, FileClock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getApplicationById } from "@/app/actions/application";
@@ -32,8 +32,9 @@ export default async function ApplicationRejectedPage({
   }
 
   const application = result.data;
-
-  if (application.status === "SUPPLEMENT") {
+  if (application.status === "PENDING") {
+    redirect(`/application/pending/${application.id}`);
+  } else if (application.status === "SUPPLEMENT") {
     redirect(`/application/supplement/${application.id}`);
   } else if (application.status === "EDITING") {
     redirect(`/application/edit/${application.id}`);
@@ -43,13 +44,11 @@ export default async function ApplicationRejectedPage({
     redirect(`/application/pending/${application.id}`);
   }
 
-  const pendingPageText = application.adminRemark || "未填写审核备注";
-
   return (
     <div className="min-h-screen bg-background pb-8">
       <div className="bg-primary px-4 pb-6 pt-12">
         <h1 className="text-xl font-bold text-primary-foreground">
-          申请审核中
+          申请已拒绝
         </h1>
         <p className="mt-1 text-sm text-primary-foreground/80">
           城中区转学申请系统
@@ -59,9 +58,9 @@ export default async function ApplicationRejectedPage({
         <Card className="overflow-hidden">
           <div className="flex items-center gap-4 px-4 py-5">
             <div
-              className={`flex h-14 w-14 items-center justify-center rounded-full bg-yellow-100`}
+              className={`flex h-14 w-14 items-center justify-center rounded-full bg-red-100`}
             >
-              <Clock3 className="h-7 w-7 text-yellow-600" />
+              <XCircle className="h-7 w-7 text-red-600" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -102,17 +101,19 @@ export default async function ApplicationRejectedPage({
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">监护人姓名</span>
+              <span className="text-muted-foreground">监护人1</span>
               <span className="font-medium text-foreground">
-                {application.guardian1Name}
+                {application.guardian1Name} / {application.guardian1Phone}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">监护人电话</span>
-              <span className="font-medium text-foreground">
-                {application.guardian1Phone}
-              </span>
-            </div>
+            {application.guardian2Name || application.guardian2Phone ? (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">监护人2</span>
+                <span className="font-medium text-foreground">
+                  {application.guardian2Name} / {application.guardian2Phone}
+                </span>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       </div>
@@ -122,11 +123,11 @@ export default async function ApplicationRejectedPage({
             <CardTitle className="flex items-center gap-2 text-base">
               <FileClock className="h-5 w-5 text-primary" />
               当前状态
-              <Badge>审核中</Badge>
+              <Badge variant="destructive">已拒绝</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="block indent-[2em] !important">
-            {pendingPageText}
+            {application.adminRemark || "审核备注未填写"}
           </CardContent>
         </Card>
       </div>

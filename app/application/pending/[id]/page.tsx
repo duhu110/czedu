@@ -38,9 +38,7 @@ export default async function ApplicationPendingPage({
     redirect(`/application/supplement/${application.id}`);
   } else if (application.status === "EDITING") {
     redirect(`/application/edit/${application.id}`);
-  } else if (
-    application.status === "APPROVED"
-  ) {
+  } else if (application.status === "APPROVED") {
     redirect(`/application/confirmation/${application.id}`);
   } else if (application.status === "REJECTED") {
     redirect(`/application/rejected/${application.id}`);
@@ -111,17 +109,19 @@ export default async function ApplicationPendingPage({
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">监护人姓名</span>
+              <span className="text-muted-foreground">监护人1</span>
               <span className="font-medium text-foreground">
-                {application.guardian1Name}
+                {application.guardian1Name} / {application.guardian1Phone}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">监护人电话</span>
-              <span className="font-medium text-foreground">
-                {application.guardian1Phone}
-              </span>
-            </div>
+            {application.guardian2Name || application.guardian2Phone ? (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">监护人2</span>
+                <span className="font-medium text-foreground">
+                  {application.guardian2Name} / {application.guardian2Phone}
+                </span>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       </div>
