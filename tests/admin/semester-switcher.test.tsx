@@ -2,6 +2,11 @@ import type { ReactNode } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const mocks = vi.hoisted(() => ({
+  persistSelectedSemesterId: vi.fn(),
+  refresh: vi.fn(),
+}));
+
 import { SemesterSwitcher } from "@/components/admin/semester-switcher";
 import { SemesterProvider } from "@/lib/semester-context";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -15,6 +20,16 @@ vi.mock("next/link", () => ({
     children: ReactNode;
     href: string;
   }) => <a href={href}>{children}</a>,
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    refresh: mocks.refresh,
+  }),
+}));
+
+vi.mock("@/app/actions/semester-selection", () => ({
+  persistSelectedSemesterId: mocks.persistSelectedSemesterId,
 }));
 
 function renderSemesterSwitcher(
@@ -46,6 +61,8 @@ describe("SemesterSwitcher", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-04-07T08:00:00.000Z"));
+    vi.clearAllMocks();
+    mocks.persistSelectedSemesterId.mockResolvedValue({ success: true });
   });
 
   afterEach(() => {
@@ -116,5 +133,33 @@ describe("SemesterSwitcher", () => {
       "href",
       "/admin/semesters",
     );
+  });
+
+  it("persists the selected semester and refreshes the current route", async () => {
+    const spring2027 = {
+      id: "spring-2027",
+      name: "2027年春季",
+      startDate: new Date("2026-09-01T00:00:00.000Z"),
+      endDate: new Date("2027-03-01T00:00:00.000Z"),
+      isActive: false,
+    };
+    const autumn2026 = {
+      id: "autumn-2026",
+      name: "2026年秋季",
+      startDate: new Date("2026-03-01T00:00:00.000Z"),
+      endDate: new Date("2026-09-01T00:00:00.000Z"),
+      isActive: true,
+    };
+
+    renderSemesterSwitcher([spring2027, autumn2026]);
+
+    openSwitcherMenu(/2026年秋季/i);
+    fireEvent.click(screen.getByRole("menuitem", { name: /2027年春季/i }));
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(mocks.persistSelectedSemesterId).toHaveBeenCalledWith("spring-2027");
+    expect(mocks.refresh).toHaveBeenCalledTimes(1);
   });
 });

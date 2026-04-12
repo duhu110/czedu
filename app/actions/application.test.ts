@@ -43,6 +43,7 @@ vi.mock("next/cache", () => ({
 
 import {
   createApplication,
+  importApplicationsFromRows,
   rejectForEditing,
   submitApplicationSupplement,
   updateApplicationStatus,
@@ -432,5 +433,109 @@ describe("application actions", () => {
         }),
       }),
     });
+  });
+
+  it("only updates targetSchool and status for pending applications whose imported targetSchool changed", async () => {
+    findUniqueMock.mockResolvedValue({
+      id: "app-1",
+      name: "张三",
+      semesterId: "semester-1",
+      status: "PENDING",
+      targetSchool: null,
+      adminRemark: null,
+    });
+    updateMock.mockResolvedValue({ id: "app-1" });
+
+    const result = await importApplicationsFromRows(
+      [
+        {
+          id: "app-1",
+          targetSchool: "西关街小学",
+          status: "REJECTED",
+          adminRemark: "这条备注应被忽略",
+        },
+      ],
+      "semester-1",
+    );
+
+    expect(result).toEqual({
+      success: true,
+      error: null,
+      updatedCount: 1,
+      skippedCount: 0,
+    });
+    expect(updateMock).toHaveBeenCalledWith({
+      where: { id: "app-1" },
+      data: {
+        status: "APPROVED",
+        targetSchool: "西关街小学",
+      },
+    });
+    expect(operationLogCreateMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        targetId: "app-1",
+        details: JSON.stringify({
+          fromStatus: "PENDING",
+          toStatus: "APPROVED",
+          adminRemark: null,
+          targetSchool: "西关街小学",
+        }),
+      }),
+    });
+  });
+
+  it("skips rows whose application is not pending, missing, or targetSchool is unchanged", async () => {
+    findUniqueMock
+      .mockResolvedValueOnce({
+        id: "app-approved",
+        name: "李四",
+        semesterId: "semester-1",
+        status: "APPROVED",
+        targetSchool: "西关街小学",
+        adminRemark: "已处理",
+      })
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({
+        id: "app-same-school",
+        name: "王五",
+        semesterId: "semester-1",
+        status: "PENDING",
+        targetSchool: "西关街小学",
+        adminRemark: null,
+      });
+
+    const result = await importApplicationsFromRows(
+      [
+        {
+          id: "app-approved",
+          targetSchool: "城中区第一小学",
+          status: "PENDING",
+          adminRemark: "忽略",
+        },
+        {
+          id: "app-missing",
+          targetSchool: "城中区第二小学",
+          status: "PENDING",
+          adminRemark: "忽略",
+        },
+        {
+          id: "app-same-school",
+          targetSchool: "西关街小学",
+          status: "PENDING",
+          adminRemark: "忽略",
+        },
+      ],
+      "semester-1",
+    );
+
+    expect(result).toEqual({
+      success: true,
+      error: null,
+      updatedCount: 0,
+      skippedCount: 3,
+    });
+    expect(updateMock).not.toHaveBeenCalled();
+    expect(operationLogCreateMock).not.toHaveBeenCalled();
+    expect(revalidatePathMock).not.toHaveBeenCalled();
   });
 });

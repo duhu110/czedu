@@ -3,10 +3,11 @@
 import {
   createContext,
   useContext,
-  useState,
   useMemo,
+  useState,
   type ReactNode,
 } from "react";
+
 import { pickPreferredSemester } from "@/lib/semester";
 
 export interface SemesterInfo {
@@ -28,13 +29,15 @@ const SemesterContext = createContext<SemesterContextValue | null>(null);
 
 export function SemesterProvider({
   semesters,
+  initialSelectedSemesterId,
   children,
 }: {
   semesters: SemesterInfo[];
+  initialSelectedSemesterId?: string;
   children: ReactNode;
 }) {
   const [selectedId, setSelectedId] = useState<string | undefined>(() =>
-    pickPreferredSemester(semesters)?.id,
+    pickPreferredSemester(semesters, initialSelectedSemesterId)?.id,
   );
 
   const selectedSemester = useMemo(

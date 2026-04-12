@@ -1,4 +1,10 @@
 import Link from "next/link";
+import { type ApplicationStatus } from "@prisma/client";
+
+import { getApplications } from "@/app/actions/application";
+import { getAdminSelectedSemester } from "@/lib/admin-selected-semester";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -7,14 +13,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { type ApplicationStatus } from "@prisma/client";
-import { getApplications } from "@/app/actions/application";
 import { ApplicationFilters } from "./_components/application-filters";
+import { ApplicationImportExportToolbar } from "./_components/application-import-export-toolbar";
 import { ApplicationPagination } from "./_components/application-pagination";
 
-// Next.js 会自动将 URL 参数注入到这个 props 中
 interface PageProps {
   searchParams: Promise<{
     page?: string;
@@ -23,7 +25,6 @@ interface PageProps {
   }>;
 }
 
-// 2. 补全字典，并用 Record 严格约束类型
 const statusMap: Record<
   ApplicationStatus,
   {
@@ -34,37 +35,44 @@ const statusMap: Record<
   PENDING: { label: "待审核", variant: "secondary" },
   APPROVED: { label: "已通过", variant: "default" },
   REJECTED: { label: "已驳回", variant: "destructive" },
-  SUPPLEMENT: { label: "待补学籍信息卡", variant: "outline" }, // ✅ 补上这个缺失的状态
+  SUPPLEMENT: { label: "待补学籍信息卡", variant: "outline" },
   EDITING: { label: "待修改", variant: "outline" },
 };
 
 export default async function AdminApplicationsPage({
   searchParams,
 }: PageProps) {
-  const params = await searchParams;
+  const [params, selectedSemester] = await Promise.all([
+    searchParams,
+    getAdminSelectedSemester(),
+  ]);
   const currentPage = Number(params.page) || 1;
 
-  // ✅ 修复点：将 data 重命名为 applications，并给一个默认的回退值 []
   const { data: applications = [], meta } = await getApplications({
     page: currentPage,
     pageSize: 10,
     search: params.search,
     status: params.status as ApplicationStatus,
+    semesterId: selectedSemester?.id,
   });
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">转学申请管理</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            查看和审核所有提交的学生转学申请。
+          <p className="mt-1 text-sm text-muted-foreground">
+            查看和审核当前所选学期
+            {selectedSemester ? `“${selectedSemester.name}”` : ""}
+            的学生转学申请。
           </p>
         </div>
-        {/* 预留一个导出 Excel 的按钮位置 */}
-        <Button variant="outline">导出数据</Button>
+        <ApplicationImportExportToolbar
+          search={params.search}
+          status={params.status}
+          disabled={!selectedSemester}
+        />
       </div>
-      {/* 搜索筛选条 */}
       <ApplicationFilters />
       <div className="rounded-md border shadow-sm">
         <Table>
@@ -128,7 +136,6 @@ export default async function AdminApplicationsPage({
           </TableBody>
         </Table>
       </div>
-      {/* 分页组件 */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
           共 {meta.total} 条申请记录

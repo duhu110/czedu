@@ -1,29 +1,49 @@
 // components/admin/semester-switcher.tsx
 "use client";
 
-import { ChevronsUpDown, CalendarIcon } from "lucide-react";
+import { useTransition } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { CalendarIcon, ChevronsUpDown } from "lucide-react";
+
+import { persistSelectedSemesterId } from "@/app/actions/semester-selection";
 import { useSemester } from "@/lib/semester-context";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
 
 export function SemesterSwitcher() {
   const { semesters, selectedSemester, setSelectedSemesterId } = useSemester();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const selectedStatus = selectedSemester
     ? `业务学期 · ${selectedSemester.isActive ? "已启用" : "已停用"}`
     : "业务学期";
+
+  async function handleSemesterSelect(semesterId: string) {
+    setSelectedSemesterId(semesterId);
+
+    try {
+      await persistSelectedSemesterId(semesterId);
+    } catch (error) {
+      console.error("Persist Selected Semester Error:", error);
+    }
+
+    startTransition(() => {
+      router.refresh();
+    });
+  }
 
   return (
     <SidebarMenu>
@@ -58,14 +78,17 @@ export function SemesterSwitcher() {
               切换当前学期
             </DropdownMenuLabel>
             {semesters.length === 0 ? (
-              <div className="p-2 text-xs text-center text-muted-foreground">
+              <div className="p-2 text-center text-xs text-muted-foreground">
                 尚无学期数据
               </div>
             ) : (
               semesters.map((s) => (
                 <DropdownMenuItem
                   key={s.id}
-                  onClick={() => setSelectedSemesterId(s.id)}
+                  disabled={isPending}
+                  onClick={() => {
+                    void handleSemesterSelect(s.id);
+                  }}
                   className="gap-2 p-2"
                 >
                   <div className="flex flex-col">

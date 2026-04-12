@@ -1,6 +1,6 @@
 "use server";
 
-import type { OperationLogAction } from "@prisma/client";
+import { type OperationLogAction, Prisma } from "@prisma/client";
 
 import prisma from "@/lib/prisma";
 import { getCurrentAdmin } from "@/lib/admin-session";
@@ -9,6 +9,7 @@ type OperationLogFilters = {
   adminId?: string;
   action?: OperationLogAction;
   targetId?: string;
+  semesterId?: string;
 };
 
 export async function listOperationLogs(filters: OperationLogFilters = {}) {
@@ -19,14 +20,38 @@ export async function listOperationLogs(filters: OperationLogFilters = {}) {
   }
 
   try {
+    const trimmedTargetId = filters.targetId?.trim();
+    const where: Prisma.OperationLogWhereInput = {
+      adminId: filters.adminId || undefined,
+      action: filters.action || undefined,
+      AND: [],
+    };
+
+    if (trimmedTargetId) {
+      where.AND?.push({
+        targetId: { contains: trimmedTargetId },
+      });
+    }
+
+    if (filters.semesterId) {
+      const applications = await prisma.application.findMany({
+        where: { semesterId: filters.semesterId },
+        select: { id: true },
+      });
+      const applicationIds = applications.map((application) => application.id);
+
+      if (applicationIds.length === 0) {
+        return { success: true, error: null, data: [] };
+      }
+
+      where.AND?.push({
+        targetType: "APPLICATION",
+        targetId: { in: applicationIds },
+      });
+    }
+
     const records = await prisma.operationLog.findMany({
-      where: {
-        adminId: filters.adminId || undefined,
-        action: filters.action || undefined,
-        targetId: filters.targetId
-          ? { contains: filters.targetId.trim() }
-          : undefined,
-      },
+      where,
       include: {
         admin: {
           select: {

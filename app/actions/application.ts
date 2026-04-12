@@ -11,6 +11,7 @@ import {
   type FileHukouInput,
   type FilePropertyInput,
 } from "@/lib/validations/application";
+import { type ApplicationImportRow } from "@/lib/application-import-export";
 import { signEditToken } from "@/lib/qrcode-token";
 import { getCurrentAdmin } from "@/lib/admin-session";
 // ✅ 1. 引入生成的数据库模型类型
@@ -295,6 +296,62 @@ export async function getApplications(params: {
   }
 }
 
+export async function getApplicationsForExport(params: {
+  search?: string;
+  status?: ApplicationStatus;
+  semesterId?: string;
+}) {
+  try {
+    const { search, status, semesterId } = params;
+
+    const where: Prisma.ApplicationWhereInput = {
+      AND: [
+        semesterId ? { semesterId } : {},
+        status ? { status } : {},
+        search
+          ? {
+              OR: [
+                { name: { contains: search } },
+                { idCard: { contains: search } },
+              ],
+            }
+          : {},
+      ],
+    };
+
+    const records = await prisma.application.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        idCard: true,
+        currentSchool: true,
+        currentGrade: true,
+        targetGrade: true,
+        targetSchool: true,
+        residencyType: true,
+        createdAt: true,
+        status: true,
+        adminRemark: true,
+      },
+    });
+
+    return {
+      success: true,
+      data: records,
+      error: null,
+    };
+  } catch (e) {
+    console.error("Get Applications For Export Error:", e);
+    return {
+      success: false,
+      data: [],
+      error: "获取导出数据失败",
+    };
+  }
+}
+
 // ==========================================
 // 3. Read - 获取单条详情
 // ==========================================
@@ -411,6 +468,109 @@ export async function updateApplicationStatus(
   } catch (e) {
     console.error("Update Status Error:", e);
     return { success: false, error: "状态更新失败" };
+  }
+}
+
+function normalizeNullableText(value: string | null | undefined) {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
+}
+
+export async function importApplicationsFromRows(
+  rows: ApplicationImportRow[],
+  semesterId: string,
+) {
+  try {
+    const currentAdmin = await getCurrentAdmin();
+    if (!currentAdmin) {
+      return {
+        success: false,
+        error: "请先登录管理员账号",
+        updatedCount: 0,
+        skippedCount: 0,
+      };
+    }
+
+    let updatedCount = 0;
+    let skippedCount = 0;
+    const updatedIds: string[] = [];
+
+    for (const row of rows) {
+      const application = await prisma.application.findUnique({
+        where: { id: row.id },
+        select: {
+          id: true,
+          name: true,
+          semesterId: true,
+          status: true,
+          targetSchool: true,
+        },
+      });
+
+      if (!application || application.semesterId !== semesterId) {
+        skippedCount += 1;
+        continue;
+      }
+
+      if (application.status !== "PENDING") {
+        skippedCount += 1;
+        continue;
+      }
+
+      const importedTargetSchool = normalizeNullableText(row.targetSchool);
+      if (
+        !importedTargetSchool ||
+        importedTargetSchool === normalizeNullableText(application.targetSchool)
+      ) {
+        skippedCount += 1;
+        continue;
+      }
+
+      await prisma.$transaction(async (tx) => {
+        await tx.application.update({
+          where: { id: application.id },
+          data: {
+            status: "APPROVED",
+            targetSchool: importedTargetSchool,
+          },
+        });
+
+        await tx.operationLog.create({
+          data: buildStatusChangeLog({
+            admin: currentAdmin,
+            application,
+            fromStatus: application.status,
+            toStatus: "APPROVED",
+            targetSchool: importedTargetSchool,
+          }),
+        });
+      });
+
+      updatedCount += 1;
+      updatedIds.push(application.id);
+    }
+
+    if (updatedIds.length > 0) {
+      revalidatePath("/admin/applications");
+      for (const id of updatedIds) {
+        revalidatePath(`/admin/applications/${id}`);
+      }
+    }
+
+    return {
+      success: true,
+      error: null,
+      updatedCount,
+      skippedCount,
+    };
+  } catch (e) {
+    console.error("Import Applications Error:", e);
+    return {
+      success: false,
+      error: "导入失败",
+      updatedCount: 0,
+      skippedCount: 0,
+    };
   }
 }
 

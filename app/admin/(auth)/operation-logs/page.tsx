@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import prisma from "@/lib/prisma";
+import { getAdminSelectedSemester } from "@/lib/admin-selected-semester";
 import {
   applicationStatusLabels,
   operationActionLabels,
@@ -33,6 +34,8 @@ export default async function OperationLogsPage({
   await requireCurrentAdmin();
 
   const { adminId = "", action = "", targetId = "" } = await searchParams;
+  const selectedSemester = await getAdminSelectedSemester();
+
   const [admins, logsResult] = await Promise.all([
     prisma.admin.findMany({
       orderBy: { username: "asc" },
@@ -46,6 +49,7 @@ export default async function OperationLogsPage({
       adminId: adminId || undefined,
       action: action || undefined,
       targetId: targetId || undefined,
+      semesterId: selectedSemester?.id,
     }),
   ]);
 
@@ -54,7 +58,9 @@ export default async function OperationLogsPage({
       <div>
         <h1 className="text-2xl font-bold tracking-tight">操作记录</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          查询后台管理员对申请单状态的处理记录。
+          查询当前所选学期
+          {selectedSemester ? `“${selectedSemester.name}”` : ""}
+          内后台管理员对申请单状态的处理记录。
         </p>
       </div>
 
