@@ -1,8 +1,15 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getApplicationByIdMock, getSystemTextByTypeMock } = vi.hoisted(() => ({
+const {
+  approvalPanelPropsMock,
+  getApplicationByIdMock,
+  getSchoolsMock,
+  getSystemTextByTypeMock,
+} = vi.hoisted(() => ({
+  approvalPanelPropsMock: vi.fn(),
   getApplicationByIdMock: vi.fn(),
+  getSchoolsMock: vi.fn(),
   getSystemTextByTypeMock: vi.fn(),
 }));
 
@@ -10,12 +17,19 @@ vi.mock("@/app/actions/application", () => ({
   getApplicationById: getApplicationByIdMock,
 }));
 
+vi.mock("@/app/actions/school", () => ({
+  getSchools: getSchoolsMock,
+}));
+
 vi.mock("@/app/actions/system-text", () => ({
   getSystemTextByType: getSystemTextByTypeMock,
 }));
 
 vi.mock("../_components/approval-panel", () => ({
-  ApprovalPanel: () => <div>审批面板占位</div>,
+  ApprovalPanel: (props: Record<string, unknown>) => {
+    approvalPanelPropsMock(props);
+    return <div>审批面板占位</div>;
+  },
 }));
 
 vi.mock("../_components/print-context", () => ({
@@ -34,7 +48,9 @@ describe("Admin application detail page", () => {
   });
 
   beforeEach(() => {
+    approvalPanelPropsMock.mockReset();
     getApplicationByIdMock.mockReset();
+    getSchoolsMock.mockReset();
     getSystemTextByTypeMock.mockReset();
 
     getApplicationByIdMock.mockResolvedValue({
@@ -90,6 +106,26 @@ describe("Admin application detail page", () => {
       data: null,
       error: null,
     });
+    getSchoolsMock.mockResolvedValue({
+      success: true,
+      error: null,
+      data: [
+        {
+          id: "school-1",
+          name: "西关街小学",
+          districtRange: ["南关街（单号：21-最大号；双号：18-最大号）"],
+          address: "",
+          notice: "",
+        },
+        {
+          id: "school-2",
+          name: "水井巷小学",
+          districtRange: ["长江路（单号：91-最大号；双号：132-最大号）"],
+          address: "",
+          notice: "",
+        },
+      ],
+    });
   });
 
   it("renders page title and status badge", async () => {
@@ -127,6 +163,27 @@ describe("Admin application detail page", () => {
     );
 
     expect(screen.getByText("审批面板占位")).toBeInTheDocument();
+  });
+
+  it("loads schools from the database source and passes them to the approval panel", async () => {
+    const Page = (await import("./page")).default;
+
+    render(
+      await Page({
+        params: Promise.resolve({ id: "app-pending-001" }),
+      }),
+    );
+
+    expect(getSchoolsMock).toHaveBeenCalledTimes(1);
+    const props = approvalPanelPropsMock.mock.calls[0]?.[0];
+    expect(props).toEqual(
+      expect.objectContaining({
+        recommendedSchool: "西关街小学",
+      }),
+    );
+    expect(props.schoolNames).toEqual(
+      expect.arrayContaining(["西关街小学", "水井巷小学"]),
+    );
   });
 
   it("fetches system texts for the semester", async () => {

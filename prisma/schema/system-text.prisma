@@ -3,6 +3,7 @@
 enum SystemTextType {
   TRANSFER_NOTICE
   CONSENT_FORM
+  PENDING_TEXT
 }
 
 model SystemText {

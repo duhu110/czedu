@@ -12,6 +12,7 @@ import {
   type FilePropertyInput,
 } from "@/lib/validations/application";
 import { signEditToken } from "@/lib/qrcode-token";
+import { getCurrentAdmin } from "@/lib/admin-session";
 // ✅ 1. 引入生成的数据库模型类型
 import {
   Prisma,
@@ -68,7 +69,6 @@ const deserializeFiles = <T extends Application>(record: T) => {
   } catch {
     fileHukou = { ...emptyHukou };
   }
-
   // 解析住房证明：兼容旧版扁平数组格式
   let fileProperty: FilePropertyInput;
   try {
@@ -87,7 +87,6 @@ const deserializeFiles = <T extends Application>(record: T) => {
   } catch {
     fileProperty = { ...emptyProperty };
   }
-
   return {
     ...record,
     fileHukou,
@@ -101,7 +100,9 @@ const deserializeFiles = <T extends Application>(record: T) => {
 };
 
 // 反序列化后的应用类型
-export type DeserializedApplication = ReturnType<typeof deserializeFiles<Application>>;
+export type DeserializedApplication = ReturnType<
+  typeof deserializeFiles<Application>
+>;
 
 const ALLOWED_ADMIN_STATUS_TRANSITIONS: Partial<
   Record<ApplicationStatus, readonly ApplicationStatus[]>
@@ -115,7 +116,39 @@ function canAdminTransition(
   currentStatus: ApplicationStatus,
   nextStatus: ApplicationStatus,
 ) {
-  return ALLOWED_ADMIN_STATUS_TRANSITIONS[currentStatus]?.includes(nextStatus) ?? false;
+  return (
+    ALLOWED_ADMIN_STATUS_TRANSITIONS[currentStatus]?.includes(nextStatus) ??
+    false
+  );
+}
+
+function buildStatusChangeLog(params: {
+  admin: NonNullable<Awaited<ReturnType<typeof getCurrentAdmin>>>;
+  application: { id: string; name?: string | null };
+  fromStatus: ApplicationStatus;
+  toStatus: ApplicationStatus;
+  adminRemark?: string | null;
+  targetSchool?: string | null;
+  rejectedFields?: string[];
+}) {
+  return {
+    admin: {
+      connect: { id: params.admin.id },
+    },
+    action: "APPLICATION_STATUS_CHANGED" as const,
+    targetType: "APPLICATION" as const,
+    targetId: params.application.id,
+    targetLabel: params.application.name ?? null,
+    adminUsername: params.admin.username,
+    adminName: params.admin.name,
+    details: JSON.stringify({
+      fromStatus: params.fromStatus,
+      toStatus: params.toStatus,
+      adminRemark: params.adminRemark ?? null,
+      targetSchool: params.targetSchool ?? null,
+      rejectedFields: params.rejectedFields,
+    }),
+  } satisfies Prisma.OperationLogCreateInput;
 }
 
 // ==========================================
@@ -271,11 +304,9 @@ export async function getApplicationById(id: string) {
       where: { id },
       include: { semester: true },
     });
-
     if (!record) {
       return { success: false, data: null, error: "未找到该申请记录" };
     }
-
     return { success: true, data: deserializeFiles(record), error: null };
   } catch (e) {
     console.error("Get Application Error:", e);
@@ -319,6 +350,11 @@ export async function updateApplicationStatus(
   targetSchool?: string,
 ) {
   try {
+    const currentAdmin = await getCurrentAdmin();
+    if (!currentAdmin) {
+      return { success: false, error: "请先登录管理员账号" };
+    }
+
     const parsed = applicationApprovalSchema.safeParse({
       status,
       adminRemark,
@@ -334,7 +370,7 @@ export async function updateApplicationStatus(
 
     const application = await prisma.application.findUnique({
       where: { id },
-      select: { id: true, status: true },
+      select: { id: true, status: true, name: true },
     });
 
     if (!application) {
@@ -345,14 +381,28 @@ export async function updateApplicationStatus(
       return { success: false, error: "当前申请状态不允许执行该审核操作" };
     }
 
-    await prisma.application.update({
-      where: { id },
-      data: {
-        status: parsed.data.status,
-        adminRemark: parsed.data.adminRemark,
-        targetSchool:
-          parsed.data.status === "APPROVED" ? parsed.data.targetSchool : null,
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.application.update({
+        where: { id },
+        data: {
+          status: parsed.data.status,
+          adminRemark: parsed.data.adminRemark,
+          targetSchool:
+            parsed.data.status === "APPROVED" ? parsed.data.targetSchool : null,
+        },
+      });
+
+      await tx.operationLog.create({
+        data: buildStatusChangeLog({
+          admin: currentAdmin,
+          application,
+          fromStatus: application.status,
+          toStatus: parsed.data.status,
+          adminRemark: parsed.data.adminRemark,
+          targetSchool:
+            parsed.data.status === "APPROVED" ? parsed.data.targetSchool : null,
+        }),
+      });
     });
 
     revalidatePath("/admin/applications");
@@ -390,6 +440,11 @@ export async function rejectForEditing(
   adminRemark: string,
 ) {
   try {
+    const currentAdmin = await getCurrentAdmin();
+    if (!currentAdmin) {
+      return { success: false, error: "请先登录管理员账号" };
+    }
+
     const parsed = applicationApprovalSchema.safeParse({
       status: "EDITING",
       adminRemark,
@@ -405,7 +460,7 @@ export async function rejectForEditing(
 
     const application = await prisma.application.findUnique({
       where: { id },
-      select: { id: true, status: true },
+      select: { id: true, status: true, name: true },
     });
 
     if (!application) {
@@ -416,14 +471,27 @@ export async function rejectForEditing(
       return { success: false, error: "当前申请状态不允许驳回修改" };
     }
 
-    await prisma.application.update({
-      where: { id },
-      data: {
-        status: "EDITING",
-        adminRemark: parsed.data.adminRemark,
-        rejectedFields: JSON.stringify(rejectedFields),
-        targetSchool: null,
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.application.update({
+        where: { id },
+        data: {
+          status: "EDITING",
+          adminRemark: parsed.data.adminRemark,
+          rejectedFields: JSON.stringify(rejectedFields),
+          targetSchool: null,
+        },
+      });
+
+      await tx.operationLog.create({
+        data: buildStatusChangeLog({
+          admin: currentAdmin,
+          application,
+          fromStatus: application.status,
+          toStatus: "EDITING",
+          adminRemark: parsed.data.adminRemark,
+          rejectedFields,
+        }),
+      });
     });
 
     revalidatePath("/admin/applications");

@@ -63,19 +63,14 @@ vi.mock("./edit-qrcode-dialog", () => ({
   EditQrcodeDialog: () => null,
 }));
 
-vi.mock("@/lib/school-matching", () => ({
-  getRecommendedSchool: () => null,
-  getSchoolNames: () => ["西关街小学", "水井巷小学", "南山路小学"],
-}));
-
 const baseProps = {
   applicationId: "app-1",
   currentRemark: null as string | null,
   currentTargetSchool: null as string | null,
+  schoolNames: ["西关街小学", "水井巷小学", "南山路小学"],
+  recommendedSchool: null as string | null,
   residencyType: "LOCAL" as const,
   updatedAt: new Date("2026-04-08T10:00:00+08:00"),
-  hukouAddress: "城中区南关街25号",
-  livingAddress: "城中区南关街25号",
 };
 
 describe("ApprovalPanel", () => {

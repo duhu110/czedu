@@ -35,17 +35,16 @@ import { RejectEditDialog } from "./reject-edit-dialog";
 import { EditQrcodeDialog } from "./edit-qrcode-dialog";
 import { SchoolCombobox } from "./school-combobox";
 import { usePrintContext } from "./print-context";
-import { getRecommendedSchool } from "@/lib/school-matching";
 
 interface ApprovalPanelProps {
   applicationId: string;
   currentStatus: ApplicationStatus;
   currentRemark: string | null;
   currentTargetSchool: string | null;
+  schoolNames: string[];
+  recommendedSchool: string | null;
   residencyType: "LOCAL" | "NON_LOCAL";
   updatedAt: Date;
-  hukouAddress: string;
-  livingAddress: string;
 }
 
 export function ApprovalPanel({
@@ -53,22 +52,15 @@ export function ApprovalPanel({
   currentStatus,
   currentRemark,
   currentTargetSchool,
+  schoolNames,
+  recommendedSchool,
   residencyType,
   updatedAt,
-  hukouAddress,
-  livingAddress,
 }: ApprovalPanelProps) {
   const router = useRouter();
   const { triggerPrint } = usePrintContext();
   const canPrint =
     currentStatus === "PENDING" || currentStatus === "SUPPLEMENT";
-
-  // 自动推荐学校（仅 PENDING 且无已选学校时）
-  const recommendedSchool = getRecommendedSchool(
-    hukouAddress,
-    livingAddress,
-    residencyType,
-  );
 
   const [remark, setRemark] = useState(currentRemark || "");
   const [targetSchool, setTargetSchool] = useState(
@@ -163,6 +155,7 @@ export function ApprovalPanel({
               目标学校（通过时必填）
             </label>
             <SchoolCombobox
+              schools={schoolNames}
               value={targetSchool}
               onChange={setTargetSchool}
               recommendedSchool={recommendedSchool}

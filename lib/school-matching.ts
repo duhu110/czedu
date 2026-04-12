@@ -5,6 +5,11 @@ export type SchoolEntry = {
   district_range: string[];
 };
 
+export type SchoolDataSourceEntry = {
+  name: string;
+  districtRange: string[];
+};
+
 type NumberRange = {
   parity: "odd" | "even" | "any";
   min: number;
@@ -22,6 +27,15 @@ type ParsedRule =
   | { type: "manual" };
 
 const schoolList: SchoolEntry[] = schoolListData;
+
+export function toSchoolEntries(
+  list: SchoolDataSourceEntry[],
+): SchoolEntry[] {
+  return list.map((school) => ({
+    school_name: school.name,
+    district_range: school.districtRange,
+  }));
+}
 
 /**
  * 从 district_range 条目中解析出匹配规则
@@ -312,17 +326,18 @@ export function getRecommendedSchool(
   hukouAddress: string,
   livingAddress: string,
   residencyType: "LOCAL" | "NON_LOCAL",
+  list: SchoolEntry[] = schoolList,
 ): string | null {
   if (residencyType === "LOCAL") {
     if (hukouAddress !== livingAddress) return null;
-    return matchSchoolForAddress(hukouAddress, residencyType);
+    return matchSchoolForAddress(hukouAddress, residencyType, list);
   }
-  return matchSchoolForAddress(livingAddress, residencyType);
+  return matchSchoolForAddress(livingAddress, residencyType, list);
 }
 
 /**
  * 获取所有学校名列表
  */
-export function getSchoolNames(): string[] {
-  return schoolList.map((s) => s.school_name);
+export function getSchoolNames(list: SchoolEntry[] = schoolList): string[] {
+  return list.map((s) => s.school_name);
 }

@@ -29,7 +29,7 @@ describe("AppSidebar", () => {
       <TooltipProvider>
         <SidebarProvider>
           <SemesterProvider semesters={[]}>
-            <AppSidebar />
+            <AppSidebar currentAdmin={{ isSuperAdmin: false }} />
           </SemesterProvider>
         </SidebarProvider>
       </TooltipProvider>,
@@ -37,8 +37,24 @@ describe("AppSidebar", () => {
 
     expect(screen.getByText("总览")).toBeInTheDocument();
     expect(screen.getByText("申请管理")).toBeInTheDocument();
+    expect(screen.getByText("操作记录")).toBeInTheDocument();
+    expect(screen.queryByText("用户管理")).not.toBeInTheDocument();
     expect(screen.queryByText("文章管理")).not.toBeInTheDocument();
     expect(screen.getByText("城中区教育局")).toBeInTheDocument();
+  });
+
+  it("shows the user management link for super admins", () => {
+    render(
+      <TooltipProvider>
+        <SidebarProvider>
+          <SemesterProvider semesters={[]}>
+            <AppSidebar currentAdmin={{ isSuperAdmin: true }} />
+          </SemesterProvider>
+        </SidebarProvider>
+      </TooltipProvider>,
+    );
+
+    expect(screen.getByText("用户管理")).toBeInTheDocument();
   });
 
   it("links quick create to the qrcode page", () => {
@@ -46,7 +62,7 @@ describe("AppSidebar", () => {
       <TooltipProvider>
         <SidebarProvider>
           <SemesterProvider semesters={[]}>
-            <AppSidebar />
+            <AppSidebar currentAdmin={{ isSuperAdmin: false }} />
           </SemesterProvider>
         </SidebarProvider>
       </TooltipProvider>,

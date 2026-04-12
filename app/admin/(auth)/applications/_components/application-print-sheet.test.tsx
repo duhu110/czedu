@@ -88,7 +88,7 @@ describe("ApplicationPrintSheet", () => {
     render(<ApplicationPrintSheet {...baseProps} />);
 
     expect(screen.getByText("转学须知")).toBeInTheDocument();
-    expect(screen.getByText("转学须知内容示例")).toBeInTheDocument();
+    expect(screen.getByText("转学须知内容示例")).toHaveClass("indent-[2em]");
   });
 
   it("shows fallback when transfer notice is empty", () => {
@@ -106,7 +106,7 @@ describe("ApplicationPrintSheet", () => {
     render(<ApplicationPrintSheet {...baseProps} />);
 
     expect(screen.getByText("转学知情同意书")).toBeInTheDocument();
-    expect(screen.getByText(/知情同意书内容示例/)).toBeInTheDocument();
+    expect(screen.getByText(/知情同意书内容示例/)).toHaveClass("indent-[2em]");
   });
 
   it("renders status info and QR code in row 3", () => {

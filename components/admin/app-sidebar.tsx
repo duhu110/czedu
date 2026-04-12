@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import {
+  Building2Icon,
   LayoutGridIcon,
   FileTextIcon,
   PlusIcon,
   SettingsIcon,
   ScrollTextIcon,
+  UsersIcon,
 } from "lucide-react";
 
 import {
@@ -34,9 +36,19 @@ const navItems = [
     icon: <FileTextIcon />,
   },
   {
+    title: "操作记录",
+    url: "/admin/operation-logs",
+    icon: <ScrollTextIcon />,
+  },
+  {
     title: "文字管理",
     url: "/admin/system-texts",
     icon: <ScrollTextIcon />,
+  },
+  {
+    title: "学校管理",
+    url: "/admin/schools",
+    icon: <Building2Icon />,
   },
   {
     title: "学期管理",
@@ -45,7 +57,24 @@ const navItems = [
   },
 ];
 
-export function AppSidebar() {
+type AppSidebarProps = {
+  currentAdmin: {
+    isSuperAdmin: boolean;
+  };
+};
+
+export function AppSidebar({ currentAdmin }: AppSidebarProps) {
+  const items = currentAdmin.isSuperAdmin
+    ? [
+        ...navItems,
+        {
+          title: "用户管理",
+          url: "/admin/users",
+          icon: <UsersIcon />,
+        },
+      ]
+    : navItems;
+
   return (
     <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader className="h-14 justify-center">
@@ -70,7 +99,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>管理功能</SidebarGroupLabel>
           <SidebarMenu>
-            {navItems.map((item) => (
+            {items.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <Link href={item.url}>

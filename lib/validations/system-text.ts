@@ -2,7 +2,11 @@ import { z } from "zod";
 
 // ── 文字类型枚举 ──
 
-export const systemTextTypeEnum = z.enum(["TRANSFER_NOTICE", "CONSENT_FORM"]);
+export const systemTextTypeEnum = z.enum([
+  "TRANSFER_NOTICE",
+  "CONSENT_FORM",
+  "PENDING_TEXT",
+]);
 
 export type SystemTextType = z.infer<typeof systemTextTypeEnum>;
 
@@ -19,6 +23,10 @@ export const systemTextTypeMap: Record<
   CONSENT_FORM: {
     label: "知情同意书",
     description: "学生和家长需要阅读并签署确认的知情同意内容",
+  },
+  PENDING_TEXT: {
+    label: "待审核状态文案",
+    description: "学生端待审核状态页文案",
   },
 };
 

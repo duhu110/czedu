@@ -12,17 +12,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { getSchoolNames } from "@/lib/school-matching";
-
-const allSchools = getSchoolNames();
 
 interface SchoolComboboxProps {
+  schools: string[];
   value: string;
   onChange: (school: string) => void;
   recommendedSchool: string | null;
 }
 
 export function SchoolCombobox({
+  schools,
   value,
   onChange,
   recommendedSchool,
@@ -33,8 +32,8 @@ export function SchoolCombobox({
   const filteredSchools = useMemo(() => {
     const q = filter.trim();
     const list = q
-      ? allSchools.filter((s) => s.includes(q))
-      : allSchools;
+      ? schools.filter((s) => s.includes(q))
+      : schools;
 
     // 推荐学校排在最前
     if (recommendedSchool && list.includes(recommendedSchool)) {
@@ -44,7 +43,7 @@ export function SchoolCombobox({
       ];
     }
     return list;
-  }, [filter, recommendedSchool]);
+  }, [filter, recommendedSchool, schools]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

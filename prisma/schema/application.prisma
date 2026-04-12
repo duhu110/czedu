@@ -73,3 +73,12 @@ model Application {
   @@index([idCard])
   @@index([studentId])
 }
+
+model ApplicationAccessAttempt {
+  applicationId String   @id
+  failedCount   Int      @default(0)
+  lockedUntil   DateTime?
+  lastFailedAt  DateTime?
+  lastSuccessAt DateTime?
+  updatedAt     DateTime @updatedAt
+}

@@ -9,27 +9,20 @@ import { submitApplicationSupplement } from "@/app/actions/application";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { Button } from "@/components/ui/button";
 
-export function SupplementForm({
-  applicationId,
-}: {
-  applicationId: string;
-}) {
+export function SupplementForm({ applicationId }: { applicationId: string }) {
   const router = useRouter();
   const [fileStudentCard, setFileStudentCard] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   async function handleSubmit() {
     setIsSubmitting(true);
     const result = await submitApplicationSupplement(applicationId, {
       fileStudentCard,
     });
     setIsSubmitting(false);
-
     if (!result.success) {
       toast.error(result.error || "补件提交失败");
       return;
     }
-
     toast.success("学籍信息卡已提交，申请已转为待审核");
     router.push(`/application/pending/${applicationId}`);
   }
@@ -41,7 +34,10 @@ export function SupplementForm({
           请上传学生学籍信息卡
         </p>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          提交后，申请状态会从“待补学籍信息卡”变为“待审核”。
+          学籍信息卡照片为转学申请必须提交的材料，请尽快提交。
+        </p>
+        <p className="mt-1 text-xs leading-5 text-warning">
+          由原就读学校打印并加盖学校公章，需包含学生姓名、身份证号、学籍号、当前年级、当前班级等信息。
         </p>
         <div className="mt-4">
           <ImageUploader

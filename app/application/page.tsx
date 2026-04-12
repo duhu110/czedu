@@ -36,7 +36,7 @@ const applicationPages = [
   {
     title: "审核驳回结果",
     description: "查看一条已驳回且带审核备注的测试申请。",
-    href: `/application/confirmation/${applicationTestRecordIds.rejected}`,
+    href: `/application/rejected/${applicationTestRecordIds.rejected}`,
     icon: CircleX,
     actionLabel: "查看驳回结果",
   },

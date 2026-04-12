@@ -1,0 +1,7 @@
+DELETE FROM "SystemText"
+WHERE "type" IN (
+  'APPROVED_TEXT',
+  'REJECTED_TEXT',
+  'SUPPLEMENT_TEXT',
+  'EDITING_TEXT'
+);

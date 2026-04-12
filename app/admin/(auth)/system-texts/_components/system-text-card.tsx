@@ -118,7 +118,7 @@ export function SystemTextCard({
       </CardHeader>
       {hasContent && (
         <CardContent>
-          <p className="whitespace-pre-wrap text-sm text-muted-foreground line-clamp-4">
+          <p className="whitespace-pre-wrap indent-[2em] text-sm text-muted-foreground line-clamp-4">
             {content}
           </p>
         </CardContent>

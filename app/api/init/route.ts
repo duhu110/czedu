@@ -31,6 +31,7 @@ export async function GET() {
         username: defaultUsername,
         password: hashedPassword,
         name: "超级管理员", // 可选字段
+        isSuperAdmin: true,
       },
     });
 

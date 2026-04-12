@@ -1,11 +1,14 @@
 // prisma/schema/admin.prisma
 
 model Admin {
-  id        String   @id @default(uuid()) // 推荐使用 UUID，或者 @default(autoincrement()) 使用 Int
-  username  String   @unique // 登录账号
-  password  String // 密码（实际业务中务必存储哈希值，如 bcrypt）
-  name      String? // 管理员姓名（可选）
-  isActive  Boolean  @default(true) // 账号状态
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(uuid()) // 推荐使用 UUID，或者 @default(autoincrement()) 使用 Int
+  username     String   @unique // 登录账号
+  password     String // 密码（实际业务中务必存储哈希值，如 bcrypt）
+  name         String? // 管理员姓名（可选）
+  isActive     Boolean  @default(true) // 账号状态
+  isSuperAdmin Boolean  @default(false) // 是否为超级管理员
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  operationLogs OperationLog[]
 }

@@ -4,11 +4,17 @@ const {
   createMock,
   updateMock,
   findUniqueMock,
+  operationLogCreateMock,
+  transactionMock,
+  getCurrentAdminMock,
   revalidatePathMock,
 } = vi.hoisted(() => ({
   createMock: vi.fn(),
   updateMock: vi.fn(),
   findUniqueMock: vi.fn(),
+  operationLogCreateMock: vi.fn(),
+  transactionMock: vi.fn(),
+  getCurrentAdminMock: vi.fn(),
   revalidatePathMock: vi.fn(),
 }));
 
@@ -20,7 +26,15 @@ vi.mock("@/lib/prisma", () => ({
       update: updateMock,
       findUnique: findUniqueMock,
     },
+    operationLog: {
+      create: operationLogCreateMock,
+    },
+    $transaction: transactionMock,
   },
+}));
+
+vi.mock("@/lib/admin-session", () => ({
+  getCurrentAdmin: getCurrentAdminMock,
 }));
 
 vi.mock("next/cache", () => ({
@@ -75,7 +89,28 @@ describe("application actions", () => {
     createMock.mockReset();
     updateMock.mockReset();
     findUniqueMock.mockReset();
+    operationLogCreateMock.mockReset();
+    transactionMock.mockReset();
+    getCurrentAdminMock.mockReset();
     revalidatePathMock.mockReset();
+
+    transactionMock.mockImplementation(async (callback) =>
+      callback({
+        application: {
+          update: updateMock,
+        },
+        operationLog: {
+          create: operationLogCreateMock,
+        },
+      }),
+    );
+    getCurrentAdminMock.mockResolvedValue({
+      id: "admin-1",
+      username: "admin",
+      name: "系统管理员",
+      isSuperAdmin: true,
+      isActive: true,
+    });
   });
 
   it("creates supplement applications when fileStudentCard is missing", async () => {
@@ -243,8 +278,44 @@ describe("application actions", () => {
         targetSchool: "城中区第一小学",
       },
     });
+    expect(operationLogCreateMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        admin: {
+          connect: { id: "admin-1" },
+        },
+        adminUsername: "admin",
+        adminName: "系统管理员",
+        action: "APPLICATION_STATUS_CHANGED",
+        targetType: "APPLICATION",
+        targetId: "app-1",
+        details: JSON.stringify({
+          fromStatus: "PENDING",
+          toStatus: "APPROVED",
+          adminRemark: "统筹安排",
+          targetSchool: "城中区第一小学",
+        }),
+      }),
+    });
     expect(revalidatePathMock).toHaveBeenCalledWith("/admin/applications");
     expect(revalidatePathMock).toHaveBeenCalledWith("/admin/applications/app-1");
+  });
+
+  it("rejects admin status changes when no authenticated admin is present", async () => {
+    getCurrentAdminMock.mockResolvedValue(null);
+
+    const result = await updateApplicationStatus(
+      "app-1",
+      "REJECTED",
+      "资料不符合要求",
+      "",
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "请先登录管理员账号",
+    });
+    expect(updateMock).not.toHaveBeenCalled();
+    expect(operationLogCreateMock).not.toHaveBeenCalled();
   });
 
   it("rejects approving applications from non-pending states", async () => {
@@ -329,5 +400,37 @@ describe("application actions", () => {
       error: "当前申请状态不允许驳回修改",
     });
     expect(updateMock).not.toHaveBeenCalled();
+  });
+
+  it("writes an operation log when rejecting an application for editing", async () => {
+    findUniqueMock.mockResolvedValue({
+      id: "app-1",
+      status: "PENDING",
+    });
+    updateMock.mockResolvedValue({ id: "app-1" });
+
+    const result = await rejectForEditing(
+      "app-1",
+      ["name", "guardian1Phone"],
+      "请核对姓名和手机号",
+    );
+
+    expect(result).toEqual({ success: true, error: null });
+    expect(operationLogCreateMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        action: "APPLICATION_STATUS_CHANGED",
+        targetId: "app-1",
+        admin: {
+          connect: { id: "admin-1" },
+        },
+        details: JSON.stringify({
+          fromStatus: "PENDING",
+          toStatus: "EDITING",
+          adminRemark: "请核对姓名和手机号",
+          targetSchool: null,
+          rejectedFields: ["name", "guardian1Phone"],
+        }),
+      }),
+    });
   });
 });

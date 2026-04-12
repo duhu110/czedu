@@ -22,7 +22,14 @@ vi.mock("@/components/admin/nav-user", () => ({
 
 describe("AppNavbar", () => {
   it("renders a theme switch button before the user menu", () => {
-    render(<AppNavbar />);
+    render(
+      <AppNavbar
+        user={{
+          username: "admin",
+          name: "超级管理员",
+        }}
+      />,
+    );
 
     const themeButton = screen.getByRole("switch", { name: "切换深色模式" });
     fireEvent.click(themeButton);

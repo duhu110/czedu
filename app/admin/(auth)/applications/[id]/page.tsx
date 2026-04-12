@@ -5,6 +5,7 @@ import QRCode from "qrcode";
 
 import { getApplicationById } from "@/app/actions/application";
 import type { DeserializedApplication } from "@/app/actions/application";
+import { getSchools } from "@/app/actions/school";
 import { getSystemTextByType } from "@/app/actions/system-text";
 import { ApprovalPanel } from "../_components/approval-panel";
 import { ApplicationPrintSheet } from "../_components/application-print-sheet";
@@ -19,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { type ApplicationStatus } from "@prisma/client";
 import { ImageLightbox, PreviewableImage } from "../_components/image-lightbox";
 import { REJECTABLE_FIELDS } from "@/lib/validations/application";
+import { getRecommendedSchool, getSchoolNames, toSchoolEntries } from "@/lib/school-matching";
 
 // 字段路径 → 中文标签映射
 const fieldLabelMap = new Map<string, string>();
@@ -232,6 +234,16 @@ export default async function ApplicationDetailPage({
     notFound();
   }
 
+  const schoolsResult = await getSchools();
+  const schoolEntries = toSchoolEntries(schoolsResult.data ?? []);
+  const schoolNames = getSchoolNames(schoolEntries);
+  const recommendedSchool = getRecommendedSchool(
+    app.hukouAddress,
+    app.livingAddress,
+    app.residencyType,
+    schoolEntries,
+  );
+
   // 获取 SystemText 数据
   const [transferNoticeRes, consentFormRes] = await Promise.all([
     getSystemTextByType(app.semesterId, "TRANSFER_NOTICE"),
@@ -412,10 +424,10 @@ export default async function ApplicationDetailPage({
                   currentStatus={app.status}
                   currentRemark={app.adminRemark}
                   currentTargetSchool={app.targetSchool}
+                  schoolNames={schoolNames}
+                  recommendedSchool={recommendedSchool}
                   residencyType={app.residencyType}
                   updatedAt={app.updatedAt}
-                  hukouAddress={app.hukouAddress}
-                  livingAddress={app.livingAddress}
                 />
               </div>
 
