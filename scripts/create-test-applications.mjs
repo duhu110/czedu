@@ -1,7 +1,16 @@
 import "dotenv/config";
 
+import { readdir } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { PrismaClient } from "@prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
+
+import {
+  buildApplicationSeedRecords,
+  parseSeedCountArg,
+} from "./create-test-applications-utils.mjs";
 
 const applicationTestRecordIds = {
   pending: "test-application-pending",
@@ -15,9 +24,21 @@ const adapter = new PrismaLibSql({
 });
 
 const prisma = new PrismaClient({ adapter });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadsDir = path.resolve(__dirname, "../public/uploads");
+const allowedExtensions = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
-function json(value) {
-  return JSON.stringify(value);
+async function getUploadPaths() {
+  const files = await readdir(uploadsDir, { withFileTypes: true });
+
+  return files
+    .filter(
+      (entry) =>
+        entry.isFile() && allowedExtensions.has(path.extname(entry.name).toLowerCase()),
+    )
+    .map((entry) => `/uploads/${entry.name}`)
+    .sort((left, right) => left.localeCompare(right));
 }
 
 async function getTargetSemester() {
@@ -41,154 +62,6 @@ async function getTargetSemester() {
   });
 }
 
-function buildApplicationRecords(semesterId) {
-  return [
-    {
-      id: applicationTestRecordIds.pending,
-      status: "PENDING",
-      adminRemark: null,
-      targetSchool: null,
-      residencyType: "LOCAL",
-      name: "测试待审核申请",
-      gender: "MALE",
-      ethnicity: "汉族",
-      idCard: "110101201201011231",
-      studentId: "G2026000001",
-      guardian1Name: "待审核监护人",
-      guardian1Phone: "13800000001",
-      guardian2Name: "",
-      guardian2Phone: "",
-      currentSchool: "城中区实验小学",
-      currentGrade: "二年级",
-      targetGrade: "三年级",
-      hukouAddress: "城中区光明路1号",
-      livingAddress: "城中区光明路1号1单元101",
-      fileHukou: json({
-        frontPage: "/seed/pending-hukou-front.png",
-        householderPage: "/seed/pending-hukou-householder.png",
-        guardianPage: "/seed/pending-hukou-guardian.png",
-        studentPage: "/seed/pending-hukou-student.png",
-        others: [],
-      }),
-      fileProperty: json({
-        propertyDeed: "/seed/pending-property-deed.png",
-        purchaseContract: "",
-        rentalCert: "",
-        others: [],
-      }),
-      fileStudentCard: json(["/seed/pending-student-card.png"]),
-      fileResidencePermit: json([]),
-      semesterId,
-    },
-    {
-      id: applicationTestRecordIds.supplement,
-      status: "SUPPLEMENT",
-      adminRemark: null,
-      targetSchool: null,
-      residencyType: "NON_LOCAL",
-      name: "测试待补件申请",
-      gender: "FEMALE",
-      ethnicity: "回族",
-      idCard: "110101201201011232",
-      studentId: "G2026000002",
-      guardian1Name: "待补件监护人",
-      guardian1Phone: "13800000002",
-      guardian2Name: "",
-      guardian2Phone: "",
-      currentSchool: "外区第二小学",
-      currentGrade: "三年级",
-      targetGrade: "四年级",
-      hukouAddress: "外区和平路2号",
-      livingAddress: "城中区幸福路2号2单元202",
-      fileHukou: json({
-        frontPage: "/seed/supplement-hukou-front.png",
-        householderPage: "/seed/supplement-hukou-householder.png",
-        guardianPage: "/seed/supplement-hukou-guardian.png",
-        studentPage: "/seed/supplement-hukou-student.png",
-        others: [],
-      }),
-      fileProperty: json({}),
-      fileStudentCard: json([]),
-      fileResidencePermit: json(["/seed/supplement-residence-permit.png"]),
-      semesterId,
-    },
-    {
-      id: applicationTestRecordIds.approved,
-      status: "APPROVED",
-      adminRemark: null,
-      targetSchool: "城中区第一小学",
-      residencyType: "LOCAL",
-      name: "测试审核通过申请",
-      gender: "MALE",
-      ethnicity: "藏族",
-      idCard: "110101201201011233",
-      studentId: "G2026000003",
-      guardian1Name: "通过监护人",
-      guardian1Phone: "13800000003",
-      guardian2Name: "",
-      guardian2Phone: "",
-      currentSchool: "城中区第三小学",
-      currentGrade: "四年级",
-      targetGrade: "五年级",
-      hukouAddress: "城中区育才路3号",
-      livingAddress: "城中区育才路3号3单元303",
-      fileHukou: json({
-        frontPage: "/seed/approved-hukou-front.png",
-        householderPage: "/seed/approved-hukou-householder.png",
-        guardianPage: "/seed/approved-hukou-guardian.png",
-        studentPage: "/seed/approved-hukou-student.png",
-        others: [],
-      }),
-      fileProperty: json({
-        propertyDeed: "",
-        purchaseContract: "/seed/approved-purchase-contract.png",
-        rentalCert: "",
-        others: [],
-      }),
-      fileStudentCard: json(["/seed/approved-student-card.png"]),
-      fileResidencePermit: json([]),
-      semesterId,
-    },
-    {
-      id: applicationTestRecordIds.rejected,
-      status: "REJECTED",
-      adminRemark: "提交材料与户籍信息不一致，请核对后重新提交。",
-      targetSchool: null,
-      residencyType: "LOCAL",
-      name: "测试审核驳回申请",
-      gender: "FEMALE",
-      ethnicity: "汉族",
-      idCard: "110101201201011234",
-      studentId: "G2026000004",
-      guardian1Name: "驳回监护人",
-      guardian1Phone: "13800000004",
-      guardian2Name: "",
-      guardian2Phone: "",
-      currentSchool: "城中区第四小学",
-      currentGrade: "五年级",
-      targetGrade: "六年级",
-      hukouAddress: "城中区学苑路4号",
-      livingAddress: "城中区学苑路4号4单元404",
-      fileHukou: json({
-        frontPage: "/seed/rejected-hukou-front.png",
-        householderPage: "/seed/rejected-hukou-householder.png",
-        guardianPage: "/seed/rejected-hukou-guardian.png",
-        studentPage: "/seed/rejected-hukou-student.png",
-        others: ["/seed/rejected-hukou-other1.png"],
-      }),
-      fileProperty: json({
-        propertyDeed: "",
-        purchaseContract: "",
-        rentalCert: "/seed/rejected-rental-cert.png",
-        others: [],
-      }),
-      fileStudentCard: json(["/seed/rejected-student-card.png"]),
-      fileResidencePermit: json([]),
-      semesterId,
-    },
-  ];
-}
-
 async function main() {
   const semester = await getTargetSemester();
 
@@ -196,9 +69,19 @@ async function main() {
     throw new Error("未找到任何学期，请先创建学期后再执行测试申请脚本。");
   }
 
-  const records = buildApplicationRecords(semester.id);
+  const uploadPaths = await getUploadPaths();
+  const count = parseSeedCountArg(process.argv.slice(2));
+  const records = buildApplicationSeedRecords({
+    semesterId: semester.id,
+    uploadPaths,
+    count,
+  });
 
-  for (const record of records) {
+  const stableIds = new Set(Object.values(applicationTestRecordIds));
+  const stableRecords = records.filter((record) => stableIds.has(record.id));
+  const randomRecords = records.filter((record) => !stableIds.has(record.id));
+
+  for (const record of stableRecords) {
     await prisma.application.upsert({
       where: { id: record.id },
       update: record,
@@ -206,9 +89,17 @@ async function main() {
     });
   }
 
-  console.log("测试申请已创建或更新：");
+  for (const record of randomRecords) {
+    await prisma.application.create({
+      data: record,
+    });
+  }
+
+  console.log(`已更新固定演示申请单 ${stableRecords.length} 条。`);
   console.log(JSON.stringify(applicationTestRecordIds, null, 2));
+  console.log(`已新增随机申请单 ${randomRecords.length} 条。`);
   console.log(`所属学期: ${semester.name} (${semester.id})`);
+  console.log(`使用上传图片 ${uploadPaths.length} 张，目录: ${uploadsDir}`);
 }
 
 main()
