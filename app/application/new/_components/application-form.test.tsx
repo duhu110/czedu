@@ -41,4 +41,13 @@ describe("ApplicationForm", () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it("renders required property type choices in the property card", () => {
+    render(<ApplicationForm semesterId="semester-1" />);
+
+    expect(screen.getByText("2. 房产信息")).toBeInTheDocument();
+    expect(screen.getByText("房产情况")).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "购房" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "租房" })).toBeInTheDocument();
+  });
 });

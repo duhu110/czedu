@@ -17,6 +17,7 @@ import {
   ETHNICITY_OPTIONS,
   GRADE_OPTIONS,
   GUARDIAN_RELATION_OPTIONS,
+  PROPERTY_TYPE_OPTIONS,
   type ApplicationInput,
 } from "@/lib/validations/application";
 import { createApplication } from "@/app/actions/application";
@@ -242,10 +243,10 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
           </CardContent>
         </Card>
 
-        {/* ==================== 卡片2：户籍信息 ==================== */}
+        {/* ==================== 卡片2：房产信息 ==================== */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">2. 户籍信息</CardTitle>
+            <CardTitle className="text-base">2. 房产信息</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -278,6 +279,40 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                           非城中区户籍
                         </FormLabel>
                       </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="propertyType"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel>
+                    房产情况 <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      className="flex gap-4"
+                    >
+                      {PROPERTY_TYPE_OPTIONS.map((option) => (
+                        <FormItem
+                          key={option.value}
+                          className="flex items-center space-x-2 space-y-0"
+                        >
+                          <FormControl>
+                            <RadioGroupItem value={option.value} />
+                          </FormControl>
+                          <FormLabel className="font-normal">
+                            {option.label}
+                          </FormLabel>
+                        </FormItem>
+                      ))}
                     </RadioGroup>
                   </FormControl>
                   <FormMessage />

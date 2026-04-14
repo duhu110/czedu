@@ -45,6 +45,7 @@ const streets = [
 ];
 const guardianRelations = ["父亲", "母亲", "爷爷", "奶奶", "外公", "外婆"];
 const statusPool = ["PENDING", "SUPPLEMENT", "APPROVED", "REJECTED", "EDITING"];
+const propertyTypes = ["PURCHASE", "RENT"];
 
 function json(value) {
   return JSON.stringify(value);
@@ -185,6 +186,7 @@ function buildBaseRecord({
   const targetGrade =
     grades[Math.min(currentGradeIndex + 1, grades.length - 1)] ?? currentGrade;
   const residency = residencyType ?? (random() > 0.5 ? "LOCAL" : "NON_LOCAL");
+  const propertyType = pickOne(propertyTypes, random);
   const files = buildFilePayloads(uploadPaths, residency, status, random);
   const adminFields = buildAdminFields(status, random);
   const hukouAddress = buildAddress(random);
@@ -196,6 +198,7 @@ function buildBaseRecord({
     status,
     semesterId,
     residencyType: residency,
+    propertyType,
     name,
     gender: random() > 0.5 ? "MALE" : "FEMALE",
     ethnicity: pickOne(ethnicities, random),

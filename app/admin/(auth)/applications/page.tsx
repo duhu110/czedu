@@ -17,6 +17,7 @@ import { ApplicationFilters } from "./_components/application-filters";
 import { ApplicationImportExportToolbar } from "./_components/application-import-export-toolbar";
 import { ApplicationPagination } from "./_components/application-pagination";
 import { formatBeijingDate } from "@/lib/china-time";
+import { PROPERTY_TYPE_LABELS } from "@/lib/validations/application";
 
 interface PageProps {
   searchParams: Promise<{
@@ -85,6 +86,7 @@ export default async function AdminApplicationsPage({
               <TableHead>申请转入年级</TableHead>
               <TableHead>分配学校</TableHead>
               <TableHead>户籍类型</TableHead>
+              <TableHead>房产情况</TableHead>
               <TableHead>提交时间</TableHead>
               <TableHead>状态</TableHead>
               <TableHead className="text-right">操作</TableHead>
@@ -94,7 +96,7 @@ export default async function AdminApplicationsPage({
             {applications.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={9}
+                  colSpan={10}
                   className="h-24 text-center text-muted-foreground"
                 >
                   暂无转学申请数据
@@ -116,6 +118,7 @@ export default async function AdminApplicationsPage({
                   <TableCell>
                     {app.residencyType === "LOCAL" ? "城中区" : "非城中区"}
                   </TableCell>
+                  <TableCell>{PROPERTY_TYPE_LABELS[app.propertyType]}</TableCell>
                   <TableCell>
                     {formatBeijingDate(app.createdAt)}
                   </TableCell>

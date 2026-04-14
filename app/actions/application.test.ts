@@ -52,6 +52,7 @@ import {
 const baseApplicationInput = {
   semesterId: "semester-1",
   residencyType: "LOCAL" as const,
+  propertyType: "PURCHASE" as const,
   name: "张三",
   gender: "MALE" as const,
   ethnicity: "汉族",
@@ -167,6 +168,35 @@ describe("application actions", () => {
         fileProperty: JSON.stringify(baseApplicationInput.fileProperty),
       }),
     });
+  });
+
+  it("persists property type when creating applications", async () => {
+    createMock.mockResolvedValue({ id: "app-1" });
+
+    await createApplication({
+      ...baseApplicationInput,
+      propertyType: "RENT",
+    });
+
+    expect(createMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        propertyType: "RENT",
+      }),
+    });
+  });
+
+  it("rejects applications without property type", async () => {
+    const inputWithoutPropertyType = { ...baseApplicationInput };
+    delete (inputWithoutPropertyType as Partial<typeof baseApplicationInput>)
+      .propertyType;
+
+    const result = await createApplication(inputWithoutPropertyType);
+
+    expect(result).toEqual({
+      success: false,
+      error: "数据验证失败，请检查填写内容",
+    });
+    expect(createMock).not.toHaveBeenCalled();
   });
 
   it("rejects NON_LOCAL applications without any housing certificate", async () => {

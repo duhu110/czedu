@@ -19,7 +19,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { type ApplicationStatus } from "@prisma/client";
 import { ImageLightbox, PreviewableImage } from "../_components/image-lightbox";
-import { REJECTABLE_FIELDS } from "@/lib/validations/application";
+import {
+  PROPERTY_TYPE_LABELS,
+  REJECTABLE_FIELDS,
+} from "@/lib/validations/application";
 import { getRecommendedSchool, getSchoolNames, toSchoolEntries } from "@/lib/school-matching";
 
 // 字段路径 → 中文标签映射
@@ -328,10 +331,10 @@ export default async function ApplicationDetailPage({
                   </CardContent>
                 </Card>
 
-                {/* 卡片2：户籍信息 */}
+                {/* 卡片2：房产信息 */}
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">2. 户籍信息</CardTitle>
+                    <CardTitle className="text-base">2. 房产信息</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm">
                     <div className="grid grid-cols-3 py-1 border-b">
@@ -340,6 +343,12 @@ export default async function ApplicationDetailPage({
                         {app.residencyType === "LOCAL"
                           ? "城中区户籍"
                           : "非城中区户籍"}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 py-1 border-b">
+                      <span className="text-muted-foreground">房产情况</span>
+                      <span className="col-span-2">
+                        {PROPERTY_TYPE_LABELS[app.propertyType]}
                       </span>
                     </div>
                     <div className="grid grid-cols-3 py-1 border-b">
@@ -445,9 +454,7 @@ export default async function ApplicationDetailPage({
                   </CardHeader>
                   <CardContent className="space-y-6 bg-muted/10 pt-4 rounded-b-xl">
                     <HukouSection fileHukou={app.fileHukou} />
-                    {app.residencyType === "LOCAL" && (
-                      <PropertySection fileProperty={app.fileProperty} />
-                    )}
+                    <PropertySection fileProperty={app.fileProperty} />
                     <ImageSection
                       title="学生学籍信息表"
                       urls={app.fileStudentCard}

@@ -331,6 +331,7 @@ export async function getApplicationsForExport(params: {
         targetGrade: true,
         targetSchool: true,
         residencyType: true,
+        propertyType: true,
         createdAt: true,
         status: true,
         adminRemark: true,

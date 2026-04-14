@@ -1,6 +1,7 @@
-import type { ApplicationStatus } from "@prisma/client";
+import type { ApplicationStatus, PropertyType } from "@prisma/client";
 
 import { formatBeijingDateTime } from "@/lib/china-time";
+import { PROPERTY_TYPE_LABELS } from "@/lib/validations/application";
 
 export type PrintableApplication = {
   id: string;
@@ -10,6 +11,7 @@ export type PrintableApplication = {
   idCard: string;
   studentId: string;
   residencyType: "LOCAL" | "NON_LOCAL";
+  propertyType: PropertyType;
   guardian1Name: string;
   guardian1Relation: string;
   guardian1Phone: string;
@@ -29,6 +31,10 @@ export type PrintableApplication = {
 
 export function getResidencyTypeLabel(value: PrintableApplication["residencyType"]) {
   return value === "LOCAL" ? "城中区户籍" : "非城中区户籍";
+}
+
+export function getPropertyTypeLabel(value: PrintableApplication["propertyType"]) {
+  return PROPERTY_TYPE_LABELS[value];
 }
 
 export function getGenderLabel(value: PrintableApplication["gender"]) {

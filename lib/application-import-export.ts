@@ -1,6 +1,11 @@
-import { type ApplicationStatus, type ResidencyType } from "@prisma/client";
+import {
+  type ApplicationStatus,
+  type PropertyType,
+  type ResidencyType,
+} from "@prisma/client";
 
 import { formatBeijingDate } from "@/lib/china-time";
+import { PROPERTY_TYPE_LABELS } from "@/lib/validations/application";
 
 export const applicationStatusImportExportLabels: Record<
   ApplicationStatus,
@@ -29,6 +34,7 @@ export const APPLICATION_XLSX_HEADERS = [
   "申请转入年级",
   "目标学校",
   "户籍类型",
+  "房产情况",
   "提交时间",
   "状态",
   "审核备注",
@@ -45,6 +51,7 @@ export type ApplicationExportRecord = {
   targetGrade: string;
   targetSchool: string | null;
   residencyType: ResidencyType;
+  propertyType: PropertyType;
   createdAt: Date;
   status: ApplicationStatus;
   adminRemark: string | null;
@@ -95,6 +102,10 @@ function formatResidencyType(residencyType: ResidencyType) {
   return residencyType === "LOCAL" ? "城中区户籍" : "非城中区户籍";
 }
 
+function formatPropertyType(propertyType: PropertyType) {
+  return PROPERTY_TYPE_LABELS[propertyType];
+}
+
 export function buildApplicationExportRows(
   applications: ApplicationExportRecord[],
 ): ApplicationExportRow[] {
@@ -107,6 +118,7 @@ export function buildApplicationExportRows(
     申请转入年级: application.targetGrade,
     目标学校: application.targetSchool ?? "",
     户籍类型: formatResidencyType(application.residencyType),
+    房产情况: formatPropertyType(application.propertyType),
     提交时间: formatBeijingDate(application.createdAt),
     状态: applicationStatusImportExportLabels[application.status],
     审核备注: application.adminRemark ?? "",

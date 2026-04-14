@@ -18,6 +18,7 @@ describe("application import/export helpers", () => {
 
     expect(Object.keys(row)).toEqual(APPLICATION_XLSX_HEADERS);
     expect(row["目标学校"]).toBe("");
+    expect(row["房产情况"]).toBe("购房");
     expect(row["提交时间"]).toBe("2026-04-07");
     expect(row["状态"]).toBe("待审核");
     expect(row["审核备注"]).toBe("");
@@ -34,6 +35,7 @@ describe("application import/export helpers", () => {
         申请转入年级: "五年级",
         目标学校: "西关街小学",
         户籍类型: "城中区户籍",
+        房产情况: "购房",
         提交时间: "2026/4/7",
         状态: "待审核",
         审核备注: "批量导入处理",

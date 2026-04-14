@@ -4,6 +4,11 @@ enum ResidencyType {
   NON_LOCAL // 非城中区户籍
 }
 
+enum PropertyType {
+  PURCHASE // 购房
+  RENT // 租房
+}
+
 enum Gender {
   MALE // 男
   FEMALE // 女
@@ -50,6 +55,7 @@ model Application {
   // 5. 地址信息
   hukouAddress  String // 户籍地址
   livingAddress String // 居住地址
+  propertyType  PropertyType @default(PURCHASE) // 房产情况：购房/租房
 
   // 6. 申请资料 (以 JSON Array 格式序列化为 String 存储，默认空数组)
   // 无论户籍还是非户籍都要传的：

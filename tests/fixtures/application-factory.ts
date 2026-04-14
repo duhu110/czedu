@@ -8,6 +8,7 @@ export type MockApplication = {
   idCard: string;
   studentId: string;
   residencyType: "LOCAL" | "NON_LOCAL";
+  propertyType: "PURCHASE" | "RENT";
   guardian1Name: string;
   guardian1Relation: string;
   guardian1Phone: string;
@@ -52,6 +53,7 @@ const baseApplication: MockApplication = {
   idCard: "630103201501010011",
   studentId: "G2026001001",
   residencyType: "LOCAL",
+  propertyType: "PURCHASE",
   guardian1Name: "张父",
   guardian1Relation: "父亲",
   guardian1Phone: "13800001234",

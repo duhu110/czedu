@@ -4,6 +4,7 @@ import { usePrintContext } from "./print-context";
 import {
   getFallbackText,
   getGenderLabel,
+  getPropertyTypeLabel,
   getResidencyTypeLabel,
   getStatusPrintLabel,
   maskPhoneNumber,
@@ -86,6 +87,10 @@ export function ApplicationPrintSheet({
             <Field
               label="户籍类型"
               value={getResidencyTypeLabel(application.residencyType)}
+            />
+            <Field
+              label="房产情况"
+              value={getPropertyTypeLabel(application.propertyType)}
             />
           </div>
         </section>

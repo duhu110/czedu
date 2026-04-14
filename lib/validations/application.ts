@@ -25,6 +25,17 @@ export const GUARDIAN_RELATION_OPTIONS = [
   "父亲", "母亲", "爷爷", "奶奶", "外公", "外婆", "其他",
 ] as const;
 
+// 房产情况选项
+export const PROPERTY_TYPE_OPTIONS = [
+  { value: "PURCHASE", label: "购房" },
+  { value: "RENT", label: "租房" },
+] as const;
+
+export const PROPERTY_TYPE_LABELS = {
+  PURCHASE: "购房",
+  RENT: "租房",
+} as const;
+
 // 中国56个民族
 export const ETHNICITY_OPTIONS = [
   "汉族", "蒙古族", "回族", "藏族", "维吾尔族", "苗族", "彝族", "壮族",
@@ -50,9 +61,10 @@ export const REJECTABLE_FIELDS = [
     ],
   },
   {
-    group: "户籍信息",
+    group: "房产信息",
     fields: [
       { field: "residencyType", label: "户籍类型" },
+      { field: "propertyType", label: "房产情况" },
       { field: "hukouAddress", label: "户籍详细地址" },
       { field: "livingAddress", label: "现居住详细地址" },
     ],
@@ -134,6 +146,9 @@ export const applicationSchema = z
     // 枚举类型，与 Prisma 中的保持一致
     residencyType: z.enum(["LOCAL", "NON_LOCAL"], {
       message: "请选择户籍类型",
+    }),
+    propertyType: z.enum(["PURCHASE", "RENT"], {
+      message: "请选择房产情况",
     }),
     name: z.string().min(2, "请输入学生姓名").regex(chineseNameRegex, "姓名只能包含汉字和间隔号（·）"),
     gender: z.enum(["MALE", "FEMALE"], {

@@ -71,6 +71,7 @@ describe("Admin application detail page", () => {
         semesterId: "semester-1",
         semester: { name: "2026年春季学期" },
         residencyType: "LOCAL",
+        propertyType: "PURCHASE",
         idCard: "630103201501010011",
         studentId: "G2026001001",
         gender: "MALE",
@@ -145,6 +146,19 @@ describe("Admin application detail page", () => {
 
     expect(screen.getByText(/张三 的转学申请/)).toBeInTheDocument();
     expect(screen.getByText("待审核")).toBeInTheDocument();
+  });
+
+  it("renders property type in the detail card", async () => {
+    const Page = (await import("./page")).default;
+
+    render(
+      await Page({
+        params: Promise.resolve({ id: "app-pending-001" }),
+      }),
+    );
+
+    expect(screen.getByText("房产情况")).toBeInTheDocument();
+    expect(screen.getByText("购房")).toBeInTheDocument();
   });
 
   it("renders print sheet placeholder", async () => {

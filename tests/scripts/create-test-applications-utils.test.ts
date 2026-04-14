@@ -65,6 +65,7 @@ describe("buildApplicationSeedRecords", () => {
 
     for (const record of records) {
       expect(record.semesterId).toBe("semester-1");
+      expect(["PURCHASE", "RENT"]).toContain(record.propertyType);
       expect(record.guardian1Relation).toBeTruthy();
       expect(record.fileHukou).toEqual(expect.any(String));
       expect(record.fileProperty).toEqual(expect.any(String));

@@ -28,6 +28,7 @@ const application = {
   idCard: "630103201501010011",
   studentId: "G2026001001",
   residencyType: "LOCAL" as const,
+  propertyType: "PURCHASE" as const,
   guardian1Name: "张父",
   guardian1Relation: "父亲",
   guardian1Phone: "13800001234",
@@ -83,6 +84,7 @@ describe("ApplicationPrintSheet", () => {
     expect(screen.getByText("男")).toBeInTheDocument();
     expect(screen.getByText("汉族")).toBeInTheDocument();
     expect(screen.getByText("630103201501010011")).toBeInTheDocument();
+    expect(screen.getByText("购房")).toBeInTheDocument();
   });
 
   it("renders transfer notice in row 2", () => {
