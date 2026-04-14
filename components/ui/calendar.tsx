@@ -10,6 +10,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { BEIJING_TIME_ZONE } from "@/lib/china-time"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowLeftIcon, ArrowRightIcon, ArrowDownIcon } from "@hugeicons/core-free-icons"
 
@@ -41,7 +42,10 @@ function Calendar({
       locale={locale}
       formatters={{
         formatMonthDropdown: (date) =>
-          date.toLocaleString(locale?.code, { month: "short" }),
+          date.toLocaleString(locale?.code, {
+            month: "short",
+            timeZone: BEIJING_TIME_ZONE,
+          }),
         ...formatters,
       }}
       classNames={{
@@ -200,7 +204,9 @@ function CalendarDayButton({
       ref={ref}
       variant="ghost"
       size="icon"
-      data-day={day.date.toLocaleDateString(locale?.code)}
+      data-day={day.date.toLocaleDateString(locale?.code, {
+        timeZone: BEIJING_TIME_ZONE,
+      })}
       data-selected-single={
         modifiers.selected &&
         !modifiers.range_start &&

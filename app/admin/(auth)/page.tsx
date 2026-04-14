@@ -15,6 +15,7 @@ import { DashboardApplicationTable } from "./_components/dashboard-application-t
 import { buildDashboardStats, buildTrendSeries } from "./_components/dashboard-data";
 import { DashboardOverviewCards } from "./_components/dashboard-overview-cards";
 import { DashboardTrendChart } from "./_components/dashboard-trend-chart";
+import { formatBeijingDate } from "@/lib/china-time";
 
 export default async function AdminDashboardPage() {
   const selectedSemester = await getAdminSelectedSemester();
@@ -65,8 +66,8 @@ export default async function AdminDashboardPage() {
         <h1 className="text-2xl font-bold tracking-tight">后台总览</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           当前所选学期：{selectedSemester.name}，申请时间范围{" "}
-          {selectedSemester.startDate.toLocaleDateString("zh-CN")} 至{" "}
-          {selectedSemester.endDate.toLocaleDateString("zh-CN")}
+          {formatBeijingDate(selectedSemester.startDate)} 至{" "}
+          {formatBeijingDate(selectedSemester.endDate)}
         </p>
       </div>
 

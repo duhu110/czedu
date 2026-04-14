@@ -18,6 +18,7 @@ describe("application import/export helpers", () => {
 
     expect(Object.keys(row)).toEqual(APPLICATION_XLSX_HEADERS);
     expect(row["目标学校"]).toBe("");
+    expect(row["提交时间"]).toBe("2026-04-07");
     expect(row["状态"]).toBe("待审核");
     expect(row["审核备注"]).toBe("");
   });

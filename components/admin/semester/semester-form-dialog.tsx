@@ -34,6 +34,10 @@ import {
   type SemesterLike,
 } from "@/lib/semester";
 import {
+  parseBeijingDateInputValue,
+  toBeijingDateInputValue,
+} from "@/lib/china-time";
+import {
   semesterFormSchema,
   type SemesterFormInput,
 } from "@/lib/validations/semester";
@@ -62,27 +66,11 @@ function isValidDate(date: unknown): date is Date {
 }
 
 function formatDateInputValue(date?: Date | null) {
-  if (!isValidDate(date)) {
-    return "";
-  }
-
-  const year = date.getUTCFullYear();
-  const month = `${date.getUTCMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getUTCDate()}`.padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
+  return isValidDate(date) ? toBeijingDateInputValue(date) : "";
 }
 
 function parseDateInputValue(value: string) {
-  if (!value) {
-    return null;
-  }
-
-  const [year, month, day] = value.split("-").map(Number);
-
-  const parsed = new Date(Date.UTC(year, month - 1, day));
-
-  return isValidDate(parsed) ? parsed : null;
+  return parseBeijingDateInputValue(value);
 }
 
 function getDescribedByValue(...ids: Array<string | undefined>) {

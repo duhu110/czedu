@@ -1,5 +1,6 @@
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
+import { formatBeijingDate, getBeijingNow } from "@/lib/china-time";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { GithubIcon } from "@hugeicons/core-free-icons";
 
@@ -26,6 +27,8 @@ const socialLinks = [
 ];
 
 export function Footer() {
+  const currentYear = formatBeijingDate(getBeijingNow()).slice(0, 4);
+
   return (
     <footer className="mx-auto w-full max-w-5xl">
       <div className="flex flex-col gap-6 px-4 py-6 md:px-6">
@@ -57,7 +60,7 @@ export function Footer() {
       </div>
 
       <div className="flex items-center justify-between gap-4 border-t px-4 py-4 text-muted-foreground text-sm md:px-6">
-        <p>&copy; {new Date().getFullYear()} CZEDU Transfer</p>
+        <p>&copy; {currentYear} CZEDU Transfer</p>
 
         <p className="inline-flex items-center gap-1">
           <span>Mock template by</span>

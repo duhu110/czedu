@@ -16,6 +16,7 @@ type ApplicationPrintSheetProps = {
   qrCodeDataUrl?: string | null;
   transferNoticeContent: string | null;
   consentFormContent: string | null;
+  pendingTextContent: string | null;
 };
 
 function Field({ label, value }: { label: string; value: string }) {
@@ -33,6 +34,7 @@ export function ApplicationPrintSheet({
   qrCodeDataUrl,
   transferNoticeContent,
   consentFormContent,
+  pendingTextContent,
 }: ApplicationPrintSheetProps) {
   const { maskPhone } = usePrintContext();
 
@@ -49,6 +51,13 @@ export function ApplicationPrintSheet({
     application.status,
     application.adminRemark,
   );
+  const pendingStatusLines =
+    pendingTextContent?.trim()
+      ? pendingTextContent.split("\n")
+      : [
+          "您的转学申请已提交，目前正在审核中。",
+          "请关注城中区教育局官方发布的相关消息通知，并可随时扫描右侧二维码查询最新审核进度。",
+        ];
 
   return (
     <section className="hidden print:block print:px-2 print:py-1" data-testid="print-sheet">
@@ -129,8 +138,9 @@ export function ApplicationPrintSheet({
               <div className="font-semibold">{statusLabel}</div>
               {application.status === "PENDING" && (
                 <div className="text-[10px] leading-snug space-y-0.5">
-                  <p>您的转学申请已提交，目前正在审核中。</p>
-                  <p>请关注城中区教育局官方发布的相关消息通知，并可随时扫描右侧二维码查询最新审核进度。</p>
+                  {pendingStatusLines.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
                 </div>
               )}
               {application.status === "SUPPLEMENT" && (

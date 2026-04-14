@@ -1,4 +1,5 @@
 // lib/prisma.ts
+import "@/lib/china-time";
 import { PrismaClient } from "@prisma/client";
 // 删除了 import { createClient } from "@libsql/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";

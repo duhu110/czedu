@@ -189,13 +189,12 @@ describe("application actions", () => {
     expect(createMock).not.toHaveBeenCalled();
   });
 
-  it("accepts NON_LOCAL applications with a housing certificate", async () => {
+  it("accepts NON_LOCAL applications with a housing certificate and without residence permit", async () => {
     createMock.mockResolvedValue({ id: "app-nonlocal" });
 
     const result = await createApplication({
       ...baseApplicationInput,
       residencyType: "NON_LOCAL",
-      fileResidencePermit: ["/uploads/residence-permit.png"],
     });
 
     expect(result).toEqual({ success: true, error: null });
@@ -203,6 +202,7 @@ describe("application actions", () => {
       data: expect.objectContaining({
         residencyType: "NON_LOCAL",
         fileProperty: JSON.stringify(baseApplicationInput.fileProperty),
+        fileResidencePermit: "[]",
       }),
     });
   });

@@ -16,6 +16,7 @@ import {
 import { ApplicationFilters } from "./_components/application-filters";
 import { ApplicationImportExportToolbar } from "./_components/application-import-export-toolbar";
 import { ApplicationPagination } from "./_components/application-pagination";
+import { formatBeijingDate } from "@/lib/china-time";
 
 interface PageProps {
   searchParams: Promise<{
@@ -116,7 +117,7 @@ export default async function AdminApplicationsPage({
                     {app.residencyType === "LOCAL" ? "城中区" : "非城中区"}
                   </TableCell>
                   <TableCell>
-                    {app.createdAt.toLocaleDateString("zh-CN")}
+                    {formatBeijingDate(app.createdAt)}
                   </TableCell>
                   <TableCell>
                     <Badge variant={statusMap[app.status].variant}>

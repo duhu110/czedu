@@ -1,5 +1,3 @@
-import { format } from "date-fns";
-
 import { getSemesters } from "@/app/actions/semester";
 import { CreateSemesterDialog } from "@/components/admin/semester/create-dialog";
 import { DeleteSemesterButton } from "@/components/admin/semester/delete-button";
@@ -16,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getSemesterTimelineStatus } from "@/lib/semester";
+import { formatBeijingDate } from "@/lib/china-time";
 
 export default async function SemesterPage() {
   const semesters = await getSemesters();
@@ -58,8 +57,8 @@ export default async function SemesterPage() {
                 <TableRow key={s.id}>
                   <TableCell className="font-medium">{s.name}</TableCell>
                   <TableCell>
-                    {format(s.startDate, "yyyy-MM-dd")} 至{" "}
-                    {format(s.endDate, "yyyy-MM-dd")}
+                    {formatBeijingDate(s.startDate)} 至{" "}
+                    {formatBeijingDate(s.endDate)}
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary">

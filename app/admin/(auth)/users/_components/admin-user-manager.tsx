@@ -26,6 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatBeijingDateTime } from "@/lib/china-time";
 
 type AdminRecord = {
   id: string;
@@ -361,7 +362,7 @@ export function AdminUserManager({ admins }: { admins: AdminRecord[] }) {
                     )}
                   </TableCell>
                   <TableCell>
-                    {new Date(admin.updatedAt).toLocaleString("zh-CN")}
+                    {formatBeijingDateTime(admin.updatedAt)}
                   </TableCell>
                   <TableCell className="text-right">
                     <EditAdminDialog

@@ -35,6 +35,7 @@ import { RejectEditDialog } from "./reject-edit-dialog";
 import { EditQrcodeDialog } from "./edit-qrcode-dialog";
 import { SchoolCombobox } from "./school-combobox";
 import { usePrintContext } from "./print-context";
+import { formatBeijingDateTime } from "@/lib/china-time";
 
 interface ApprovalPanelProps {
   applicationId: string;
@@ -126,7 +127,7 @@ export function ApprovalPanel({
   };
 
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleString("zh-CN");
+    return formatBeijingDateTime(date);
   };
 
   return (

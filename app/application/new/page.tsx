@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { verifyQrToken } from "@/lib/qrcode-token";
+import { getBeijingNow } from "@/lib/china-time";
 import { ApplicationForm } from "./_components/application-form";
 
 interface PageProps {
@@ -27,7 +28,7 @@ export default async function NewApplicationPage({ searchParams }: PageProps) {
     redirect("/application/new/outdate");
   }
 
-  const now = new Date();
+  const now = getBeijingNow();
 
   // 查找当前时间处于起止范围内的学期
   const activeSemester = await prisma.semester.findFirst({

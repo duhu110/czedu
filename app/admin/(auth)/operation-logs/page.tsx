@@ -19,6 +19,7 @@ import {
   parseOperationLogDetails,
 } from "@/lib/operation-log";
 import { requireCurrentAdmin } from "@/lib/admin-session";
+import { formatBeijingDateTime } from "@/lib/china-time";
 
 type OperationLogSearchParams = Promise<{
   adminId?: string;
@@ -143,7 +144,7 @@ export default async function OperationLogsPage({
                 return (
                   <TableRow key={log.id}>
                     <TableCell>
-                      {new Date(log.createdAt).toLocaleString("zh-CN")}
+                      {formatBeijingDateTime(log.createdAt)}
                     </TableCell>
                     <TableCell>
                       {log.adminName || log.admin?.name || log.adminUsername}

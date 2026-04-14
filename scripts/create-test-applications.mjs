@@ -1,5 +1,8 @@
 import "dotenv/config";
 
+process.env.TZ = "Asia/Shanghai";
+process.env.PGTZ = "Asia/Shanghai";
+
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

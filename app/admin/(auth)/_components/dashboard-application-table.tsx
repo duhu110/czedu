@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { formatBeijingDate } from "@/lib/china-time";
 
 const statusMap = {
   PENDING: { label: "待审核", variant: "secondary" },
@@ -87,7 +88,7 @@ export function DashboardApplicationTable({
                     <TableCell>{application.targetGrade}</TableCell>
                     <TableCell>{application.targetSchool || "-"}</TableCell>
                     <TableCell>
-                      {application.createdAt.toLocaleDateString("zh-CN")}
+                      {formatBeijingDate(application.createdAt)}
                     </TableCell>
                     <TableCell>
                       <Badge variant={statusMap[application.status].variant}>

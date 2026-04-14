@@ -28,13 +28,13 @@ describe("semester helpers", () => {
 
   it("returns the correct semester window for spring and autumn", () => {
     expect(getSemesterWindow(2026, "春季")).toEqual({
-      start: new Date("2025-09-01T00:00:00.000Z"),
-      end: new Date("2026-03-01T00:00:00.000Z"),
+      start: new Date("2025-08-31T16:00:00.000Z"),
+      end: new Date("2026-02-28T16:00:00.000Z"),
     });
 
     expect(getSemesterWindow(2026, "秋季")).toEqual({
-      start: new Date("2026-03-01T00:00:00.000Z"),
-      end: new Date("2026-09-01T00:00:00.000Z"),
+      start: new Date("2026-02-28T16:00:00.000Z"),
+      end: new Date("2026-08-31T16:00:00.000Z"),
     });
   });
 
@@ -43,8 +43,8 @@ describe("semester helpers", () => {
       inferSemesterFormValues({
         id: "spring-2026",
         name: "2026年春季",
-        startDate: new Date("2025-09-01T00:00:00.000Z"),
-        endDate: new Date("2026-03-01T00:00:00.000Z"),
+        startDate: new Date("2025-08-31T16:00:00.000Z"),
+        endDate: new Date("2026-02-28T16:00:00.000Z"),
         isActive: true,
       }),
     ).toMatchObject({
@@ -59,8 +59,8 @@ describe("semester helpers", () => {
       inferSemesterFormValues({
         id: "autumn-2026",
         name: "2026年秋季",
-        startDate: new Date("2026-03-01T00:00:00.000Z"),
-        endDate: new Date("2026-09-01T00:00:00.000Z"),
+        startDate: new Date("2026-02-28T16:00:00.000Z"),
+        endDate: new Date("2026-08-31T16:00:00.000Z"),
         isActive: false,
       }),
     ).toMatchObject({
@@ -77,14 +77,14 @@ describe("semester helpers", () => {
           {
             id: "spring-2026",
             name: "2026年春季",
-            startDate: new Date("2025-09-01T00:00:00.000Z"),
-            endDate: new Date("2026-03-01T00:00:00.000Z"),
+            startDate: new Date("2025-08-31T16:00:00.000Z"),
+            endDate: new Date("2026-02-28T16:00:00.000Z"),
           },
           {
             id: "autumn-2026",
             name: "2026年秋季",
-            startDate: new Date("2026-03-01T00:00:00.000Z"),
-            endDate: new Date("2026-09-01T00:00:00.000Z"),
+            startDate: new Date("2026-02-28T16:00:00.000Z"),
+            endDate: new Date("2026-08-31T16:00:00.000Z"),
           },
         ],
         "missing-id",
@@ -95,8 +95,8 @@ describe("semester helpers", () => {
   it("reports an in-progress semester at the current system time", () => {
     expect(
       getSemesterTimelineStatus({
-        startDate: new Date("2026-03-01T00:00:00.000Z"),
-        endDate: new Date("2026-09-01T00:00:00.000Z"),
+        startDate: new Date("2026-02-28T16:00:00.000Z"),
+        endDate: new Date("2026-08-31T16:00:00.000Z"),
       }),
     ).toBe("进行中");
   });
@@ -105,8 +105,8 @@ describe("semester helpers", () => {
     expect(getDefaultSemesterFormValues()).toEqual({
       year: 2026,
       term: "秋季",
-      startDate: new Date("2026-03-01T00:00:00.000Z"),
-      endDate: new Date("2026-09-01T00:00:00.000Z"),
+      startDate: new Date("2026-02-28T16:00:00.000Z"),
+      endDate: new Date("2026-08-31T16:00:00.000Z"),
       isActive: true,
     });
   });
@@ -123,8 +123,8 @@ describe("semester helpers", () => {
     expect(getDefaultSemesterFormValues()).toEqual({
       year: 2027,
       term: "春季",
-      startDate: new Date("2026-09-01T00:00:00.000Z"),
-      endDate: new Date("2027-03-01T00:00:00.000Z"),
+      startDate: new Date("2026-08-31T16:00:00.000Z"),
+      endDate: new Date("2027-02-28T16:00:00.000Z"),
       isActive: true,
     });
   });
@@ -137,8 +137,8 @@ describe("semester helpers", () => {
       term: "春季",
       isActive: true,
     });
-    expect(defaults.startDate).toEqual(new Date("2026-09-01T00:00:00.000Z"));
-    expect(defaults.endDate).toEqual(new Date("2027-03-01T00:00:00.000Z"));
+    expect(defaults.startDate).toEqual(new Date("2026-08-31T16:00:00.000Z"));
+    expect(defaults.endDate).toEqual(new Date("2027-02-28T16:00:00.000Z"));
   });
 
   it("returns the Shanghai-local year range during rollover", () => {
@@ -155,9 +155,9 @@ describe("semester helpers", () => {
   it("treats the exact end boundary as ended for timeline status", () => {
     expect(
       getSemesterTimelineStatus({
-        startDate: new Date("2025-09-01T00:00:00.000Z"),
-        endDate: new Date("2026-03-01T00:00:00.000Z"),
-      }, new Date("2026-03-01T00:00:00.000Z")),
+        startDate: new Date("2025-08-31T16:00:00.000Z"),
+        endDate: new Date("2026-02-28T16:00:00.000Z"),
+      }, new Date("2026-02-28T16:00:00.000Z")),
     ).toBe("已结束");
   });
 
@@ -165,21 +165,21 @@ describe("semester helpers", () => {
     const springSemester = {
       id: "spring-2026",
       name: "2026年春季",
-      startDate: new Date("2025-09-01T00:00:00.000Z"),
-      endDate: new Date("2026-03-01T00:00:00.000Z"),
+      startDate: new Date("2025-08-31T16:00:00.000Z"),
+      endDate: new Date("2026-02-28T16:00:00.000Z"),
     };
     const autumnSemester = {
       id: "autumn-2026",
       name: "2026年秋季",
-      startDate: new Date("2026-03-01T00:00:00.000Z"),
-      endDate: new Date("2026-09-01T00:00:00.000Z"),
+      startDate: new Date("2026-02-28T16:00:00.000Z"),
+      endDate: new Date("2026-08-31T16:00:00.000Z"),
     };
 
     expect(
       pickPreferredSemester(
         [springSemester, autumnSemester],
         "missing-id",
-        new Date("2026-03-01T00:00:00.000Z"),
+        new Date("2026-02-28T16:00:00.000Z"),
       )?.name,
     ).toBe("2026年秋季");
 
@@ -187,7 +187,7 @@ describe("semester helpers", () => {
       pickPreferredSemester(
         [autumnSemester, springSemester],
         "missing-id",
-        new Date("2026-03-01T00:00:00.000Z"),
+        new Date("2026-02-28T16:00:00.000Z"),
       )?.name,
     ).toBe("2026年秋季");
   });
@@ -199,18 +199,18 @@ describe("semester helpers", () => {
           {
             id: "autumn-2026",
             name: "2026年秋季",
-            startDate: new Date("2026-03-01T00:00:00.000Z"),
-            endDate: new Date("2026-09-01T00:00:00.000Z"),
+            startDate: new Date("2026-02-28T16:00:00.000Z"),
+            endDate: new Date("2026-08-31T16:00:00.000Z"),
           },
           {
             id: "spring-2027",
             name: "2027年春季",
-            startDate: new Date("2026-09-01T00:00:00.000Z"),
-            endDate: new Date("2027-03-01T00:00:00.000Z"),
+            startDate: new Date("2026-08-31T16:00:00.000Z"),
+            endDate: new Date("2027-02-28T16:00:00.000Z"),
           },
         ],
         "missing-id",
-        new Date("2026-09-01T00:00:00.000Z"),
+        new Date("2026-08-31T16:00:00.000Z"),
       )?.name,
     ).toBe("2027年春季");
   });
@@ -222,14 +222,14 @@ describe("semester helpers", () => {
           {
             id: "spring-2026",
             name: "2026年春季",
-            startDate: new Date("2025-09-01T00:00:00.000Z"),
-            endDate: new Date("2026-03-01T00:00:00.000Z"),
+            startDate: new Date("2025-08-31T16:00:00.000Z"),
+            endDate: new Date("2026-02-28T16:00:00.000Z"),
           },
           {
             id: "autumn-2026",
             name: "2026年秋季",
-            startDate: new Date("2026-03-01T00:00:00.000Z"),
-            endDate: new Date("2026-09-01T00:00:00.000Z"),
+            startDate: new Date("2026-02-28T16:00:00.000Z"),
+            endDate: new Date("2026-08-31T16:00:00.000Z"),
           },
         ],
         undefined,

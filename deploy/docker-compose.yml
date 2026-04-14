@@ -8,6 +8,8 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: production
+      TZ: Asia/Shanghai
+      PGTZ: Asia/Shanghai
       HOSTNAME: 0.0.0.0
       PORT: ${PORT:-3000}
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in deploy/.env}

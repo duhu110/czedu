@@ -667,14 +667,14 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                 />
               </div>
 
-              {/* 联动：非户籍必须显示居住证 */}
+              {/* 非城中区户籍可上传居住证，是否需要由人工审核 */}
               {residencyType === "NON_LOCAL" && (
                 <div className="border border-primary/50 rounded-lg p-4 bg-primary/5 shadow-sm transition-all animate-in fade-in slide-in-from-top-4">
                   <p className="text-sm font-medium text-primary mb-1">
                     4. 监护人及学生居住证
                   </p>
                   <p className="text-xs text-muted-foreground mb-2">
-                    非城中区户籍人口必传（法定监护人之一及学生在辖区内的有效居住证），大通湟源湟中户籍学生可不上传。
+                    非城中区户籍学生可上传监护人及学生在辖区内的有效居住证，大通湟源湟中户籍学生可不上传，是否上传由人工审核。
                   </p>
                   <FormField
                     control={form.control}

@@ -105,7 +105,7 @@ export const REJECTABLE_FIELDS = [
     group: "居住证",
     condition: "NON_LOCAL" as const,
     fields: [
-      { field: "fileResidencePermit", label: "监护人或学生居住证" },
+      { field: "fileResidencePermit", label: "监护人及学生居住证" },
     ],
   },
 ] as const;
@@ -183,18 +183,6 @@ export const applicationSchema = z
         code: "custom",
         message: "请至少上传一项住房证明（不动产权证、购房合同或房屋租赁备案证明）",
         path: ["fileProperty"],
-      });
-    }
-
-    // 非城中区户籍必须上传居住证
-    if (
-      data.residencyType === "NON_LOCAL" &&
-      (!data.fileResidencePermit || data.fileResidencePermit.length === 0)
-    ) {
-      ctx.addIssue({
-        code: "custom",
-        message: "非城中区户籍人口必须上传监护人或学生的居住证",
-        path: ["fileResidencePermit"],
       });
     }
   });

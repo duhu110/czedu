@@ -47,10 +47,11 @@ const application = {
 
 const baseProps = {
   application,
-  printTimeLabel: "2026/04/07 20:15",
+  printTimeLabel: "2026-04-07 20:15",
   qrCodeDataUrl: "data:image/png;base64,qr-code",
   transferNoticeContent: "转学须知内容示例",
   consentFormContent: "知情同意书内容示例",
+  pendingTextContent: null,
 };
 
 describe("ApplicationPrintSheet", () => {
@@ -114,6 +115,19 @@ describe("ApplicationPrintSheet", () => {
 
     expect(screen.getByText("审核处理中")).toBeInTheDocument();
     expect(screen.getByTestId("application-pending-qrcode")).toBeInTheDocument();
+  });
+
+  it("renders pending status text from system text content", () => {
+    render(
+      <ApplicationPrintSheet
+        {...baseProps}
+        pendingTextContent={"数据库待审核文案第一行\n数据库待审核文案第二行"}
+      />,
+    );
+
+    expect(screen.getByText("数据库待审核文案第一行")).toBeInTheDocument();
+    expect(screen.getByText("数据库待审核文案第二行")).toBeInTheDocument();
+    expect(screen.queryByText("您的转学申请已提交，目前正在审核中。")).not.toBeInTheDocument();
   });
 
   it("renders SUPPLEMENT status with reminder in row 3", () => {

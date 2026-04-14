@@ -12,6 +12,8 @@ WORKDIR /app
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV TZ=Asia/Shanghai
+ENV PGTZ=Asia/Shanghai
 ENV DATABASE_URL=postgresql://czedu:czedu@localhost:5432/czedu?schema=public
 
 COPY --from=deps /app/node_modules ./node_modules
@@ -27,6 +29,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV TZ=Asia/Shanghai
+ENV PGTZ=Asia/Shanghai
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 ENV PRISMA_DB_PUSH=true

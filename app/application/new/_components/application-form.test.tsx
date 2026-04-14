@@ -34,5 +34,11 @@ describe("ApplicationForm", () => {
     expect(screen.getByText("不动产权证")).toBeInTheDocument();
     expect(screen.getByText("购房合同")).toBeInTheDocument();
     expect(screen.getByText("租赁备案证明")).toBeInTheDocument();
+    expect(screen.getByText("4. 监护人及学生居住证")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "非城中区户籍学生可上传监护人及学生在辖区内的有效居住证，大通湟源湟中户籍学生可不上传，是否上传由人工审核。",
+      ),
+    ).toBeInTheDocument();
   });
 });

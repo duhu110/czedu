@@ -1,5 +1,7 @@
 import type { ApplicationStatus } from "@prisma/client";
 
+import { BEIJING_TIME_ZONE, getBeijingNow } from "@/lib/china-time";
+
 export type DashboardRange = "7d" | "30d" | "90d";
 
 const RANGE_DAYS: Record<DashboardRange, number> = {
@@ -11,14 +13,14 @@ const RANGE_DAYS: Record<DashboardRange, number> = {
 const terminalStatuses = new Set<ApplicationStatus>(["APPROVED", "REJECTED"]);
 
 const keyFormatter = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Asia/Shanghai",
+  timeZone: BEIJING_TIME_ZONE,
   year: "numeric",
   month: "2-digit",
   day: "2-digit",
 });
 
 const labelFormatter = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Asia/Shanghai",
+  timeZone: BEIJING_TIME_ZONE,
   month: "2-digit",
   day: "2-digit",
 });
@@ -67,7 +69,7 @@ export function buildTrendSeries(
     createdAt: Date;
     updatedAt: Date;
   }>,
-  now = new Date(),
+  now = getBeijingNow(),
 ) {
   const createdCountByDay = new Map<string, number>();
   const completedCountByDay = new Map<string, number>();

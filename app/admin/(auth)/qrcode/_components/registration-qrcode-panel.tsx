@@ -10,24 +10,20 @@ import {
   buildRegistrationQrSession,
   getSecondsUntilNextRefresh,
 } from "./qrcode-session";
+import { formatBeijingTime, getBeijingNow } from "@/lib/china-time";
 
 function formatRefreshTime(date: Date) {
-  return new Intl.DateTimeFormat("zh-CN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  }).format(date);
+  return formatBeijingTime(date);
 }
 
 export function RegistrationQrcodePanel() {
-  const [now, setNow] = useState(() => new Date());
+  const [now, setNow] = useState(() => getBeijingNow());
   const [signedUrl, setSignedUrl] = useState("");
   const lastSignedTokenRef = useRef("");
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setNow(new Date());
+      setNow(getBeijingNow());
     }, 1000);
 
     return () => {

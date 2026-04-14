@@ -1,11 +1,12 @@
 import { z } from "zod";
 
+import { BEIJING_TIME_ZONE } from "@/lib/china-time";
 import { buildSemesterName, getSemesterWindow, type SemesterTerm } from "@/lib/semester";
 
 export const semesterWindowErrorMessage = "学期日期超出允许范围";
 
 const shanghaiDateFormatter = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "Asia/Shanghai",
+  timeZone: BEIJING_TIME_ZONE,
   year: "numeric",
   month: "2-digit",
   day: "2-digit",

@@ -1,4 +1,5 @@
 // lib/prisma.ts override used only by deploy/Dockerfile.
+import "@/lib/china-time";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 

@@ -245,9 +245,10 @@ export default async function ApplicationDetailPage({
   );
 
   // 获取 SystemText 数据
-  const [transferNoticeRes, consentFormRes] = await Promise.all([
+  const [transferNoticeRes, consentFormRes, pendingTextRes] = await Promise.all([
     getSystemTextByType(app.semesterId, "TRANSFER_NOTICE"),
     getSystemTextByType(app.semesterId, "CONSENT_FORM"),
+    getSystemTextByType(app.semesterId, "PENDING_TEXT"),
   ]);
 
   const printTimeLabel = formatPrintTimeLabel(new Date());
@@ -453,7 +454,7 @@ export default async function ApplicationDetailPage({
                     />
                     {app.residencyType === "NON_LOCAL" && (
                       <ImageSection
-                        title="监护人或学生居住证"
+                        title="监护人及学生居住证"
                         urls={app.fileResidencePermit}
                       />
                     )}
@@ -469,6 +470,7 @@ export default async function ApplicationDetailPage({
             qrCodeDataUrl={qrCodeDataUrl}
             transferNoticeContent={transferNoticeRes.data?.content ?? null}
             consentFormContent={consentFormRes.data?.content ?? null}
+            pendingTextContent={pendingTextRes.data?.content ?? null}
           />
         </div>
       </PrintProvider>

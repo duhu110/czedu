@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { formatBeijingDateTime } from "@/lib/china-time";
 
 function toLockDate(value: VerifyApplicationAccessResult["lockedUntil"]) {
   if (!value) {
@@ -44,13 +45,7 @@ function formatLockedUntil(lockedUntil: Date | null) {
     return null;
   }
 
-  return new Intl.DateTimeFormat("zh-CN", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(lockedUntil);
+  return formatBeijingDateTime(lockedUntil);
 }
 
 function OtpDigitInput({

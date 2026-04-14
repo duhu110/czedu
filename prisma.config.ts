@@ -1,4 +1,5 @@
 // prisma.config.ts
+import "./lib/china-time";
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 

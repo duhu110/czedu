@@ -6,11 +6,13 @@ const {
   getApplicationByIdMock,
   getSchoolsMock,
   getSystemTextByTypeMock,
+  printSheetPropsMock,
 } = vi.hoisted(() => ({
   approvalPanelPropsMock: vi.fn(),
   getApplicationByIdMock: vi.fn(),
   getSchoolsMock: vi.fn(),
   getSystemTextByTypeMock: vi.fn(),
+  printSheetPropsMock: vi.fn(),
 }));
 
 vi.mock("@/app/actions/application", () => ({
@@ -39,7 +41,10 @@ vi.mock("../_components/print-context", () => ({
 }));
 
 vi.mock("../_components/application-print-sheet", () => ({
-  ApplicationPrintSheet: () => <div data-testid="print-sheet">打印区占位</div>,
+  ApplicationPrintSheet: (props: Record<string, unknown>) => {
+    printSheetPropsMock(props);
+    return <div data-testid="print-sheet">打印区占位</div>;
+  },
 }));
 
 describe("Admin application detail page", () => {
@@ -52,6 +57,7 @@ describe("Admin application detail page", () => {
     getApplicationByIdMock.mockReset();
     getSchoolsMock.mockReset();
     getSystemTextByTypeMock.mockReset();
+    printSheetPropsMock.mockReset();
 
     getApplicationByIdMock.mockResolvedValue({
       success: true,
@@ -202,6 +208,35 @@ describe("Admin application detail page", () => {
     expect(getSystemTextByTypeMock).toHaveBeenCalledWith(
       "semester-1",
       "CONSENT_FORM",
+    );
+    expect(getSystemTextByTypeMock).toHaveBeenCalledWith(
+      "semester-1",
+      "PENDING_TEXT",
+    );
+  });
+
+  it("passes pending text from system text to the print sheet", async () => {
+    getSystemTextByTypeMock.mockImplementation(async (_semesterId, type) => ({
+      success: true,
+      error: null,
+      data:
+        type === "PENDING_TEXT"
+          ? { content: "打印单待审核数据库文案" }
+          : null,
+    }));
+
+    const Page = (await import("./page")).default;
+
+    render(
+      await Page({
+        params: Promise.resolve({ id: "app-pending-001" }),
+      }),
+    );
+
+    expect(printSheetPropsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pendingTextContent: "打印单待审核数据库文案",
+      }),
     );
   });
 

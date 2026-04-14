@@ -1,5 +1,7 @@
 import { type ApplicationStatus, type ResidencyType } from "@prisma/client";
 
+import { formatBeijingDate } from "@/lib/china-time";
+
 export const applicationStatusImportExportLabels: Record<
   ApplicationStatus,
   string
@@ -105,7 +107,7 @@ export function buildApplicationExportRows(
     申请转入年级: application.targetGrade,
     目标学校: application.targetSchool ?? "",
     户籍类型: formatResidencyType(application.residencyType),
-    提交时间: application.createdAt.toLocaleDateString("zh-CN"),
+    提交时间: formatBeijingDate(application.createdAt),
     状态: applicationStatusImportExportLabels[application.status],
     审核备注: application.adminRemark ?? "",
   }));

@@ -7,6 +7,7 @@ import {
   setApplicationAccessCookie,
   type ApplicationAccessPhonePreview,
 } from "@/lib/application-access";
+import { getBeijingNow } from "@/lib/china-time";
 
 const MAX_FAILED_ATTEMPTS = 3;
 const LOCKOUT_WINDOW_MS = 60 * 60 * 1000;
@@ -83,7 +84,7 @@ export async function verifyApplicationAccess(
   applicationId: string,
   phone: string,
 ): Promise<VerifyApplicationAccessResult> {
-  const now = new Date();
+  const now = getBeijingNow();
   const attempt = await prisma.applicationAccessAttempt.findUnique({
     where: { applicationId },
   });

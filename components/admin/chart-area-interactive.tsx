@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { BEIJING_TIME_ZONE } from "@/lib/china-time";
 
 export const description = "An interactive area chart";
 
@@ -247,6 +248,7 @@ export function ChartAreaInteractive() {
               tickFormatter={(value) => {
                 const date = new Date(value);
                 return date.toLocaleDateString("en-US", {
+                  timeZone: BEIJING_TIME_ZONE,
                   month: "short",
                   day: "numeric",
                 });
@@ -258,6 +260,7 @@ export function ChartAreaInteractive() {
                 <ChartTooltipContent
                   labelFormatter={(value) => {
                     return new Date(value).toLocaleDateString("en-US", {
+                      timeZone: BEIJING_TIME_ZONE,
                       month: "short",
                       day: "numeric",
                     });
