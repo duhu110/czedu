@@ -62,6 +62,7 @@ export const ImageViewBlock: React.FC<NodeViewProps> = ({
   })
 
   const containerRef = React.useRef<HTMLDivElement>(null)
+  const [containerMaxWidth, setContainerMaxWidth] = React.useState(Infinity)
   const [activeResizeHandle, setActiveResizeHandle] = React.useState<
     "left" | "right" | null
   >(null)
@@ -76,13 +77,20 @@ export const ImageViewBlock: React.FC<NodeViewProps> = ({
   const aspectRatio =
     imageState.naturalSize.width / imageState.naturalSize.height
   const maxWidth = MAX_HEIGHT * aspectRatio
-  const containerMaxWidth = containerRef.current
-    ? parseFloat(
-        getComputedStyle(containerRef.current).getPropertyValue(
-          "--editor-width"
-        )
-      )
-    : Infinity
+
+  const syncContainerMaxWidth = React.useCallback(() => {
+    const element = containerRef.current
+
+    if (!element) return
+
+    const nextMaxWidth = parseFloat(
+      getComputedStyle(element).getPropertyValue("--editor-width")
+    )
+
+    setContainerMaxWidth(
+      Number.isFinite(nextMaxWidth) && nextMaxWidth > 0 ? nextMaxWidth : Infinity
+    )
+  }, [])
 
   const { isLink, onView, onDownload, onCopy, onCopyLink, onRemoveImg } =
     useImageActions({
@@ -161,6 +169,23 @@ export const ImageViewBlock: React.FC<NodeViewProps> = ({
       handleResizeEnd()
     }
   }, [isResizing, handleResizeEnd])
+
+  React.useEffect(() => {
+    const element = containerRef.current
+
+    if (!element) return
+
+    syncContainerMaxWidth()
+
+    const resizeObserver = new ResizeObserver(syncContainerMaxWidth)
+    resizeObserver.observe(element)
+    window.addEventListener("resize", syncContainerMaxWidth)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener("resize", syncContainerMaxWidth)
+    }
+  }, [syncContainerMaxWidth])
 
   React.useEffect(() => {
     const handleImage = async () => {
@@ -260,6 +285,7 @@ export const ImageViewBlock: React.FC<NodeViewProps> = ({
                   setImageState((prev) => ({ ...prev, isZoomed: false }))
                 }
               >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className={cn(
                     "h-auto rounded object-contain transition-shadow",

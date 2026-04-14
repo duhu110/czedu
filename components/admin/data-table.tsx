@@ -360,6 +360,8 @@ export function DataTable({
     [data],
   );
 
+  // TanStack Table exposes a mutable instance by design; suppress the React Compiler lint for this boundary.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,

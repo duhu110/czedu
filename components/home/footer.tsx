@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { formatBeijingDate, getBeijingNow } from "@/lib/china-time";
@@ -71,12 +72,12 @@ export function Footer() {
             rel="noreferrer"
             target="_blank"
           >
-            <img
+            <Image
               alt="shaban"
               className="size-4 rounded-full"
-              height="auto"
+              height={16}
               src="https://github.com/shabanhr.png"
-              width="auto"
+              width={16}
             />
             Shaban
           </a>

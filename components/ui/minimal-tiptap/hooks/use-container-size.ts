@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, type RefObject } from "react"
 
 const DEFAULT_RECT: DOMRect = {
   top: 0,
@@ -12,12 +12,13 @@ const DEFAULT_RECT: DOMRect = {
   toJSON: () => "{}",
 }
 
-export function useContainerSize(element: HTMLElement | null): DOMRect {
-  const [size, setSize] = useState<DOMRect>(
-    () => element?.getBoundingClientRect() ?? DEFAULT_RECT
-  )
+export function useContainerSize(
+  elementRef: RefObject<HTMLElement | null>
+): DOMRect {
+  const [size, setSize] = useState<DOMRect>(DEFAULT_RECT)
 
   const handleResize = useCallback(() => {
+    const element = elementRef.current
     if (!element) return
 
     const newRect = element.getBoundingClientRect()
@@ -33,10 +34,13 @@ export function useContainerSize(element: HTMLElement | null): DOMRect {
       }
       return newRect
     })
-  }, [element])
+  }, [elementRef])
 
   useEffect(() => {
+    const element = elementRef.current
     if (!element) return
+
+    handleResize()
 
     const resizeObserver = new ResizeObserver(handleResize)
     resizeObserver.observe(element)
@@ -49,7 +53,7 @@ export function useContainerSize(element: HTMLElement | null): DOMRect {
       window.removeEventListener("click", handleResize)
       window.removeEventListener("resize", handleResize)
     }
-  }, [element, handleResize])
+  }, [elementRef, handleResize])
 
   return size
 }

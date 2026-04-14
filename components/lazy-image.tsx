@@ -72,6 +72,7 @@ export function LazyImage({
 		>
 			{imgSrc && (
 				// biome-ignore lint/correctness/useImageSize: dynamic image size
+				// eslint-disable-next-line @next/next/no-img-element
 				<img
 					alt={alt}
 					className={cn(

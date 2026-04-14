@@ -22,8 +22,9 @@ services:
         source: ${UPLOAD_HOST_DIR:-/home/oss/xnczjyj}
         target: /app/public/uploads
     networks:
-      - 1panel-network
+      - postgres-network
 
 networks:
-  1panel-network:
+  postgres-network:
     external: true
+    name: ${POSTGRES_DOCKER_NETWORK:-postgres_net}
