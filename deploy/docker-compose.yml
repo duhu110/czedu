@@ -11,6 +11,7 @@ services:
       HOSTNAME: 0.0.0.0
       PORT: ${PORT:-3000}
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in deploy/.env}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in deploy/.env}
       PRISMA_DB_PUSH: ${PRISMA_DB_PUSH:-true}
     ports:
       - "127.0.0.1:${APP_PORT:-3002}:3000"

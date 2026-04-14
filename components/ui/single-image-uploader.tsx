@@ -86,6 +86,7 @@ export function SingleImageUploader({
             src={value}
             alt={label || "uploaded image"}
             fill
+            unoptimized
             className="object-cover transition-transform group-hover:scale-105"
             sizes="(max-width: 768px) 50vw, 25vw"
           />

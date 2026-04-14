@@ -5,7 +5,6 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react";
 import {
   Dialog,
-  DialogContent,
   DialogOverlay,
   DialogPortal,
   DialogTitle,
@@ -175,6 +174,7 @@ export function ImageLightbox({ children }: ImageLightboxProps) {
                   alt={current.alt}
                   width={900}
                   height={900}
+                  unoptimized
                   className="max-h-[85vh] w-auto object-contain rounded-lg"
                   priority
                 />
@@ -240,6 +240,7 @@ export function PreviewableImage({
         src={url}
         alt={alt}
         fill
+        unoptimized
         sizes="(max-width: 1024px) 50vw, 25vw"
         className="object-cover transition group-hover:scale-105"
       />

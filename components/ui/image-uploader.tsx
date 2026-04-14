@@ -161,6 +161,7 @@ export function ImageUploader({
               src={url}
               alt="uploaded image"
               fill
+              unoptimized
               className="object-cover transition-transform group-hover:scale-105"
               sizes="(max-width: 768px) 33vw, 25vw"
             />

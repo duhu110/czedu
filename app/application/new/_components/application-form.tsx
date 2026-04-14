@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useForm, useWatch, type FieldErrors, type UseFormReturn } from "react-hook-form";
+import {
+  useForm,
+  useWatch,
+  type FieldErrors,
+  type UseFormReturn,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -102,7 +107,10 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
     let count = 0;
     const walk = (obj: unknown) => {
       if (!obj || typeof obj !== "object") return;
-      if ("message" in obj && typeof (obj as { message: unknown }).message === "string") {
+      if (
+        "message" in obj &&
+        typeof (obj as { message: unknown }).message === "string"
+      ) {
         count++;
         return;
       }
@@ -128,7 +136,10 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit, onInvalid)}
+        className="space-y-6"
+      >
         {/* ==================== 卡片1：学生基本信息 ==================== */}
         <Card>
           <CardHeader className="pb-3">
@@ -323,7 +334,9 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
           </CardHeader>
           <CardContent className="space-y-4">
             {/* 监护人1 */}
-            <p className="text-sm font-medium text-muted-foreground">监护人1（必填）</p>
+            <p className="text-sm font-medium text-muted-foreground">
+              监护人1（必填）
+            </p>
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -344,7 +357,10 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>与学生关系 *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="请选择" />
@@ -352,7 +368,9 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                       </FormControl>
                       <SelectContent>
                         {GUARDIAN_RELATION_OPTIONS.map((r) => (
-                          <SelectItem key={r} value={r}>{r}</SelectItem>
+                          <SelectItem key={r} value={r}>
+                            {r}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -378,7 +396,9 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
             <div className="h-px bg-muted my-2" />
 
             {/* 监护人2 */}
-            <p className="text-sm font-medium text-muted-foreground">监护人2（选填）</p>
+            <p className="text-sm font-medium text-muted-foreground">
+              监护人2（选填）
+            </p>
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -399,7 +419,10 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>与学生关系</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value || ""}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="请选择" />
@@ -407,7 +430,9 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                       </FormControl>
                       <SelectContent>
                         {GUARDIAN_RELATION_OPTIONS.map((r) => (
-                          <SelectItem key={r} value={r}>{r}</SelectItem>
+                          <SelectItem key={r} value={r}>
+                            {r}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -458,7 +483,10 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>当前就读年级 *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="请选择" />
@@ -466,7 +494,9 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                       </FormControl>
                       <SelectContent>
                         {GRADE_OPTIONS.map((g) => (
-                          <SelectItem key={g} value={g}>{g}</SelectItem>
+                          <SelectItem key={g} value={g}>
+                            {g}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -480,7 +510,10 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>申请转入年级 *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="请选择" />
@@ -488,7 +521,9 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                       </FormControl>
                       <SelectContent>
                         {GRADE_OPTIONS.map((g) => (
-                          <SelectItem key={g} value={g}>{g}</SelectItem>
+                          <SelectItem key={g} value={g}>
+                            {g}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -513,9 +548,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
             <div className="space-y-4">
               {/* 户口本（结构化上传） */}
               <div className="border rounded-lg p-4 bg-muted/30">
-                <p className="text-sm font-medium mb-1">
-                  1. 户口本 *
-                </p>
+                <p className="text-sm font-medium mb-1">1. 户口本 *</p>
                 <p className="text-xs text-muted-foreground mb-3">
                   请分别上传首页、户主页、法定监护人之一页和学生页
                 </p>
@@ -647,10 +680,10 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
               {residencyType === "NON_LOCAL" && (
                 <div className="border border-primary/50 rounded-lg p-4 bg-primary/5 shadow-sm transition-all animate-in fade-in slide-in-from-top-4">
                   <p className="text-sm font-medium text-primary mb-1">
-                    3. 监护人或学生居住证 *
+                    3. 监护人及学生居住证
                   </p>
                   <p className="text-xs text-muted-foreground mb-2">
-                    非城中区户籍人口必传（法定监护人之一及学生在辖区内的有效居住证）
+                    非城中区户籍人口必传（法定监护人之一及学生在辖区内的有效居住证），大通湟源湟中户籍学生可不上传。
                   </p>
                   <FormField
                     control={form.control}
