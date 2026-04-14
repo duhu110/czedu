@@ -183,7 +183,7 @@ export function ApprovalPanel({
               <Textarea
                 id="approval-remark"
                 aria-label="审核备注"
-                placeholder="例如：户口本照片不清晰，请重新拍摄首页及学生页..."
+                placeholder="例如：户口簿照片不清晰，请重新拍摄首页及学生页..."
                 value={remark}
                 onChange={(e) => setRemark(e.target.value)}
                 className="h-24"

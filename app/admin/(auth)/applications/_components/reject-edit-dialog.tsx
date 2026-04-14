@@ -153,7 +153,7 @@ export function RejectEditDialog({
                 审核备注（必填，告知家长修改原因）
               </label>
               <Textarea
-                placeholder="例如：户口本首页照片模糊看不清，身份证号码有误，请核实后重新填写..."
+                placeholder="例如：户口簿首页照片模糊看不清，身份证号码有误，请核实后重新填写..."
                 value={remark}
                 onChange={(e) => setRemark(e.target.value)}
                 className="h-24"

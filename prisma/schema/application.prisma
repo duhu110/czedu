@@ -53,7 +53,7 @@ model Application {
 
   // 6. 申请资料 (以 JSON Array 格式序列化为 String 存储，默认空数组)
   // 无论户籍还是非户籍都要传的：
-  fileHukou       String @default("[]") // 户口本 (多图)
+  fileHukou       String @default("[]") // 户口簿 (多图)
   fileProperty    String @default("[]") // 房产证或房屋租赁备案证明 (多图)
   fileStudentCard String? @default("[]") // 学籍信息卡 (多图，可后补)
 

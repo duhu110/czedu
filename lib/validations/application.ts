@@ -77,13 +77,13 @@ export const REJECTABLE_FIELDS = [
     ],
   },
   {
-    group: "户口本",
+    group: "户口簿",
     fields: [
-      { field: "fileHukou.frontPage", label: "户口本首页" },
-      { field: "fileHukou.householderPage", label: "户口本户主页" },
-      { field: "fileHukou.guardianPage", label: "户口本监护人页" },
-      { field: "fileHukou.studentPage", label: "户口本学生页" },
-      { field: "fileHukou.others", label: "户口本其他页面" },
+      { field: "fileHukou.frontPage", label: "户口簿首页" },
+      { field: "fileHukou.householderPage", label: "户口簿户主页" },
+      { field: "fileHukou.guardianPage", label: "户口簿监护人页" },
+      { field: "fileHukou.studentPage", label: "户口簿学生页" },
+      { field: "fileHukou.others", label: "户口簿其他页面" },
     ],
   },
   {
@@ -111,9 +111,9 @@ export const REJECTABLE_FIELDS = [
   },
 ] as const;
 
-// 户口本结构化 schema
+// 户口簿结构化 schema
 const fileHukouSchema = z.object({
-  frontPage: z.string().min(1, "请上传户口本首页"),
+  frontPage: z.string().min(1, "请上传户口簿首页"),
   householderPage: z.string().min(1, "请上传户主页"),
   guardianPage: z.string().min(1, "请上传法定监护人页"),
   studentPage: z.string().min(1, "请上传学生页"),

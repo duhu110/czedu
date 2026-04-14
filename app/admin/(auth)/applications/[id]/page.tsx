@@ -101,13 +101,13 @@ const LabeledImage = ({
   );
 };
 
-// 户口本结构化展示
+// 户口簿结构化展示
 const HukouSection = ({
   fileHukou,
 }: {
   fileHukou: DeserializedApplication["fileHukou"];
 }) => {
-  // 收集所有户口本图片用于灯箱分组导航
+  // 收集所有户口簿图片用于灯箱分组导航
   const allUrls = [
     fileHukou.frontPage,
     fileHukou.householderPage,
@@ -126,7 +126,7 @@ const HukouSection = ({
 
   return (
     <div className="space-y-3">
-      <h3 className="font-semibold text-sm text-muted-foreground">户口本</h3>
+      <h3 className="font-semibold text-sm text-muted-foreground">户口簿</h3>
       <div className="grid grid-cols-2 gap-3">
         <LabeledImage
           label="首页"

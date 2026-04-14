@@ -35,7 +35,7 @@ describe("application access action", () => {
     vi.clearAllMocks();
   });
 
-  it("accepts guardian1 middle four digits and writes an access cookie", async () => {
+  it("accepts guardian1 last four digits and writes an access cookie", async () => {
     mocks.applicationAccessAttemptFindUnique.mockResolvedValueOnce(null);
     mocks.applicationFindUnique.mockResolvedValueOnce({
       guardian1Phone: "13800001234",
@@ -47,7 +47,7 @@ describe("application access action", () => {
     );
 
     await expect(
-      verifyApplicationAccess("app-1", "0000"),
+      verifyApplicationAccess("app-1", "1234"),
     ).resolves.toMatchObject({
       success: true,
       error: null,
@@ -66,11 +66,11 @@ describe("application access action", () => {
     expect(mocks.setApplicationAccessCookie).toHaveBeenCalledWith("app-1");
   });
 
-  it("accepts guardian2 middle four digits", async () => {
+  it("accepts guardian2 last four digits", async () => {
     mocks.applicationAccessAttemptFindUnique.mockResolvedValueOnce(null);
     mocks.applicationFindUnique.mockResolvedValueOnce({
       guardian1Phone: "13800001234",
-      guardian2Phone: "13900001234",
+      guardian2Phone: "13900005678",
     });
 
     const { verifyApplicationAccess } = await import(
@@ -78,7 +78,7 @@ describe("application access action", () => {
     );
 
     await expect(
-      verifyApplicationAccess("app-2", "0000"),
+      verifyApplicationAccess("app-2", "5678"),
     ).resolves.toMatchObject({
       success: true,
       error: null,

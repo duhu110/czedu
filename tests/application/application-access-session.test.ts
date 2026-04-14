@@ -56,3 +56,14 @@ describe("application access session helpers", () => {
     await expect(readApplicationAccessCookie("app-2")).resolves.toBe(false);
   });
 });
+
+describe("application access phone helpers", () => {
+  it("previews a guardian phone without exposing the last four digits", async () => {
+    const { getPhonePreview } = await import("@/lib/application-access");
+
+    expect(getPhonePreview("13800001234")).toEqual({
+      prefix: "1380000",
+      suffix: "",
+    });
+  });
+});

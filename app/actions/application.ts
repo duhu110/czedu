@@ -32,7 +32,7 @@ const serializeFiles = (data: ApplicationInput) => ({
   fileResidencePermit: JSON.stringify(data.fileResidencePermit || []),
 });
 
-// 默认的空户口本结构
+// 默认的空户口簿结构
 const emptyHukou: FileHukouInput = {
   frontPage: "",
   householderPage: "",
@@ -51,7 +51,7 @@ const emptyProperty: FilePropertyInput = {
 
 // 辅助函数：安全地将数据库的 JSON 字符串还原为结构化对象
 const deserializeFiles = <T extends Application>(record: T) => {
-  // 解析户口本：兼容旧版扁平数组格式
+  // 解析户口簿：兼容旧版扁平数组格式
   let fileHukou: FileHukouInput;
   try {
     const parsed = JSON.parse(record.fileHukou || "{}");

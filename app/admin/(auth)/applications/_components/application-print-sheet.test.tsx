@@ -153,8 +153,8 @@ describe("ApplicationPrintSheet", () => {
     mockMaskPhone.value = true;
     render(<ApplicationPrintSheet {...baseProps} />);
 
-    expect(screen.getByText(/138\*\*\*\*1234/)).toBeInTheDocument();
-    expect(screen.getByText(/139\*\*\*\*5678/)).toBeInTheDocument();
+    expect(screen.getByText(/1380000\*\*\*\*/)).toBeInTheDocument();
+    expect(screen.getByText(/1390000\*\*\*\*/)).toBeInTheDocument();
   });
 });
 
@@ -174,8 +174,8 @@ describe("application-print-utils", () => {
   });
 
   it("masks phone number correctly", () => {
-    expect(maskPhoneNumber("13800001234")).toBe("138****1234");
-    expect(maskPhoneNumber("13900005678")).toBe("139****5678");
+    expect(maskPhoneNumber("13800001234")).toBe("1380000****");
+    expect(maskPhoneNumber("13900005678")).toBe("1390000****");
   });
 
   it("returns short phone unchanged", () => {

@@ -20,14 +20,14 @@ export function normalizePhoneNumber(phone: string) {
   return phone.replace(/\D/g, "");
 }
 
-export function extractPhoneMiddleFour(phone: string) {
+export function extractPhoneLastFour(phone: string) {
   const normalizedPhone = normalizePhoneNumber(phone);
 
-  if (normalizedPhone.length < 7) {
+  if (normalizedPhone.length < 4) {
     return "";
   }
 
-  return normalizedPhone.slice(3, 7);
+  return normalizedPhone.slice(-4);
 }
 
 export function getPhonePreview(
@@ -44,12 +44,12 @@ export function getPhonePreview(
   }
 
   return {
-    prefix: normalizedPhone.slice(0, 3),
-    suffix: normalizedPhone.slice(7),
+    prefix: normalizedPhone.slice(0, -4),
+    suffix: "",
   };
 }
 
-export function isPhoneMiddleFour(value: string) {
+export function isPhoneLastFour(value: string) {
   return /^\d{4}$/.test(value);
 }
 
@@ -58,18 +58,18 @@ export function matchesGuardianPhone(
     guardian1Phone: string;
     guardian2Phone: string | null;
   },
-  rawPhoneMiddleFour: string,
+  rawPhoneLastFour: string,
 ) {
-  const normalizedMiddleFour = normalizePhoneNumber(rawPhoneMiddleFour);
+  const normalizedLastFour = normalizePhoneNumber(rawPhoneLastFour);
 
-  if (!isPhoneMiddleFour(normalizedMiddleFour)) {
+  if (!isPhoneLastFour(normalizedLastFour)) {
     return false;
   }
 
   return [application.guardian1Phone, application.guardian2Phone]
     .filter((phone): phone is string => Boolean(phone))
-    .map((phone) => extractPhoneMiddleFour(phone))
-    .includes(normalizedMiddleFour);
+    .map((phone) => extractPhoneLastFour(phone))
+    .includes(normalizedLastFour);
 }
 
 export async function createApplicationAccessToken(applicationId: string) {

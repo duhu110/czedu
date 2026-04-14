@@ -64,7 +64,7 @@ export default async function ApplicationSupplementPage({
     redirect(`/application/rejected/${application.id}`);
   }
 
-  // 判断户口本是否完整上传
+  // 判断户口簿是否完整上传
   const hukouUploaded =
     !!application.fileHukou.frontPage &&
     !!application.fileHukou.householderPage &&
@@ -158,7 +158,7 @@ export default async function ApplicationSupplementPage({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <UploadStatusRow label="户口本" uploaded={hukouUploaded} />
+            <UploadStatusRow label="户口簿" uploaded={hukouUploaded} />
             {application.residencyType === "LOCAL" && (
               <UploadStatusRow label="住房证明" uploaded={propertyUploaded} />
             )}

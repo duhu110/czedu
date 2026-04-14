@@ -169,17 +169,42 @@ describe("application actions", () => {
     });
   });
 
-  it("accepts NON_LOCAL applications without fileProperty", async () => {
+  it("rejects NON_LOCAL applications without any housing certificate", async () => {
+    const result = await createApplication({
+      ...baseApplicationInput,
+      residencyType: "NON_LOCAL",
+      fileResidencePermit: ["/uploads/residence-permit.png"],
+      fileProperty: {
+        propertyDeed: "",
+        purchaseContract: "",
+        rentalCert: "",
+        others: [],
+      },
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: "数据验证失败，请检查填写内容",
+    });
+    expect(createMock).not.toHaveBeenCalled();
+  });
+
+  it("accepts NON_LOCAL applications with a housing certificate", async () => {
     createMock.mockResolvedValue({ id: "app-nonlocal" });
 
     const result = await createApplication({
       ...baseApplicationInput,
       residencyType: "NON_LOCAL",
-      fileProperty: undefined,
       fileResidencePermit: ["/uploads/residence-permit.png"],
     });
 
     expect(result).toEqual({ success: true, error: null });
+    expect(createMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        residencyType: "NON_LOCAL",
+        fileProperty: JSON.stringify(baseApplicationInput.fileProperty),
+      }),
+    });
   });
 
   it("rejects LOCAL applications without any housing certificate", async () => {

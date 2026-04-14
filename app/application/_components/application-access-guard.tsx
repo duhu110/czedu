@@ -34,7 +34,9 @@ function toLockDate(value: VerifyApplicationAccessResult["lockedUntil"]) {
     return null;
   }
 
-  return value instanceof Date ? value : new Date(value);
+  const lockDate = value instanceof Date ? value : new Date(value);
+
+  return lockDate.getTime() > Date.now() ? lockDate : null;
 }
 
 function formatLockedUntil(lockedUntil: Date | null) {
@@ -71,7 +73,7 @@ function OtpDigitInput({
   return (
     <Input
       ref={inputRef}
-      aria-label={`手机号中间第 ${index + 1} 位`}
+      aria-label={`手机号后四位第 ${index + 1} 位`}
       className="h-11 w-10 rounded-2xl border border-border bg-background px-0 text-center text-base font-semibold sm:w-11 sm:text-lg"
       inputMode="numeric"
       maxLength={1}
@@ -106,16 +108,13 @@ export function ApplicationAccessGuard({
   const [isPending, startTransition] = useTransition();
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
-  const isLocked = useMemo(
-    () => Boolean(lockedUntil && lockedUntil.getTime() > Date.now()),
-    [lockedUntil],
-  );
+  const isLocked = useMemo(() => Boolean(lockedUntil), [lockedUntil]);
 
   const lockedUntilLabel = useMemo(
     () => formatLockedUntil(lockedUntil),
     [lockedUntil],
   );
-  const phoneMiddleFour = digits.join("");
+  const phoneLastFour = digits.join("");
   const selectedPreview = phonePreviews[activePreviewIndex] ?? phonePreviews[0] ?? null;
 
   function setDigitAt(index: number, nextValue: string) {
@@ -184,7 +183,7 @@ export function ApplicationAccessGuard({
     setError(null);
 
     startTransition(async () => {
-      const result = await verifyApplicationAccess(applicationId, phoneMiddleFour);
+      const result = await verifyApplicationAccess(applicationId, phoneLastFour);
 
       if (result.success) {
         router.refresh();
@@ -221,7 +220,7 @@ export function ApplicationAccessGuard({
             <CardTitle className="mt-3 text-xl">申请信息验证</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-center text-sm text-muted-foreground">
-            <p>请输入监护人手机号中间四位后查看申请信息</p>
+            <p>请输入监护人手机号后四位后查看申请信息</p>
             <p>验证成功后，本设备对当前申请单 24 小时内免重复验证。</p>
           </CardContent>
         </Card>
@@ -237,7 +236,7 @@ export function ApplicationAccessGuard({
           <DialogHeader>
             <DialogTitle>申请信息验证</DialogTitle>
             <DialogDescription>
-              请输入监护人手机号中间四位后查看申请信息
+              请输入监护人手机号后四位后查看申请信息
             </DialogDescription>
           </DialogHeader>
 
@@ -261,7 +260,7 @@ export function ApplicationAccessGuard({
             ) : null}
 
             <div className="space-y-2">
-              <Label>手机号中间四位</Label>
+              <Label>手机号后四位</Label>
               <div className="flex items-center justify-center">
                 <div className="flex flex-nowrap items-center justify-center gap-2 rounded-2xl bg-muted/40 px-3 py-3 sm:px-4">
                   {selectedPreview ? (
@@ -285,7 +284,7 @@ export function ApplicationAccessGuard({
                       />
                     ))}
                   </div>
-                  {selectedPreview ? (
+                  {selectedPreview?.suffix ? (
                     <span className="shrink-0 text-sm font-semibold tracking-[0.2em] text-foreground sm:text-base">
                       {selectedPreview.suffix}
                     </span>

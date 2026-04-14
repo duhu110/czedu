@@ -348,7 +348,7 @@ export function EditApplicationForm({
                   <FormItem>
                     <FormLabel>户籍详细地址 *</FormLabel>
                     <FormControl>
-                      <Input placeholder="请输入户口本首页上的详细地址" {...field} />
+                      <Input placeholder="请输入户口簿首页上的详细地址" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -584,7 +584,7 @@ export function EditApplicationForm({
             </div>
 
             <div className="space-y-4">
-              {/* 户口本 */}
+              {/* 户口簿 */}
               <div className={cn(
                 "border rounded-lg p-4 bg-muted/30",
                 (isRejected("fileHukou.frontPage", rejectedFields) ||
@@ -594,7 +594,7 @@ export function EditApplicationForm({
                   isRejected("fileHukou.others", rejectedFields)) &&
                   "border-orange-300 bg-orange-50/30"
               )}>
-                <p className="text-sm font-medium mb-1">1. 户口本 *</p>
+                <p className="text-sm font-medium mb-1">1. 户口簿 *</p>
                 <p className="text-xs text-muted-foreground mb-3">
                   请分别上传首页、户主页、法定监护人之一页和学生页
                 </p>

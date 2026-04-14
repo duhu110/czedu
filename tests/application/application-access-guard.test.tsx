@@ -40,7 +40,7 @@ describe("application access guard", () => {
     render(
       <ApplicationAccessGuard
         applicationId="app-1"
-        phonePreviews={[{ prefix: "138", suffix: "1234" }]}
+        phonePreviews={[{ prefix: "1380000", suffix: "" }]}
       />,
     );
 
@@ -48,13 +48,12 @@ describe("application access guard", () => {
 
     expect(within(dialog).getByText("申请信息验证")).toBeInTheDocument();
     expect(
-      within(dialog).getByText("请输入监护人手机号中间四位后查看申请信息"),
+      within(dialog).getByText("请输入监护人手机号后四位后查看申请信息"),
     ).toBeInTheDocument();
-    expect(within(dialog).getByText("138")).toBeInTheDocument();
-    expect(within(dialog).getByText("1234")).toBeInTheDocument();
+    expect(within(dialog).getByText("1380000")).toBeInTheDocument();
     expect(within(dialog).getAllByRole("textbox")).toHaveLength(4);
     expect(
-      within(dialog).getByLabelText("手机号中间第 1 位"),
+      within(dialog).getByLabelText("手机号后四位第 1 位"),
     ).toHaveAttribute("maxlength", "1");
   });
 
@@ -67,18 +66,16 @@ describe("application access guard", () => {
       <ApplicationAccessGuard
         applicationId="app-1"
         phonePreviews={[
-          { prefix: "138", suffix: "1234" },
-          { prefix: "139", suffix: "5678" },
+          { prefix: "1380000", suffix: "" },
+          { prefix: "1390000", suffix: "" },
         ]}
       />,
     );
 
     const dialog = within(screen.getByRole("dialog"));
 
-    expect(dialog.getByText("138")).toBeInTheDocument();
-    expect(dialog.getByText("1234")).toBeInTheDocument();
-    expect(dialog.queryByText("139")).not.toBeInTheDocument();
-    expect(dialog.queryByText("5678")).not.toBeInTheDocument();
+    expect(dialog.getByText("1380000")).toBeInTheDocument();
+    expect(dialog.queryByText("1390000")).not.toBeInTheDocument();
 
     fireEvent.click(
       dialog.getByRole("radio", {
@@ -86,10 +83,8 @@ describe("application access guard", () => {
       }),
     );
 
-    expect(dialog.getByText("139")).toBeInTheDocument();
-    expect(dialog.getByText("5678")).toBeInTheDocument();
-    expect(dialog.queryByText("138")).not.toBeInTheDocument();
-    expect(dialog.queryByText("1234")).not.toBeInTheDocument();
+    expect(dialog.getByText("1390000")).toBeInTheDocument();
+    expect(dialog.queryByText("1380000")).not.toBeInTheDocument();
   });
 
   it("refreshes the route after successful verification", async () => {
@@ -107,22 +102,22 @@ describe("application access guard", () => {
     render(
       <ApplicationAccessGuard
         applicationId="app-2"
-        phonePreviews={[{ prefix: "138", suffix: "1234" }]}
+        phonePreviews={[{ prefix: "1380000", suffix: "" }]}
       />,
     );
 
     const dialog = within(screen.getByRole("dialog"));
-    fireEvent.change(dialog.getByLabelText("手机号中间第 1 位"), {
-      target: { value: "0" },
+    fireEvent.change(dialog.getByLabelText("手机号后四位第 1 位"), {
+      target: { value: "1" },
     });
-    fireEvent.change(dialog.getByLabelText("手机号中间第 2 位"), {
-      target: { value: "0" },
+    fireEvent.change(dialog.getByLabelText("手机号后四位第 2 位"), {
+      target: { value: "2" },
     });
-    fireEvent.change(dialog.getByLabelText("手机号中间第 3 位"), {
-      target: { value: "0" },
+    fireEvent.change(dialog.getByLabelText("手机号后四位第 3 位"), {
+      target: { value: "3" },
     });
-    fireEvent.change(dialog.getByLabelText("手机号中间第 4 位"), {
-      target: { value: "0" },
+    fireEvent.change(dialog.getByLabelText("手机号后四位第 4 位"), {
+      target: { value: "4" },
     });
     fireEvent.click(
       dialog.getByRole("button", {
@@ -140,7 +135,7 @@ describe("application access guard", () => {
       success: false,
       error: "当前申请暂时无法验证，请 1 小时后再试",
       remainingAttempts: 0,
-      lockedUntil: new Date("2026-04-12T09:00:00+08:00"),
+      lockedUntil: new Date(Date.now() + 60 * 60 * 1000),
     });
 
     const { ApplicationAccessGuard } = await import(
@@ -150,21 +145,21 @@ describe("application access guard", () => {
     render(
       <ApplicationAccessGuard
         applicationId="app-3"
-        phonePreviews={[{ prefix: "138", suffix: "1234" }]}
+        phonePreviews={[{ prefix: "1380000", suffix: "" }]}
       />,
     );
 
     const dialog = within(screen.getByRole("dialog"));
-    fireEvent.change(dialog.getByLabelText("手机号中间第 1 位"), {
+    fireEvent.change(dialog.getByLabelText("手机号后四位第 1 位"), {
       target: { value: "0" },
     });
-    fireEvent.change(dialog.getByLabelText("手机号中间第 2 位"), {
+    fireEvent.change(dialog.getByLabelText("手机号后四位第 2 位"), {
       target: { value: "0" },
     });
-    fireEvent.change(dialog.getByLabelText("手机号中间第 3 位"), {
+    fireEvent.change(dialog.getByLabelText("手机号后四位第 3 位"), {
       target: { value: "0" },
     });
-    fireEvent.change(dialog.getByLabelText("手机号中间第 4 位"), {
+    fireEvent.change(dialog.getByLabelText("手机号后四位第 4 位"), {
       target: { value: "0" },
     });
     fireEvent.click(

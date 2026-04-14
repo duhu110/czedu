@@ -126,7 +126,7 @@ describe("application pages", () => {
     verifyEditTokenMock.mockReset();
     readApplicationAccessCookieMock.mockResolvedValue(true);
     getApplicationAccessPreviewsMock.mockResolvedValue([
-      { prefix: "138", suffix: "1234" },
+      { prefix: "1380000", suffix: "" },
     ]);
     verifyEditTokenMock.mockReturnValue({ valid: true });
   });
@@ -386,7 +386,7 @@ describe("application pages", () => {
     expect(getSystemTextByTypeMock).not.toHaveBeenCalled();
     expect(getSchoolByNameMock).toHaveBeenCalledWith("城中区第一小学");
     expect(screen.getAllByText("审核通过")).toHaveLength(2);
-    expect(screen.getByText("目标学校")).toBeInTheDocument();
+    expect(screen.getByText("转入学校")).toBeInTheDocument();
     expect(screen.getByText("城中区第一小学")).toBeInTheDocument();
     expect(screen.getByText("学校地址")).toBeInTheDocument();
     expect(screen.getByText("城中区南关街88号")).toBeInTheDocument();
@@ -433,7 +433,7 @@ describe("application pages", () => {
 
     expect(getSystemTextByTypeMock).not.toHaveBeenCalled();
     expect(screen.getByText("材料不完整，请补充后重新提交。")).toBeInTheDocument();
-    expect(screen.getByText("申请审核中")).toBeInTheDocument();
-    expect(screen.getByText("审核中")).toBeInTheDocument();
+    expect(screen.getByText("申请已拒绝")).toBeInTheDocument();
+    expect(screen.getByText("已拒绝")).toBeInTheDocument();
   });
 });
