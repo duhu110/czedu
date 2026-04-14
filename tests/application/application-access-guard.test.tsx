@@ -133,9 +133,9 @@ describe("application access guard", () => {
   it("enters a locked state after the server reports lockout", async () => {
     mocks.verifyApplicationAccess.mockResolvedValueOnce({
       success: false,
-      error: "当前申请暂时无法验证，请 1 小时后再试",
+      error: "当前申请暂时无法验证，请 5 分钟后再试",
       remainingAttempts: 0,
-      lockedUntil: new Date(Date.now() + 60 * 60 * 1000),
+      lockedUntil: new Date(Date.now() + 5 * 60 * 1000),
     });
 
     const { ApplicationAccessGuard } = await import(
@@ -170,7 +170,7 @@ describe("application access guard", () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText("当前申请暂时无法验证，请 1 小时后再试"),
+        screen.getByText("当前申请暂时无法验证，请 5 分钟后再试"),
       ).toBeInTheDocument();
     });
     expect(

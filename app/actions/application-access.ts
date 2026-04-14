@@ -10,9 +10,9 @@ import {
 import { getBeijingNow } from "@/lib/china-time";
 
 const MAX_FAILED_ATTEMPTS = 3;
-const LOCKOUT_WINDOW_MS = 60 * 60 * 1000;
+const LOCKOUT_WINDOW_MS = 5 * 60 * 1000;
 const GENERIC_FAILURE_MESSAGE = "手机号不正确或无权访问";
-const LOCKED_MESSAGE = "当前申请暂时无法验证，请 1 小时后再试";
+const LOCKED_MESSAGE = "当前申请暂时无法验证，请 5 分钟后再试";
 
 export type VerifyApplicationAccessResult = {
   success: boolean;

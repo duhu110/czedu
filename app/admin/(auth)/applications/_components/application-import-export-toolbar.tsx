@@ -66,7 +66,7 @@ export function ApplicationImportExportToolbar({
       };
 
       if (!response.ok || !result.success) {
-        toast.error(result.error || "导入失败");
+        toast.error(result.error || "导入失败", { position: "top-center" });
         return;
       }
 

@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ApprovalPanel } from "./approval-panel";
+import { ApprovalPanel } from "../../app/admin/(auth)/applications/_components/approval-panel";
 
 const {
   refreshMock,

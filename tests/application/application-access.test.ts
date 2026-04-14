@@ -120,7 +120,7 @@ describe("application access action", () => {
     expect(mocks.setApplicationAccessCookie).not.toHaveBeenCalled();
   });
 
-  it("locks the application for one hour after the third failed attempt", async () => {
+  it("locks the application for five minutes after the third failed attempt", async () => {
     mocks.applicationAccessAttemptFindUnique.mockResolvedValueOnce({
       applicationId: "app-4",
       failedCount: 2,
@@ -137,10 +137,16 @@ describe("application access action", () => {
 
     const result = await verifyApplicationAccess("app-4", "9999");
 
-
     expect(result.success).toBe(false);
+    expect(result.error).toBe("当前申请暂时无法验证，请 5 分钟后再试");
     expect(result.remainingAttempts).toBe(0);
     expect(result.lockedUntil).toBeTruthy();
+    expect(result.lockedUntil!.getTime() - Date.now()).toBeLessThanOrEqual(
+      5 * 60 * 1000,
+    );
+    expect(result.lockedUntil!.getTime() - Date.now()).toBeGreaterThan(
+      4 * 60 * 1000,
+    );
     expect(mocks.applicationAccessAttemptUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
         update: expect.objectContaining({
@@ -188,7 +194,7 @@ describe("application access action", () => {
       verifyApplicationAccess("app-locked", "0000"),
     ).resolves.toMatchObject({
       success: false,
-      error: "当前申请暂时无法验证，请 1 小时后再试",
+      error: "当前申请暂时无法验证，请 5 分钟后再试",
       remainingAttempts: 0,
       lockedUntil,
     });

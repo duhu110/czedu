@@ -23,7 +23,11 @@ import {
   PROPERTY_TYPE_LABELS,
   REJECTABLE_FIELDS,
 } from "@/lib/validations/application";
-import { getRecommendedSchool, getSchoolNames, toSchoolEntries } from "@/lib/school-matching";
+import {
+  getRecommendedSchool,
+  getSchoolNames,
+  toSchoolEntries,
+} from "@/lib/school-matching";
 
 // 字段路径 → 中文标签映射
 const fieldLabelMap = new Map<string, string>();
@@ -248,11 +252,13 @@ export default async function ApplicationDetailPage({
   );
 
   // 获取 SystemText 数据
-  const [transferNoticeRes, consentFormRes, pendingTextRes] = await Promise.all([
-    getSystemTextByType(app.semesterId, "TRANSFER_NOTICE"),
-    getSystemTextByType(app.semesterId, "CONSENT_FORM"),
-    getSystemTextByType(app.semesterId, "PENDING_TEXT"),
-  ]);
+  const [transferNoticeRes, consentFormRes, pendingTextRes] = await Promise.all(
+    [
+      getSystemTextByType(app.semesterId, "TRANSFER_NOTICE"),
+      getSystemTextByType(app.semesterId, "CONSENT_FORM"),
+      getSystemTextByType(app.semesterId, "PENDING_TEXT"),
+    ],
+  );
 
   const printTimeLabel = formatPrintTimeLabel(new Date());
   const pendingLookupUrl = getPendingLookupUrl(app.id, "https://czedu.local");

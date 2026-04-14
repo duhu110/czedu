@@ -74,11 +74,11 @@ export function RejectEditDialog({
 
   const handleSubmit = async () => {
     if (selected.size === 0) {
-      toast.error("请至少选择一个需要修改的字段");
+      toast.error("请至少选择一个需要修改的字段", { position: "top-center" });
       return;
     }
     if (!remark.trim()) {
-      toast.error("请填写审核备注告知家长原因");
+      toast.error("请填写审核备注告知家长原因", { position: "top-center" });
       return;
     }
 
@@ -91,13 +91,13 @@ export function RejectEditDialog({
     setIsSubmitting(false);
 
     if (res.success) {
-      toast.success("已标记问题字段，请让家长扫码修改");
+      toast.success("已标记问题字段，请让家长扫码修改", { position: "top-center" });
       setOpen(false);
       setShowQrCode(true);
       router.refresh();
       onSuccess?.();
     } else {
-      toast.error(res.error || "操作失败");
+      toast.error(res.error || "操作失败", { position: "top-center" });
     }
   };
 

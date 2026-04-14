@@ -1,13 +1,13 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { ApplicationPrintSheet } from "./application-print-sheet";
+import { ApplicationPrintSheet } from "../../app/admin/(auth)/applications/_components/application-print-sheet";
 import {
   formatPrintTimeLabel,
   getPendingLookupUrl,
   maskPhoneNumber,
   getStatusPrintLabel,
-} from "./application-print-utils";
+} from "../../app/admin/(auth)/applications/_components/application-print-utils";
 
 const { mockMaskPhone } = vi.hoisted(() => ({
   mockMaskPhone: { value: false },

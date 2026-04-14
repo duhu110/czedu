@@ -113,6 +113,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
     walk(errors);
     toast.error(`请检查表单中的 ${count} 项错误`, {
       description: "请向上滚动查看并修正标红的字段",
+      position: "top-center",
     });
   }, []);
 
@@ -121,10 +122,10 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
     const res = await createApplication(values);
     setIsSubmitting(false);
     if (res.success) {
-      toast.success("转学申请提交成功！");
+      toast.success("转学申请提交成功！", { position: "top-center" });
       router.push("/application/new/success");
     } else {
-      toast.error(res.error || "提交失败，请重试");
+      toast.error(res.error || "提交失败，请重试", { position: "top-center" });
     }
   }
 
@@ -678,9 +679,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
 
               {/* 学籍信息表 */}
               <div className="border rounded-lg p-4 bg-muted/30">
-                <p className="text-sm font-medium mb-1">
-                  3. 学生学籍信息表
-                </p>
+                <p className="text-sm font-medium mb-1">3. 学生学籍信息表</p>
                 <p className="mb-2 text-xs text-muted-foreground">
                   由原就读学校打印并加盖学校公章，需包含学生姓名、身份证号、学籍号、当前年级、当前班级等信息。如果暂时没有，也可以先提交申请，系统会将工单标记为待补学籍信息卡。
                 </p>

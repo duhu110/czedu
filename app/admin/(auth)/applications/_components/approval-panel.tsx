@@ -79,11 +79,11 @@ export function ApprovalPanel({
 
   const handleAction = async (status: ApplicationStatus) => {
     if (status === "APPROVED" && !targetSchool.trim()) {
-      toast.error("通过申请时请填写目标学校");
+      toast.error("通过申请时请填写目标学校",{ position: "top-center" });
       return;
     }
     if (status === "REJECTED" && !remark.trim()) {
-      toast.error("请填写审核备注告知家长原因");
+      toast.error("请填写审核备注告知家长原因",{ position: "top-center" });
       return;
     }
 
@@ -97,10 +97,10 @@ export function ApprovalPanel({
     setIsSubmitting(null);
 
     if (res.success) {
-      toast.success("审核状态已更新");
+      toast.success("审核状态已更新",{ position: "top-center" });
       router.refresh();
     } else {
-      toast.error(res.error || "更新失败");
+      toast.error(res.error || "更新失败",{ position: "top-center" });
     }
   };
 
@@ -110,10 +110,10 @@ export function ApprovalPanel({
     setIsDeleting(false);
 
     if (res.success) {
-      toast.success("申请已删除");
+      toast.success("申请已删除",{ position: "top-center" });
       router.push("/admin/applications");
     } else {
-      toast.error(res.error || "删除失败");
+      toast.error(res.error || "删除失败",{ position: "top-center" });
     }
   };
 
