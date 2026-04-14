@@ -88,7 +88,6 @@ export const REJECTABLE_FIELDS = [
   },
   {
     group: "住房证明",
-    condition: "LOCAL" as const,
     fields: [
       { field: "fileProperty.propertyDeed", label: "不动产权证" },
       { field: "fileProperty.purchaseContract", label: "购房合同" },
@@ -174,19 +173,17 @@ export const applicationSchema = z
     fileResidencePermit: z.array(z.string()).optional(),
   })
   .superRefine((data, ctx) => {
-    // 城中区户籍必须上传住房证明（至少一项）
-    if (data.residencyType === "LOCAL") {
-      const fp = data.fileProperty;
-      if (
-        !fp ||
-        (!fp.propertyDeed && !fp.purchaseContract && !fp.rentalCert)
-      ) {
-        ctx.addIssue({
-          code: "custom",
-          message: "请至少上传一项住房证明（不动产权证、购房合同或房屋租赁备案证明）",
-          path: ["fileProperty"],
-        });
-      }
+    // 所有户籍类型都必须上传住房证明（至少一项）
+    const fp = data.fileProperty;
+    if (
+      !fp ||
+      (!fp.propertyDeed && !fp.purchaseContract && !fp.rentalCert)
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "请至少上传一项住房证明（不动产权证、购房合同或房屋租赁备案证明）",
+        path: ["fileProperty"],
+      });
     }
 
     // 非城中区户籍必须上传居住证

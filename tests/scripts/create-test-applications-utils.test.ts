@@ -80,6 +80,15 @@ describe("buildApplicationSeedRecords", () => {
 
       expect(imageUrls.length).toBeGreaterThan(0);
       expect(imageUrls.every((url) => url.startsWith("/uploads/"))).toBe(true);
+
+      const property = JSON.parse(record.fileProperty);
+      expect(
+        Boolean(
+          property.propertyDeed ||
+            property.purchaseContract ||
+            property.rentalCert,
+        ),
+      ).toBe(true);
     }
   });
 

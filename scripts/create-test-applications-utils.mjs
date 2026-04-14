@@ -115,9 +115,9 @@ function buildFilePayloads(uploadPaths, residencyType, status, random) {
       others: hukouImages[4] ? [hukouImages[4]] : [],
     }),
     fileProperty: json({
-      propertyDeed: residencyType === "LOCAL" ? propertyImages[0] : "",
-      purchaseContract: residencyType === "LOCAL" ? propertyImages[1] : "",
-      rentalCert: residencyType === "LOCAL" ? propertyImages[2] : "",
+      propertyDeed: propertyImages[0],
+      purchaseContract: propertyImages[1],
+      rentalCert: propertyImages[2],
       others: [],
     }),
     fileStudentCard: json(studentCardImages),

@@ -89,16 +89,9 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
     name: "residencyType",
   });
 
-  // 切换户籍类型时清空对应的条件字段
+  // 切换为城中区户籍时不再需要居住证
   useEffect(() => {
-    if (residencyType === "NON_LOCAL") {
-      form.setValue("fileProperty", {
-        propertyDeed: "",
-        purchaseContract: "",
-        rentalCert: "",
-        others: [],
-      });
-    } else {
+    if (residencyType === "LOCAL") {
       form.setValue("fileResidencePermit", []);
     }
   }, [residencyType, form]);
@@ -645,15 +638,13 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                 </div>
               </div>
 
-              {/* 住房证明（仅城中区户籍，结构化上传） */}
-              {residencyType === "LOCAL" && (
-                <PropertyUploadSection form={form} />
-              )}
+              {/* 住房证明（结构化上传） */}
+              <PropertyUploadSection form={form} />
 
               {/* 学籍信息表 */}
               <div className="border rounded-lg p-4 bg-muted/30">
                 <p className="text-sm font-medium mb-1">
-                  {residencyType === "LOCAL" ? "3" : "2"}. 学生学籍信息表
+                  3. 学生学籍信息表
                 </p>
                 <p className="mb-2 text-xs text-muted-foreground">
                   由原就读学校打印并加盖学校公章，需包含学生姓名、身份证号、学籍号、当前年级、当前班级等信息。如果暂时没有，也可以先提交申请，系统会将工单标记为待补学籍信息卡。
@@ -680,7 +671,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
               {residencyType === "NON_LOCAL" && (
                 <div className="border border-primary/50 rounded-lg p-4 bg-primary/5 shadow-sm transition-all animate-in fade-in slide-in-from-top-4">
                   <p className="text-sm font-medium text-primary mb-1">
-                    3. 监护人及学生居住证
+                    4. 监护人及学生居住证
                   </p>
                   <p className="text-xs text-muted-foreground mb-2">
                     非城中区户籍人口必传（法定监护人之一及学生在辖区内的有效居住证），大通湟源湟中户籍学生可不上传。
