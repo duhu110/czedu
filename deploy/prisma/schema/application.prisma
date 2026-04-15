@@ -44,6 +44,7 @@ model Application {
   currentSchool String
   currentGrade  String
   targetGrade   String
+  remark        String?
   targetSchool  String?
 
   hukouAddress  String
