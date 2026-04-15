@@ -247,7 +247,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
         {/* ==================== 卡片2：房产信息 ==================== */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">2. 房产信息</CardTitle>
+            <CardTitle className="text-base">2. 房户信息</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -571,13 +571,13 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="text-xs text-muted-foreground mb-4">
-              请上传清晰的原件照片。单张图片不超过 5MB。
+              请上传清晰的原件照片。
             </div>
 
             <div className="space-y-4">
               {/* 户口簿（结构化上传） */}
               <div className="border rounded-lg p-4 bg-muted/30">
-                <p className="text-sm font-medium mb-1">1. 户口簿 *</p>
+                <p className="text-sm font-medium mb-1">1）户口簿 *</p>
                 <p className="text-xs text-muted-foreground mb-3">
                   请分别上传首页、户主页、法定监护人之一页和学生页
                 </p>
@@ -653,7 +653,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-2">
-                    其他页面（选填，最多3张）
+                    其他页面（选填，最多5张）
                   </p>
                   <FormField
                     control={form.control}
@@ -664,7 +664,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                           <ImageUploader
                             value={field.value}
                             onChange={field.onChange}
-                            maxCount={3}
+                            maxCount={5}
                           />
                         </FormControl>
                         <FormMessage />
@@ -679,9 +679,9 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
 
               {/* 学籍信息表 */}
               <div className="border rounded-lg p-4 bg-muted/30">
-                <p className="text-sm font-medium mb-1">3. 学生学籍信息表</p>
+                <p className="text-sm font-medium mb-1">3）. 学生学籍信息表</p>
                 <p className="mb-2 text-xs text-muted-foreground">
-                  由原就读学校打印并加盖学校公章，需包含学生姓名、身份证号、学籍号、当前年级、当前班级等信息。如果暂时没有，也可以先提交申请，系统会将工单标记为待补学籍信息卡。
+                  由原就读学校打印并加盖学校公章，需包含学生姓名、身份证号、学籍号、当前年级、当前班级等信息。
                 </p>
                 <FormField
                   control={form.control}
@@ -705,7 +705,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
               {residencyType === "NON_LOCAL" && (
                 <div className="border border-primary/50 rounded-lg p-4 bg-primary/5 shadow-sm transition-all animate-in fade-in slide-in-from-top-4">
                   <p className="text-sm font-medium text-primary mb-1">
-                    4. 监护人及学生居住证
+                    4）监护人及学生居住证
                   </p>
                   <p className="text-xs text-muted-foreground mb-2">
                     非城中区户籍学生可上传监护人及学生在辖区内的有效居住证，大通湟源湟中户籍学生可不上传，是否上传由人工审核。
@@ -774,7 +774,7 @@ function PropertyUploadSection({
 
   return (
     <div className="border rounded-lg p-4 bg-muted/30">
-      <p className="text-sm font-medium mb-1">2. 住房证明 *</p>
+      <p className="text-sm font-medium mb-1">2）住房证明 *</p>
       <p className="text-xs text-muted-foreground mb-3">
         以下三项至少上传其中一项：不动产权证、购房合同或房屋租赁备案证明
       </p>
@@ -839,7 +839,7 @@ function PropertyUploadSection({
       </div>
       <div>
         <p className="text-xs text-muted-foreground mb-2">
-          其他证明（选填，最多3张）
+          其他证明（选填，最多5张）
         </p>
         <FormField
           control={form.control}
@@ -850,7 +850,7 @@ function PropertyUploadSection({
                 <ImageUploader
                   value={field.value || []}
                   onChange={field.onChange}
-                  maxCount={3}
+                  maxCount={5}
                 />
               </FormControl>
               <FormMessage />
