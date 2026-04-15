@@ -18,6 +18,7 @@ import {
   GRADE_OPTIONS,
   GUARDIAN_RELATION_OPTIONS,
   PROPERTY_TYPE_OPTIONS,
+  type ApplicationFormValues,
   type ApplicationInput,
 } from "@/lib/validations/application";
 import { createApplication } from "@/app/actions/application";
@@ -31,6 +32,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -42,16 +44,22 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 
+type ApplicationFormHook = UseFormReturn<
+  ApplicationFormValues,
+  unknown,
+  ApplicationInput
+>;
+
 export function ApplicationForm({ semesterId }: { semesterId: string }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<ApplicationInput>({
+  const form = useForm<ApplicationFormValues, unknown, ApplicationInput>({
     resolver: zodResolver(applicationSchema),
     defaultValues: {
       semesterId: semesterId,
-      residencyType: "LOCAL" as ApplicationInput["residencyType"],
-      gender: "MALE" as ApplicationInput["gender"],
+      residencyType: "LOCAL" as ApplicationFormValues["residencyType"],
+      gender: "MALE" as ApplicationFormValues["gender"],
       ethnicity: "汉族",
       name: "",
       idCard: "",
@@ -65,6 +73,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
       currentSchool: "",
       currentGrade: "",
       targetGrade: "",
+      remark: "",
       hukouAddress: "",
       livingAddress: "",
       fileHukou: {
@@ -97,7 +106,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
     }
   }, [residencyType, form]);
 
-  const onInvalid = useCallback((errors: FieldErrors<ApplicationInput>) => {
+  const onInvalid = useCallback((errors: FieldErrors<ApplicationFormValues>) => {
     let count = 0;
     const walk = (obj: unknown) => {
       if (!obj || typeof obj !== "object") return;
@@ -561,6 +570,24 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                 )}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="remark"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>备注</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="如有特殊情况，可在此补充说明"
+                      rows={4}
+                      {...field}
+                      value={field.value ?? ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
 
@@ -679,7 +706,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
 
               {/* 学籍信息表 */}
               <div className="border rounded-lg p-4 bg-muted/30">
-                <p className="text-sm font-medium mb-1">3）. 学生学籍信息表</p>
+                <p className="text-sm font-medium mb-1">3）学生学籍信息表</p>
                 <p className="mb-2 text-xs text-muted-foreground">
                   由原就读学校打印并加盖学校公章，需包含学生姓名、身份证号、学籍号、当前年级、当前班级等信息。
                 </p>
@@ -708,25 +735,9 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
                     4）监护人及学生居住证
                   </p>
                   <p className="text-xs text-muted-foreground mb-2">
-                    非城中区户籍学生可上传监护人及学生在辖区内的有效居住证，大通湟源湟中户籍学生可不上传，是否上传由人工审核。
+                    非城中区户籍学生须上传监护人及学生在辖区内的有效居住证。（大通、湟中、湟源户籍学生不用上传）
                   </p>
-                  <FormField
-                    control={form.control}
-                    name="fileResidencePermit"
-                    render={({ field, fieldState }) => (
-                      <FormItem>
-                        <FormControl>
-                          <ImageUploader
-                            value={field.value || []}
-                            onChange={field.onChange}
-                            maxCount={3}
-                            hasError={!!fieldState.error}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <ResidencePermitUploadSection form={form} />
                 </div>
               )}
             </div>
@@ -763,7 +774,7 @@ export function ApplicationForm({ semesterId }: { semesterId: string }) {
 function PropertyUploadSection({
   form,
 }: {
-  form: UseFormReturn<ApplicationInput>;
+  form: ApplicationFormHook;
 }) {
   const fpErrors = form.formState.errors.fileProperty;
   const hasGroupError = !!(
@@ -859,5 +870,58 @@ function PropertyUploadSection({
         />
       </div>
     </div>
+  );
+}
+
+function ResidencePermitUploadSection({
+  form,
+}: {
+  form: ApplicationFormHook;
+}) {
+  const permits = useWatch({
+    control: form.control,
+    name: "fileResidencePermit",
+  }) || [];
+  const permitError = form.formState.errors.fileResidencePermit;
+  const hasError = !!permitError;
+
+  const updatePermit = (index: number, value: string) => {
+    const next = [...permits];
+    next[index] = value;
+    form.setValue("fileResidencePermit", next, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
+
+  return (
+    <FormField
+      control={form.control}
+      name="fileResidencePermit"
+      render={() => (
+        <FormItem>
+          <div className="grid grid-cols-2 gap-3">
+            <FormControl>
+              <SingleImageUploader
+                value={permits[0] || ""}
+                onChange={(value) => updatePermit(0, value)}
+                label="监护人居住证"
+                hasError={hasError}
+              />
+            </FormControl>
+            <FormControl>
+              <SingleImageUploader
+                value={permits[1] || ""}
+                onChange={(value) => updatePermit(1, value)}
+                label="学生居住证"
+                hasError={hasError}
+              />
+            </FormControl>
+          </div>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 }

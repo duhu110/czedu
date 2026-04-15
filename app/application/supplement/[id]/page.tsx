@@ -5,6 +5,7 @@ import { UploadCloud, FileText } from "lucide-react";
 
 import { getApplicationById } from "@/app/actions/application";
 import { getApplicationAccessPreviews } from "@/app/actions/application-access";
+import { getSystemTextByType } from "@/app/actions/system-text";
 import { ApplicationAccessGuard } from "@/app/application/_components/application-access-guard";
 import { readApplicationAccessCookie } from "@/lib/application-access";
 import { SupplementForm } from "./_components/supplement-form";
@@ -51,6 +52,13 @@ export default async function ApplicationSupplementPage({
   }
 
   const application = result.data;
+  const supplementTextResult = await getSystemTextByType(
+    application.semesterId,
+    "SUPPLEMENT_TEXT",
+  );
+  const supplementTextContent =
+    supplementTextResult.data?.content?.trim() ||
+    "该申请缺少学籍信息表，请补传后继续审核。";
 
   if (application.status === "PENDING") {
     redirect(`/application/pending/${application.id}`);
@@ -83,8 +91,8 @@ export default async function ApplicationSupplementPage({
         <h1 className="text-xl font-bold text-primary-foreground">
           补传学籍信息卡
         </h1>
-        <p className="mt-1 text-sm text-primary-foreground/80">
-          该申请缺少学籍信息表，请补传后继续审核。
+        <p className="mt-1 whitespace-pre-line text-sm text-primary-foreground/80">
+          {supplementTextContent}
         </p>
       </div>
       <div className="-mt-3 space-y-6 px-4">

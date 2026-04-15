@@ -1,13 +1,5 @@
-import Link from "next/link";
 import { CheckCircle2Icon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function ApplicationSuccessPage() {
   return (
@@ -21,19 +13,15 @@ export default function ApplicationSuccessPage() {
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground space-y-2">
           <p>您的转学申请已成功创建并提交至系统后台。</p>
-            <p>如果暂未上传学籍信息卡，申请会先进入“待补学籍信息卡”状态，后续补齐后再转为正式审核。</p>
+          <p>
+            如果暂未上传学籍信息卡，申请会先进入“待补学籍信息卡”状态，后续补齐后再转为正式审核。
+          </p>
           <div className="mt-4 rounded-md bg-blue-50 p-3 text-left text-xs text-blue-700">
             <strong>温馨提示：</strong>
             <br />
             后续您可以通过申请单二维码或申请页面中的状态入口查看最新进度。
           </div>
         </CardContent>
-        <CardFooter className="pb-8">
-          {/* 在微信/移动端，通常引导用户关闭页面或返回首页 */}
-          <Button asChild className="w-full">
-            <Link href="/application">我知道了，返回申请入口</Link>
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   );

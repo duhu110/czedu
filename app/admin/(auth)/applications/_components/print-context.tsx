@@ -13,6 +13,7 @@ type PrintMode = "archive" | "parent" | null;
 
 type PrintContextValue = {
   maskPhone: boolean;
+  printMode: PrintMode;
   triggerPrint: (mode: "archive" | "parent") => void;
 };
 
@@ -30,7 +31,7 @@ export function PrintProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <PrintContext value={{ maskPhone: printMode === "parent", triggerPrint }}>
+    <PrintContext value={{ maskPhone: printMode === "parent", printMode, triggerPrint }}>
       {children}
     </PrintContext>
   );

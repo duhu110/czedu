@@ -6,6 +6,7 @@ export const systemTextTypeEnum = z.enum([
   "TRANSFER_NOTICE",
   "CONSENT_FORM",
   "PENDING_TEXT",
+  "SUPPLEMENT_TEXT",
 ]);
 
 export type SystemTextType = z.infer<typeof systemTextTypeEnum>;
@@ -27,6 +28,10 @@ export const systemTextTypeMap: Record<
   PENDING_TEXT: {
     label: "待审核状态文案",
     description: "学生端待审核状态页文案",
+  },
+  SUPPLEMENT_TEXT: {
+    label: "补传状态文案",
+    description: "学生端补传学籍信息卡页面和打印状态文案",
   },
 };
 

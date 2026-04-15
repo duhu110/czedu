@@ -66,7 +66,9 @@ export function ApprovalPanel({
   const [remark, setRemark] = useState(currentRemark || "");
   const [targetSchool, setTargetSchool] = useState(
     currentTargetSchool ||
-      (currentStatus === "PENDING" && recommendedSchool ? recommendedSchool : ""),
+      (currentStatus === "PENDING" && recommendedSchool
+        ? recommendedSchool
+        : ""),
   );
   const [isSubmitting, setIsSubmitting] = useState<ApplicationStatus | null>(
     null,
@@ -79,11 +81,11 @@ export function ApprovalPanel({
 
   const handleAction = async (status: ApplicationStatus) => {
     if (status === "APPROVED" && !targetSchool.trim()) {
-      toast.error("通过申请时请填写目标学校",{ position: "top-center" });
+      toast.error("通过申请时请填写目标学校", { position: "top-center" });
       return;
     }
     if (status === "REJECTED" && !remark.trim()) {
-      toast.error("请填写审核备注告知家长原因",{ position: "top-center" });
+      toast.error("请填写审核备注告知家长原因", { position: "top-center" });
       return;
     }
 
@@ -97,10 +99,10 @@ export function ApprovalPanel({
     setIsSubmitting(null);
 
     if (res.success) {
-      toast.success("审核状态已更新",{ position: "top-center" });
+      toast.success("审核状态已更新", { position: "top-center" });
       router.refresh();
     } else {
-      toast.error(res.error || "更新失败",{ position: "top-center" });
+      toast.error(res.error || "更新失败", { position: "top-center" });
     }
   };
 
@@ -110,10 +112,10 @@ export function ApprovalPanel({
     setIsDeleting(false);
 
     if (res.success) {
-      toast.success("申请已删除",{ position: "top-center" });
+      toast.success("申请已删除", { position: "top-center" });
       router.push("/admin/applications");
     } else {
-      toast.error(res.error || "删除失败",{ position: "top-center" });
+      toast.error(res.error || "删除失败", { position: "top-center" });
     }
   };
 
@@ -141,11 +143,15 @@ export function ApprovalPanel({
         <div className="rounded-md border px-3 py-2 text-sm">
           <span className="text-muted-foreground mr-2">当前状态：</span>
           <span className="font-medium">
-            {currentStatus === "PENDING" && "待审核 — 申请已提交，等待管理员审核处理"}
-            {currentStatus === "APPROVED" && "已通过 — 申请已审核通过并分配学校"}
+            {currentStatus === "PENDING" &&
+              "待审核 — 申请已提交，等待管理员审核处理"}
+            {currentStatus === "APPROVED" &&
+              "已通过 — 申请已审核通过并分配学校"}
             {currentStatus === "REJECTED" && "已驳回 — 申请未通过审核"}
-            {currentStatus === "SUPPLEMENT" && "待补学籍信息卡 — 需要家长尽快补传学籍信息卡"}
-            {currentStatus === "EDITING" && "修改中 — 已驳回修改，等待家长重新提交"}
+            {currentStatus === "SUPPLEMENT" &&
+              "待补学籍信息卡 — 需要家长尽快补传学籍信息卡"}
+            {currentStatus === "EDITING" &&
+              "修改中 — 已驳回修改，等待家长重新提交"}
           </span>
         </div>
 
@@ -322,34 +328,12 @@ export function ApprovalPanel({
                 驳回修改
               </Button>
             </RejectEditDialog>
-
-            <Button
-              variant="destructive"
-              onClick={() => handleAction("REJECTED")}
-              disabled={!!isSubmitting}
-            >
-              {isSubmitting === "REJECTED" && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              驳回申请
-            </Button>
           </div>
         )}
 
         {/* SUPPLEMENT / EDITING 状态操作按钮 */}
         {(currentStatus === "SUPPLEMENT" || currentStatus === "EDITING") && (
           <div className="flex flex-wrap gap-3 w-full">
-            <Button
-              variant="destructive"
-              onClick={() => handleAction("REJECTED")}
-              disabled={!!isSubmitting}
-            >
-              {isSubmitting === "REJECTED" && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              驳回申请
-            </Button>
-
             {currentStatus === "EDITING" && (
               <>
                 <Button variant="outline" onClick={() => setShowQrCode(true)}>
@@ -364,7 +348,6 @@ export function ApprovalPanel({
             )}
           </div>
         )}
-
         <Separator />
         <div className="flex gap-3 w-full print:hidden">
           <Button
@@ -386,7 +369,6 @@ export function ApprovalPanel({
             家长页打印
           </Button>
         </div>
-
         {/* 删除按钮 */}
         <Separator />
         <div className="w-full print:hidden">
@@ -442,10 +424,14 @@ export function ApprovalPanel({
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                if (supplementPrintMode) {
-                  triggerPrint(supplementPrintMode);
-                }
+                const mode = supplementPrintMode;
                 setSupplementPrintMode(null);
+                if (mode) {
+                  // 等弹窗关闭动画完成后再触发打印（~300ms）
+                  setTimeout(() => {
+                    triggerPrint(mode);
+                  }, 350);
+                }
               }}
             >
               确认打印

@@ -1,24 +1,8 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { Logo } from "@/components/home/logo";
+import { Logo } from "@/components/logo";
 import { useScroll } from "@/hooks/use-scroll";
-import { Button } from "@/components/ui/button";
 import { MobileNav } from "@/components/home/mobile-nav";
-
-export const navLinks = [
-  {
-    label: "申请流程",
-    href: "#process",
-  },
-  {
-    label: "案例库",
-    href: "#cases",
-  },
-  {
-    label: "常见问题",
-    href: "#faq",
-  },
-];
 
 export function Header() {
   const scrolled = useScroll(10);
@@ -47,21 +31,7 @@ export function Header() {
         >
           <Logo className="h-4" />
         </a>
-        <div className="hidden items-center gap-2 md:flex">
-          <div>
-            {navLinks.map((link) => (
-              <Button asChild key={link.label} size="sm" variant="ghost">
-                <a href={link.href}>{link.label}</a>
-              </Button>
-            ))}
-          </div>
-          <Button asChild size="sm" variant="outline">
-            <a href="/application">学生登录</a>
-          </Button>
-          <Button asChild size="sm">
-            <a href="/admin">管理后台</a>
-          </Button>
-        </div>
+        <div className="hidden items-center gap-2 md:flex"></div>
         <MobileNav />
       </nav>
     </header>

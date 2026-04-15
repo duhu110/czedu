@@ -1,81 +1,91 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Rocket01Icon, ArrowRight02Icon, Call02Icon } from "@hugeicons/core-free-icons";
+import {
+  Rocket01Icon,
+  ArrowRight02Icon,
+  Call02Icon,
+} from "@hugeicons/core-free-icons";
 
 export function HeroSection() {
-	return (
-		<section className="mx-auto w-full max-w-5xl">
-			{/* Top Shades */}
-			<div
-				aria-hidden="true"
-				className="absolute inset-0 isolate hidden overflow-hidden contain-strict lg:block"
-			>
-				<div className="absolute inset-0 -top-14 isolate -z-10 bg-[radial-gradient(35%_80%_at_49%_0%,--theme(--color-foreground/.08),transparent)] contain-strict" />
-			</div>
+  return (
+    <section className="mx-auto w-full max-w-5xl h-full my-auto">
+      {/* Top Shades */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 isolate hidden overflow-hidden contain-strict lg:block"
+      >
+        <div className="absolute inset-0 -top-14 isolate -z-10 bg-[radial-gradient(35%_80%_at_49%_0%,--theme(--color-foreground/.08),transparent)] contain-strict" />
+      </div>
 
-			{/* X Bold Faded Borders */}
-			<div
-				aria-hidden="true"
-				className="absolute inset-0 mx-auto hidden min-h-screen w-full max-w-5xl lg:block"
-			>
-				<div className="mask-y-from-80% mask-y-to-100% absolute inset-y-0 left-0 z-10 h-full w-px bg-foreground/15" />
-				<div className="mask-y-from-80% mask-y-to-100% absolute inset-y-0 right-0 z-10 h-full w-px bg-foreground/15" />
-			</div>
+      {/* X Bold Faded Borders */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 mx-auto hidden min-h-screen w-full max-w-5xl lg:block"
+      >
+        <div className="mask-y-from-80% mask-y-to-100% absolute inset-y-0 left-0 z-10 h-full w-px bg-foreground/15" />
+        <div className="mask-y-from-80% mask-y-to-100% absolute inset-y-0 right-0 z-10 h-full w-px bg-foreground/15" />
+      </div>
 
-			{/* main content */}
+      {/* main content */}
 
-			<div className="relative flex flex-col items-center justify-center gap-5 pt-32 pb-30">
-				{/* X Content Faded Borders */}
-				<div
-					aria-hidden="true"
-					className="absolute inset-0 -z-1 size-full overflow-hidden"
-				>
-					<div className="absolute inset-y-0 left-4 w-px bg-linear-to-b from-transparent via-border to-border md:left-8" />
-					<div className="absolute inset-y-0 right-4 w-px bg-linear-to-b from-transparent via-border to-border md:right-8" />
-					<div className="absolute inset-y-0 left-8 w-px bg-linear-to-b from-transparent via-border/50 to-border/50 md:left-12" />
-					<div className="absolute inset-y-0 right-8 w-px bg-linear-to-b from-transparent via-border/50 to-border/50 md:right-12" />
-				</div>
+      <div className="relative flex flex-col items-center justify-center gap-5 pt-32 pb-30">
+        {/* X Content Faded Borders */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-1 size-full overflow-hidden"
+        >
+          <div className="absolute inset-y-0 left-4 w-px bg-linear-to-b from-transparent via-border to-border md:left-8" />
+          <div className="absolute inset-y-0 right-4 w-px bg-linear-to-b from-transparent via-border to-border md:right-8" />
+          <div className="absolute inset-y-0 left-8 w-px bg-linear-to-b from-transparent via-border/50 to-border/50 md:left-12" />
+          <div className="absolute inset-y-0 right-8 w-px bg-linear-to-b from-transparent via-border/50 to-border/50 md:right-12" />
+        </div>
 
-				<a
-					className={cn(
-						"group mx-auto flex w-fit items-center gap-3 rounded-full border bg-card px-3 py-1 shadow",
-						"fade-in slide-in-from-bottom-10 animate-in fill-mode-backwards transition-all delay-500 duration-500 ease-out"
-					)}
-					href="#process"
-				>
-					<HugeiconsIcon icon={Rocket01Icon} strokeWidth={2} className="size-3 text-muted-foreground" />
-					<span className="text-xs">2026 秋季转学申请系统已开放 mock 演示</span>
-					<span className="block h-5 border-l" />
+        <a
+          className={cn(
+            "group mx-auto flex w-fit items-center gap-3 rounded-full border bg-card px-3 py-1 shadow",
+            "fade-in slide-in-from-bottom-10 animate-in fill-mode-backwards transition-all delay-500 duration-500 ease-out",
+          )}
+          href="#process"
+        >
+          <HugeiconsIcon
+            icon={Rocket01Icon}
+            strokeWidth={2}
+            className="size-3 text-muted-foreground"
+          />
+          <span className="text-xs">2026 秋季转学申请系统已开放</span>
+          <span className="block h-5 border-l" />
 
-					<HugeiconsIcon icon={ArrowRight02Icon} strokeWidth={2} className="size-3 duration-150 ease-out group-hover:translate-x-1" />
-				</a>
+          <HugeiconsIcon
+            icon={ArrowRight02Icon}
+            strokeWidth={2}
+            className="size-3 duration-150 ease-out group-hover:translate-x-1"
+          />
+        </a>
 
-				<h1
-					className={cn(
-						"fade-in slide-in-from-bottom-10 animate-in text-balance fill-mode-backwards text-center text-4xl tracking-tight delay-100 duration-500 ease-out md:text-5xl lg:text-6xl",
-						"text-shadow-[0_0px_50px_theme(--color-foreground/.2)]"
-					)}
-				>
-					转学申请，一站式更稳妥 <br /> 从选校到递交全程可视化
-				</h1>
+        <h1
+          className={cn(
+            "fade-in slide-in-from-bottom-10 animate-in text-balance fill-mode-backwards text-center text-4xl tracking-tight delay-100 duration-500 ease-out md:text-5xl lg:text-6xl",
+            "text-shadow-[0_0px_50px_theme(--color-foreground/.2)]",
+          )}
+        >
+          转学申请，一站式更稳妥 <br /> 从选校到递交全程可视化
+        </h1>
 
-				<p className="fade-in slide-in-from-bottom-10 mx-auto max-w-md animate-in fill-mode-backwards text-center text-base text-foreground/80 tracking-wider delay-200 duration-500 ease-out sm:text-lg md:text-xl">
-					用更清晰的流程管理成绩单、课程描述、推荐信和文书节奏，<br />
-					把复杂的转学申请拆成可执行的 mock 清单
-				</p>
-
-				<div className="fade-in slide-in-from-bottom-10 flex animate-in flex-row flex-wrap items-center justify-center gap-3 fill-mode-backwards pt-2 delay-300 duration-500 ease-out">
-					<Button className="rounded-full" size="lg" variant="secondary">
-						<HugeiconsIcon icon={Call02Icon} strokeWidth={2} data-icon="inline-start" />{" "}
-						预约咨询
-					</Button>
-					<Button className="rounded-full" size="lg">
-						查看案例{" "}
-						<HugeiconsIcon icon={ArrowRight02Icon} strokeWidth={2} data-icon="inline-end" />
-					</Button>
-				</div>
-			</div>
-		</section>
-	);
+        <p className="fade-in slide-in-from-bottom-10 mx-auto max-w-md animate-in fill-mode-backwards text-center text-base text-foreground/80 tracking-wider delay-200 duration-500 ease-out sm:text-lg md:text-xl">
+          用更清晰的流程管理
+        </p>
+        <div className="fade-in slide-in-from-bottom-10 flex animate-in flex-row flex-wrap items-center justify-center gap-3 fill-mode-backwards pt-2 delay-300 duration-500 ease-out">
+          <Button className="rounded-full" size="lg">
+            预约咨询{" "}
+            <HugeiconsIcon
+              icon={Call02Icon}
+              strokeWidth={2}
+              data-icon="inline-end"
+            />
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
 }

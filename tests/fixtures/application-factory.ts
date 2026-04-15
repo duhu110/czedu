@@ -18,6 +18,7 @@ export type MockApplication = {
   currentSchool: string;
   currentGrade: string;
   targetGrade: string;
+  remark: string | null;
   targetSchool: string | null;
   hukouAddress: string;
   livingAddress: string;
@@ -63,6 +64,7 @@ const baseApplication: MockApplication = {
   currentSchool: "城中区第三小学",
   currentGrade: "四年级",
   targetGrade: "五年级",
+  remark: null,
   targetSchool: null,
   hukouAddress: "城中区南关街25号",
   livingAddress: "城中区南关街25号",

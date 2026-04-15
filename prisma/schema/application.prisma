@@ -50,6 +50,7 @@ model Application {
   currentSchool String // 当前就读学校
   currentGrade  String // 当前就读年级
   targetGrade   String // 申请转入年级
+  remark        String? // 家长备注
   targetSchool  String? // 审批通过后分配的目标学校
 
   // 5. 地址信息

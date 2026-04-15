@@ -252,13 +252,13 @@ export default async function ApplicationDetailPage({
   );
 
   // 获取 SystemText 数据
-  const [transferNoticeRes, consentFormRes, pendingTextRes] = await Promise.all(
-    [
+  const [transferNoticeRes, consentFormRes, pendingTextRes, supplementTextRes] =
+    await Promise.all([
       getSystemTextByType(app.semesterId, "TRANSFER_NOTICE"),
       getSystemTextByType(app.semesterId, "CONSENT_FORM"),
       getSystemTextByType(app.semesterId, "PENDING_TEXT"),
-    ],
-  );
+      getSystemTextByType(app.semesterId, "SUPPLEMENT_TEXT"),
+    ]);
 
   const printTimeLabel = formatPrintTimeLabel(new Date());
   const pendingLookupUrl = getPendingLookupUrl(app.id, "https://czedu.local");
@@ -340,7 +340,7 @@ export default async function ApplicationDetailPage({
                 {/* 卡片2：房产信息 */}
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-base">2. 房产信息</CardTitle>
+                    <CardTitle className="text-base">2. 房户信息</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm">
                     <div className="grid grid-cols-3 py-1 border-b">
@@ -407,6 +407,14 @@ export default async function ApplicationDetailPage({
                         {app.currentGrade} → {app.targetGrade}
                       </span>
                     </div>
+                    {app.remark && (
+                      <div className="grid grid-cols-3 py-1 border-t">
+                        <span className="text-muted-foreground">备注</span>
+                        <span className="col-span-2 whitespace-pre-wrap break-words">
+                          {app.remark}
+                        </span>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -481,10 +489,11 @@ export default async function ApplicationDetailPage({
             application={app}
             printTimeLabel={printTimeLabel}
             qrCodeDataUrl={qrCodeDataUrl}
-            transferNoticeContent={transferNoticeRes.data?.content ?? null}
-            consentFormContent={consentFormRes.data?.content ?? null}
-            pendingTextContent={pendingTextRes.data?.content ?? null}
-          />
+          transferNoticeContent={transferNoticeRes.data?.content ?? null}
+          consentFormContent={consentFormRes.data?.content ?? null}
+          pendingTextContent={pendingTextRes.data?.content ?? null}
+          supplementTextContent={supplementTextRes.data?.content ?? null}
+        />
         </div>
       </PrintProvider>
     </ImageLightbox>

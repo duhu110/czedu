@@ -18,13 +18,16 @@ type ApplicationPrintSheetProps = {
   transferNoticeContent: string | null;
   consentFormContent: string | null;
   pendingTextContent: string | null;
+  supplementTextContent: string | null;
 };
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div className="grid grid-cols-[80px_1fr] gap-1 border-b border-black/20 py-1.5">
       <span className="font-medium text-[11px]">{label}</span>
-      <span className="text-[12px] whitespace-pre-line break-words">{value}</span>
+      <span className="text-[12px] whitespace-pre-line break-words">
+        {value}
+      </span>
     </div>
   );
 }
@@ -36,8 +39,9 @@ export function ApplicationPrintSheet({
   transferNoticeContent,
   consentFormContent,
   pendingTextContent,
+  supplementTextContent,
 }: ApplicationPrintSheetProps) {
-  const { maskPhone } = usePrintContext();
+  const { maskPhone, printMode } = usePrintContext();
 
   const phone1 = maskPhone
     ? maskPhoneNumber(application.guardian1Phone)
@@ -52,20 +56,32 @@ export function ApplicationPrintSheet({
     application.status,
     application.adminRemark,
   );
-  const pendingStatusLines =
-    pendingTextContent?.trim()
-      ? pendingTextContent.split("\n")
-      : [
-          "您的转学申请已提交，目前正在审核中。",
-          "请关注城中区教育局官方发布的相关消息通知，并可随时扫描右侧二维码查询最新审核进度。",
-        ];
+  const pendingStatusLines = pendingTextContent?.trim()
+    ? pendingTextContent.split("\n")
+    : [
+        "您的转学申请已提交，目前正在审核中。",
+        "请关注城中区教育局官方发布的相关消息通知，并可随时扫描右侧二维码查询最新审核进度。",
+      ];
+  const supplementStatusLines = supplementTextContent?.trim()
+    ? supplementTextContent.split("\n")
+    : [
+        "您的申请审核中发现缺少学籍信息卡。",
+        "请尽快补传学籍信息卡，以免影响审核进度。",
+      ];
 
   return (
-    <section className="hidden print:block print:px-2 print:py-0" data-testid="print-sheet">
+    <section
+      className="hidden print:block print:px-2 print:py-0"
+      data-testid="print-sheet"
+    >
       <div className="mx-auto flex min-h-[calc(297mm-38mm)] max-w-[794px] flex-col border border-black px-6 py-3 text-[12px] leading-relaxed text-black">
         {/* 1. 标题 */}
         <header className="border-b border-black pb-3 text-center">
-          <h1 className="text-xl font-bold">城中区教育局转学申请单</h1>
+          <h1 className="text-xl font-bold">
+            城中区转学申请单
+            {printMode === "archive" && "（留底页）"}
+            {printMode === "parent" && "（家长页）"}
+          </h1>
           <p className="mt-1 text-sm">{application.semester.name}</p>
         </header>
 
@@ -76,7 +92,7 @@ export function ApplicationPrintSheet({
 
         {/* 3. 学生基本信息 */}
         <section className="mt-6" data-testid="print-row-1">
-          <h2 className="border-b border-black pb-1 text-md font-semibold">
+          <h2 className="border-b border-black pb-1 text-sm font-semibold">
             学生基本信息
           </h2>
           <div className="mt-1.5 grid grid-cols-2 gap-x-6 gap-y-0.5">
@@ -125,7 +141,10 @@ export function ApplicationPrintSheet({
               </div>
             </div>
             {/* 右列：审核状态 + 二维码（单列） */}
-            <div className="border-l border-black/20 pl-4" data-testid="print-row-3">
+            <div
+              className="border-l border-black/20 pl-4"
+              data-testid="print-row-3"
+            >
               <h2 className="border-b border-black pb-1 text-sm font-semibold">
                 审核状态
               </h2>
@@ -134,14 +153,24 @@ export function ApplicationPrintSheet({
                 {application.status === "PENDING" && (
                   <div className="text-[11px] leading-snug space-y-0.5">
                     {pendingStatusLines.map((line, i) => (
-                      <p key={i}>{line}</p>
+                      <p key={i}  className="indent-[2em]">{line}</p>
                     ))}
                   </div>
                 )}
                 {application.status === "SUPPLEMENT" && (
                   <div className="text-[12px] leading-snug space-y-0.5">
-                    <p>您的申请审核中发现缺少学籍信息卡。</p>
-                    <p className="font-semibold">请尽快补传，以免影响审核进度。</p>
+                    {supplementStatusLines.map((line, i) => (
+                      <p
+                        key={i}
+                        className={
+                          i === supplementStatusLines.length - 1
+                            ? "font-semibold"
+                            : undefined
+                        }
+                      >
+                        {line}
+                      </p>
+                    ))}
                   </div>
                 )}
                 {application.status === "APPROVED" && (
@@ -154,11 +183,12 @@ export function ApplicationPrintSheet({
                     <p>您的转学申请未通过审核。</p>
                   </div>
                 )}
-                {application.adminRemark && application.status !== "REJECTED" && (
-                  <div className="text-[12px]">
-                    备注：{application.adminRemark}
-                  </div>
-                )}
+                {application.adminRemark &&
+                  application.status !== "REJECTED" && (
+                    <div className="text-[12px]">
+                      备注：{application.adminRemark}
+                    </div>
+                  )}
               </div>
               {/* 二维码 */}
               <div className="mt-3 flex flex-col items-center gap-1">
@@ -176,10 +206,12 @@ export function ApplicationPrintSheet({
                       />
                     </>
                   ) : (
-                    <span className="text-[9px] text-gray-500">二维码生成失败</span>
+                    <span className="text-[9px] text-gray-500">
+                      二维码生成失败
+                    </span>
                   )}
                 </div>
-                <span className="text-[9px]">扫码查看进度</span>
+                <span className="text-[9px]">扫码查看分配结果</span>
               </div>
             </div>
           </div>
@@ -191,11 +223,16 @@ export function ApplicationPrintSheet({
             转学须知
           </h2>
           <div className="mt-1.5 text-[18px] leading-snug">
-            {transferNoticeContent
-              ? transferNoticeContent.split("\n").map((line, i) => (
-                  <p key={i} className="indent-[2em]">{line}</p>
-                ))
-              : <p>暂未设置转学须知</p>}
+            <p>尊敬的家长：</p>
+            {transferNoticeContent ? (
+              transferNoticeContent.split("\n").map((line, i) => (
+                <p key={i} className="indent-[2em]">
+                  {line}
+                </p>
+              ))
+            ) : (
+              <p>暂未设置转学须知</p>
+            )}
           </div>
         </section>
 
@@ -205,13 +242,17 @@ export function ApplicationPrintSheet({
             转学知情同意书
           </h2>
           <div className="mt-1.5 text-[18px] leading-normal">
-            {consentFormContent
-              ? `我是申请转学学生${application.name}的家长，${consentFormContent}`
-                  .split("\n")
-                  .map((line, i) => (
-                    <p key={i} className="indent-[2em]">{line}</p>
-                  ))
-              : <p>暂未设置转学知情同意书</p>}
+            {consentFormContent ? (
+              `我是申请转学学生${application.name}的家长，${consentFormContent}`
+                .split("\n")
+                .map((line, i) => (
+                  <p key={i} className="indent-[2em]">
+                    {line}
+                  </p>
+                ))
+            ) : (
+              <p>暂未设置转学知情同意书</p>
+            )}
           </div>
         </section>
         {/* 7. 签字区 — 始终贴底 */}

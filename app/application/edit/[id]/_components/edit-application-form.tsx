@@ -13,6 +13,7 @@ import {
   GRADE_OPTIONS,
   GUARDIAN_RELATION_OPTIONS,
   PROPERTY_TYPE_OPTIONS,
+  type ApplicationFormValues,
   type ApplicationInput,
 } from "@/lib/validations/application";
 import { submitApplicationEdit } from "@/app/actions/application";
@@ -43,6 +44,12 @@ interface EditApplicationFormProps {
   application: DeserializedApplication;
   rejectedFields: string[];
 }
+
+type EditApplicationFormHook = UseFormReturn<
+  ApplicationFormValues,
+  unknown,
+  ApplicationInput
+>;
 
 /** 检查字段路径是否在驳回列表中 */
 function isRejected(field: string, rejectedFields: string[]): boolean {
@@ -75,21 +82,21 @@ function RejectedFieldWrapper({
 function computeDefaultValues(
   app: DeserializedApplication,
   rejectedFields: string[],
-): ApplicationInput {
+): ApplicationFormValues {
   const r = (field: string) => isRejected(field, rejectedFields);
 
   return {
     semesterId: app.semesterId,
     residencyType: r("residencyType")
-      ? ("LOCAL" as ApplicationInput["residencyType"])
-      : (app.residencyType as ApplicationInput["residencyType"]),
+      ? ("LOCAL" as ApplicationFormValues["residencyType"])
+      : (app.residencyType as ApplicationFormValues["residencyType"]),
     propertyType: r("propertyType")
-      ? ("PURCHASE" as ApplicationInput["propertyType"])
-      : ((app.propertyType || "PURCHASE") as ApplicationInput["propertyType"]),
+      ? ("PURCHASE" as ApplicationFormValues["propertyType"])
+      : ((app.propertyType || "PURCHASE") as ApplicationFormValues["propertyType"]),
     name: r("name") ? "" : app.name,
     gender: r("gender")
-      ? ("MALE" as ApplicationInput["gender"])
-      : (app.gender as ApplicationInput["gender"]),
+      ? ("MALE" as ApplicationFormValues["gender"])
+      : (app.gender as ApplicationFormValues["gender"]),
     ethnicity: r("ethnicity") ? "汉族" : app.ethnicity,
     idCard: r("idCard") ? "" : app.idCard,
     studentId: r("studentId") ? "" : app.studentId,
@@ -102,6 +109,7 @@ function computeDefaultValues(
     currentSchool: r("currentSchool") ? "" : app.currentSchool,
     currentGrade: r("currentGrade") ? "" : app.currentGrade,
     targetGrade: r("targetGrade") ? "" : app.targetGrade,
+    remark: r("remark") ? "" : (app.remark || ""),
     hukouAddress: r("hukouAddress") ? "" : app.hukouAddress,
     livingAddress: r("livingAddress") ? "" : app.livingAddress,
     fileHukou: {
@@ -129,7 +137,7 @@ export function EditApplicationForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<ApplicationInput>({
+  const form = useForm<ApplicationFormValues, unknown, ApplicationInput>({
     resolver: zodResolver(applicationSchema),
     defaultValues: computeDefaultValues(application, rejectedFields),
   });
@@ -146,7 +154,7 @@ export function EditApplicationForm({
     }
   }, [residencyType, form]);
 
-  const onInvalid = useCallback((errors: FieldErrors<ApplicationInput>) => {
+  const onInvalid = useCallback((errors: FieldErrors<ApplicationFormValues>) => {
     let count = 0;
     const walk = (obj: unknown) => {
       if (!obj || typeof obj !== "object") return;
@@ -828,7 +836,7 @@ function EditPropertyUploadSection({
   form,
   rejectedFields,
 }: {
-  form: UseFormReturn<ApplicationInput>;
+  form: EditApplicationFormHook;
   rejectedFields: string[];
 }) {
   const fpErrors = form.formState.errors.fileProperty;

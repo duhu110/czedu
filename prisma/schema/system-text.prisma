@@ -4,6 +4,7 @@ enum SystemTextType {
   TRANSFER_NOTICE
   CONSENT_FORM
   PENDING_TEXT
+  SUPPLEMENT_TEXT
 }
 
 model SystemText {

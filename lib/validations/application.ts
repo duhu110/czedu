@@ -8,11 +8,10 @@ const idCardRegex =
 const chineseNameRegex = /^[\u4e00-\u9fa5][\u4e00-\u9fa5·]{0,18}[\u4e00-\u9fa5]$/;
 // 全国学籍号：以 G 或 L 开头，后跟18位数字（或纯数字格式）
 const studentIdRegex = /^[GL]?\d{10,19}$/;
-const optionalTrimmedString = z.preprocess(
-  (value) =>
-    typeof value === "string" ? (value.trim() || undefined) : value,
-  z.string().optional(),
-);
+const optionalTrimmedString = z.string().optional().transform((value) => {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : undefined;
+});
 
 // 年级选项
 export const GRADE_OPTIONS = [
@@ -177,6 +176,7 @@ export const applicationSchema = z
     currentSchool: z.string().min(2, "请输入当前就读学校"),
     currentGrade: z.string().min(1, "请输入当前年级"),
     targetGrade: z.string().min(1, "请输入申请转入年级"),
+    remark: optionalTrimmedString,
 
     hukouAddress: z.string().min(5, "请输入详细的户籍地址"),
     livingAddress: z.string().min(5, "请输入详细的居住地址"),
@@ -252,7 +252,8 @@ export const applicationApprovalSchema = z
   });
 
 // 导出类型
-export type ApplicationInput = z.infer<typeof applicationSchema>;
+export type ApplicationFormValues = z.input<typeof applicationSchema>;
+export type ApplicationInput = z.output<typeof applicationSchema>;
 export type FileHukouInput = z.infer<typeof fileHukouSchema>;
 export type FilePropertyInput = z.infer<typeof filePropertySchema>;
 export type ApplicationSupplementInput = z.infer<
