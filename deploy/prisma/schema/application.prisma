@@ -3,6 +3,11 @@ enum ResidencyType {
   NON_LOCAL
 }
 
+enum PropertyType {
+  PURCHASE
+  RENT
+}
+
 enum Gender {
   MALE
   FEMALE
@@ -43,6 +48,7 @@ model Application {
 
   hukouAddress  String
   livingAddress String
+  propertyType  PropertyType @default(PURCHASE)
 
   fileHukou       String  @default("[]")
   fileProperty    String  @default("[]")
